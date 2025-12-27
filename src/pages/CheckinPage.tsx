@@ -211,6 +211,7 @@ export default function CheckinPage() {
       expected_check_out_time: expectedCheckout,
       stay_type: stayType.id,
       rate_applied: rateToUse,
+      hour_count : hourCount,
       no_of_guests: noOfGuests,
       notes: notes || null,
       extra_time : extraTime
@@ -400,7 +401,7 @@ export default function CheckinPage() {
             {availableRooms.map((r) => (
               <option key={r.id} value={r.id}>
                 {r.room_number} — {r.room_type} — ₹
-                {stayType.hours === 1
+                {stayType?.hours === 1
                   ? r.room_hourly_rate ?? 0
                   : r.room_full_rate ?? 0}
               </option>
@@ -455,6 +456,7 @@ export default function CheckinPage() {
           {stayType?.label.toLowerCase() === "hourly" && (
             <>
               <label className="block text-sm mb-1">No. of Hours</label>
+
               <input
                 type="number"
                 min={1}
@@ -463,6 +465,7 @@ export default function CheckinPage() {
                 className="w-full border p-2 rounded mb-2"
                 placeholder="Hours"
               />
+
             </>
           )}
 

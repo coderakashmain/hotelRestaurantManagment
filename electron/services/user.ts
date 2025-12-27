@@ -21,11 +21,13 @@ export const createUser = (data: {
     );
 }
 
-export const listUsers = () => {
-  return db.prepare(`
+export const listUsers = (_payload?: any) => {
+  const userdta = db.prepare(`
     SELECT id, name, username, email, role, is_active
     FROM user_account
     ORDER BY created_at DESC
   `).all();
-};
+  
+  return userdta;
+}; 
 

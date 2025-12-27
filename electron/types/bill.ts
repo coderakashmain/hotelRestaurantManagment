@@ -42,6 +42,7 @@ export interface BillDetails {
     fixed_time?: string | null;
     rate_applied?: number | null;
     extra_time?: number | null;
+    hour_count?: number | null;
   };
   extraSummary: Array<{
     id: number;
@@ -50,6 +51,7 @@ export interface BillDetails {
     amount: number;
     quantity: number;
     total: number;
+    added_at: string;
   }>;
   payments: Array<{
     id: number;
@@ -67,4 +69,13 @@ export interface BillDetails {
     created_at: string;
     reference_no?: string | null;
   } | null;
+
+  detaildatewise: Array<{
+    id: number;
+    summary_date: string;
+    room_charge: number;
+    extra_charge: number;
+    advance_total: number;
+  }> | null;
+  finalTable?: any;
 }

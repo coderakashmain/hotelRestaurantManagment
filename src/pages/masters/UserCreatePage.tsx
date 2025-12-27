@@ -21,7 +21,7 @@ export default function UserCreatePage() {
 
     alert("User Created Successfully!");
        reloadYears();
-    navigate("/"); // redirect to login after setup
+    navigate("/hotel"); // redirect to login after setup
  
   };
 

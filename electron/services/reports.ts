@@ -3,7 +3,8 @@ import { getDb } from "../db/database";
 
 const db = getDb();
 
-export const getDailyRevenue = (date: string) => {
+export const getDailyRevenue = (payload: string | { date: string }) => {
+  const date = typeof payload === "string" ? payload : payload.date;
   return db
     .prepare(
       `SELECT
@@ -20,7 +21,7 @@ export const getDailyRevenue = (date: string) => {
     .get(date);
 };
 
-export const getOutstandingBills = () => {
+export const getOutstandingBills = (_payload?: any) => {
   return db
     .prepare(
       `SELECT b.*, g.full_name AS guest_name, r.room_number
@@ -33,7 +34,11 @@ export const getOutstandingBills = () => {
     .all();
 };
 
-export const getOccupancyReport = (from: string, to: string) => {
+export const getOccupancyReport = (data: {
+  from: string;
+  to: string;
+}) => {
+  const {from,to} = data;
   return db
     .prepare(
       `SELECT r.room_number,

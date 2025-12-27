@@ -1,17 +1,19 @@
+import { useNavigate } from "react-router";
+import { useMrData } from "../../context/MrDataContext";
+import { numberToWords } from "../../utils/numberToWords";
+
 export default function MoneyReceiptPrint({
-  data,
-  viewFor,
-  onClose,
+  viewFor = 'CUSTOMER'
 }: {
-  data: any;
   viewFor: string;
-  onClose: () => void;
 }) {
   const printDoc = () => window.print();
+  const {mrData :data} = useMrData();
+  const navigate = useNavigate();
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-[99999] print:bg-white print:shadow-none">
-      <div className="bg-white w-[700px] p-8 border rounded print:w-full print:p-8 print:border-none">
+    <div className=" inset-0 bg-white flex justify-center items-center z-[99999] print:bg-white print:shadow-none overflow-auto">
+      <div className=" w-[700px] p-8 border  print:w-full print:p-8 print:border-none">
         {/* HEADER */}
         <div className="flex justify-between">
           <div>
@@ -40,27 +42,31 @@ export default function MoneyReceiptPrint({
         </h2>
 
         {/* BODY */}
-        <p className="mt-4 text-[15px]">
+        <span className="mt-4 text-[15px] ">
           Received with thanks from <strong className="underline">{data.guest_name}</strong>, the sum
           of
           <strong> ₹{data.amount}</strong>.
-        </p>
+        </span>
 
-        <p className="mt-2 text-[15px]">
+        <span className="mt-2 text-[15px] ">
           Payment made by <strong className="underline">{data.method}</strong> on
           <strong> {new Date(data.created_at).toLocaleDateString()}</strong>.
-        </p>
+        </span>
 
-        <p className="mt-2 text-[15px]">
+        <span className="mt-2 text-[15px]">
           Towards <strong className="underline">{data.payment_type} payment</strong>.
-        </p>
+        </span>
 
         {/* AMOUNT BOX */}
-        <div className="border border-black w-[300px] p-2 mt-3 text-[15px]">
-          <strong>Rs.</strong>
+        <div className="border border-black w-[300px] px-2 py-1 mt-3 text-[15px]">
+       
           <div className="border-b border-black mt-1 text-lg font-bold">
             ₹ {data.amount}
           </div>
+        </div>
+
+        <div>
+          <p className="text-sm">{numberToWords(data.amount)}</p>
         </div>
 
         {/* SIGNATURES */}
@@ -76,7 +82,7 @@ export default function MoneyReceiptPrint({
 
       {/* BUTTONS */}
       <div className="fixed bottom-5 right-5 gap-4 flex print:hidden">
-        <button onClick={onClose} className="px-4 py-2 border rounded text-gray border-gray cursor-pointer">
+        <button onClick={()=> navigate(-1)} className="px-4 py-2 border rounded text-gray border-gray cursor-pointer">
           Close
         </button>
         <button

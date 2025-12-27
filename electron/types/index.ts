@@ -17,4 +17,5 @@ export * from "./financialYear";
 export * from './roomTypes'
 export * from './checkOutSetting'
 export * from './gst'
+export * from './policeReport'
 

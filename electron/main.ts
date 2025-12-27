@@ -3,6 +3,8 @@ import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 import { initDatabase } from "./db/database"
 
+import { enableAutoStart } from './start/autoLaunch'
+
 
 // Fix __dirname in ESM
 const __filename = fileURLToPath(import.meta.url)
@@ -25,6 +27,10 @@ let win: BrowserWindow | null
 
 function createWindow() {
   win = new BrowserWindow({
+    width: 1200,
+    height: 800,
+    frame: false, 
+    titleBarStyle: 'hidden',
     icon: path.join(process.env.VITE_PUBLIC as string, 'electron-vite.svg'),
     autoHideMenuBar: true,
     webPreferences: {
@@ -53,13 +59,26 @@ function createWindow() {
 ============================= */
 
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
 
   //  Initialize SQLite safely
   initDatabase()
+  import("./ipc/index");
 
+
+  enableAutoStart();
+
+
+
+const { runDailyBilling } = await import("./cron/runDailyBilling");
+  const { startDailyBillingCron } = await import("./cron/dailyBillingCron");
+
+
+  await runDailyBilling();
   // Load IPC modules
-  import("./ipc/index")
+
+  startDailyBillingCron();
+
 
   createWindow()
 })

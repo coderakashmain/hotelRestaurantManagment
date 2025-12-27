@@ -36,6 +36,7 @@ export const createBillForCheckin = (data: {
 
 
   recalcBillTotals(billId);
+
   return billId;
 };
 
@@ -44,7 +45,8 @@ export const createBillForCheckin = (data: {
 /* ============================
    GET BILL WITH FULL DETAILS
    ============================ */
-export const getBillById = (id: number): BillDetails | undefined => {
+export const getBillById = (payload: number | { id: number }): BillDetails | undefined => {
+  const id = typeof payload === "number" ? payload : payload.id;
   recalcBillTotals(id);
 
   const bill = db.prepare(`
@@ -60,6 +62,7 @@ export const getBillById = (id: number): BillDetails | undefined => {
            c.stay_type,
            c.rate_applied,
            c.extra_time,
+           c.hour_count,
            co.label AS stay_label,
            co.hours AS stay_hours,
            co.time AS fixed_time
@@ -81,6 +84,7 @@ export const getBillById = (id: number): BillDetails | undefined => {
     fixed_time?: string | null;
     rate_applied?: number | null;
     extra_time?: number | null;
+    hour_count?: number | null;
   });
 
   if (!bill) return undefined;
@@ -93,7 +97,8 @@ export const getBillById = (id: number): BillDetails | undefined => {
       bt.gst_applicable,
       COALESCE(eb.amount, 0) AS amount,
       COALESCE(eb.quantity, 0) AS quantity,
-      COALESCE(eb.total, 0) AS total
+      COALESCE(eb.total, 0) AS total,
+      eb.added_at
     FROM bill_type bt
     LEFT JOIN extra_bill eb 
       ON bt.id = eb.bill_type_id AND eb.bill_id = ?
@@ -117,6 +122,97 @@ export const getBillById = (id: number): BillDetails | undefined => {
     LIMIT 1
   `).get(id) as BillDetails["latestPayment"];
 
+  const detaildatewise = db.prepare(`
+    SELECT id, summary_date, room_charge, extra_charge, advance_total
+    FROM daily_summary
+    WHERE bill_id = ?
+    ORDER BY summary_date ASC
+  `).all(id) as BillDetails["detaildatewise"];
+  // -------------------- FETCH EXTRA DATEWISE --------------------
+  const extraDatewise = db.prepare(`
+  SELECT 
+    eb.bill_id,
+    eb.bill_type_id,
+    bt.name AS type_name,
+    DATE(eb.added_at) AS summary_date,
+    COALESCE(eb.total, 0) AS total
+  FROM extra_bill eb
+  JOIN bill_type bt ON bt.id = eb.bill_type_id
+  WHERE eb.bill_id = ?
+  ORDER BY summary_date ASC
+`).all(id);
+
+  // -------------------- FETCH ADVANCE DATEWISE --------------------
+  const advanceDatewise = db.prepare(`
+  SELECT 
+    DATE(created_at) AS summary_date,
+    SUM(amount) AS total_advance
+  FROM payment
+  WHERE bill_id = ? AND payment_type = 'ADVANCE'
+  GROUP BY DATE(created_at)
+`).all(id);
+
+
+  // -------------------- START BUILDING TABLE --------------------
+  const tableRows: any = {};
+
+  // Normalize daily summary (room + extra total)
+  detaildatewise?.forEach(row => {
+    const dateKey = row.summary_date.slice(0, 10); // "YYYY-MM-DD"
+
+    tableRows[dateKey] = {
+      date: dateKey,
+      room_fee: row.room_charge,
+      extra: {},
+      total: row.room_charge + row.extra_charge,
+      advance: 0 // override later using payment table
+    };
+  });
+
+  // -------------------- MERGE EXTRA CHARGES --------------------
+  extraDatewise.forEach((e: any) => {
+    const dateKey = e.summary_date;
+
+    if (!tableRows[dateKey]) {
+      tableRows[dateKey] = {
+        date: dateKey,
+        room_fee: 0,
+        extra: {},
+        total: 0,
+        advance: 0
+      };
+    }
+
+    tableRows[dateKey].extra[e.type_name] =
+      (tableRows[dateKey].extra[e.type_name] || 0) + e.total;
+
+  });
+
+
+  // -------------------- MERGE ADVANCE CHARGES --------------------
+  advanceDatewise.forEach((a: any) => {
+    const dateKey = a.summary_date;
+
+    if (!tableRows[dateKey]) {
+      tableRows[dateKey] = {
+        date: dateKey,
+        room_fee: 0,
+        extra: {},
+        total: 0,
+        advance: a.total_advance
+      };
+    } else {
+      tableRows[dateKey].advance = a.total_advance;
+    }
+  });
+
+
+  // -------------------- FINAL TABLE --------------------
+  const finalTable = Object.values(tableRows);
+
+
+
+
   return {
     bill,
     guest: {
@@ -135,38 +231,43 @@ export const getBillById = (id: number): BillDetails | undefined => {
       fixed_time: bill.fixed_time,
       rate_applied: bill.rate_applied,
       extra_time: bill.extra_time,
+      hour_count: bill.hour_count,
     },
     extraSummary,
     payments,
     latestPayment,
+    detaildatewise,
+    finalTable
   };
 };
 //Update discount 
 
-export const updateDiscount = (
-  billId: number,
-  value: number,
-  type: "FLAT" | "PERCENT"
-) => {
+export const updateDiscount = (data: {
+  bill_id: number;
+  value: number;
+  type: "FLAT" | "PERCENT";
+}) => {
+
+  const { bill_id, value, type } = data;
 
   const bill = db.prepare(`
     SELECT room_charge_total, extra_charge_total, final_amount
     FROM bill WHERE id = ?
-  `).get(billId) as {
+  `).get(bill_id) as {
     final_amount: number;
     room_charge_total: number;
     extra_charge_total: number;
   } | undefined;
 
   if (!bill) return;
-  const total_amount = bill.room_charge_total + bill.extra_charge_total;
 
-  let discountAmount;
+  const total_amount = bill.room_charge_total + bill.extra_charge_total;
+  let discountAmount = 0;
 
   if (type === "PERCENT") {
-    discountAmount =
-      ((total_amount) * value) / 100;
+    discountAmount = (total_amount * value) / 100;
   }
+
   if (type === "FLAT") {
     discountAmount = value;
   }
@@ -175,9 +276,9 @@ export const updateDiscount = (
     UPDATE bill 
     SET discount = ?, updated_at = datetime('now')
     WHERE id = ?
-  `).run(discountAmount, billId);
+  `).run(discountAmount, bill_id);
 
-  return recalcBillTotals(billId);
+  return recalcBillTotals(bill_id);
 };
 
 
@@ -207,22 +308,32 @@ export const getBillByRoomId = (roomId: number): any | undefined => {
    ADD EXTRA CHARGE
    (returns recalculated bill)
    ============================ */
-export const addExtraCharge = async (
-  billId: number,
-  billTypeId: number,
-  description: string,
-  amount: number,
-  quantity = 1,
-  added_by?: number
-): Promise<Bill> => {
+export const addExtraCharge = async (data: {
+  bill_id: number;
+  bill_type_id: number;
+  description: string;
+  amount: number;
+  quantity?: number;
+  added_by?: number;
+}): Promise<Bill> => {
+
+  const {
+    bill_id,
+    bill_type_id,
+    description,
+    amount,
+    quantity = 1,
+    added_by
+  } = data;
+
   const trx = db.transaction(() => {
     db.prepare(`
       INSERT INTO extra_bill
         (bill_id, bill_type_id, description, amount, quantity, total, added_by, added_at)
       VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'))
     `).run(
-      billId,
-      billTypeId,
+      bill_id,
+      bill_type_id,
       description || null,
       amount,
       quantity,
@@ -230,16 +341,31 @@ export const addExtraCharge = async (
       added_by ?? null
     );
 
+    const checkIn = db.prepare(`
+      SELECT rate_applied FROM check_in
+      WHERE id = (SELECT check_in_id FROM bill WHERE id = ?)
+    `).get(bill_id) as { rate_applied: number };
 
-    // trigger will update extra_charge_total, but ensure final totals are recalculated
-    return billId;
+    const today = new Date().toISOString().slice(0, 10);
+
+    db.prepare(`
+      INSERT INTO daily_summary 
+        (bill_id, summary_date, extra_charge, room_charge)
+      VALUES (?, ?, ?, ?)
+    `).run(
+      bill_id,
+      today,
+      amount * quantity,
+      checkIn.rate_applied
+    );
+
+    return bill_id;
   });
 
-  const savedBillId = trx(); //  synchronous insert success
-
-  //  recalc AFTER transaction, async safe
+  const savedBillId = trx();
   return await recalcBillTotals(savedBillId);
 };
+
 
 /* ============================
    ADD PAYMENT (ADVANCE / FINAL / REFUND)
@@ -267,22 +393,35 @@ export const getMoneyReceipt = (mrId: number) => {
   `).get(mrId);
 };
 
-export const addPayment = async (
-  billId: number,
-  guestId: number,
-  payment_type: "ADVANCE" | "FINAL" | "REFUND",
-  amount: number,
-  method = "CASH",
-  reference_no?: string,
-  note?: string
-): Promise<any> => {
+export const addPayment = async (data: {
+  bill_id: number;
+  guest_id: number;
+  payment_type: "ADVANCE" | "FINAL" | "REFUND";
+  amount: number;
+  method?: string;
+  reference_no?: string;
+  note?: string;
+}): Promise<any> => {
+
+  const {
+    bill_id,
+    guest_id,
+    payment_type,
+    amount,
+    method = "CASH",
+    reference_no,
+    note
+  } = data;
+
   if (amount <= 0) throw new Error("Amount must be > 0");
 
   const trx = db.transaction(() => {
 
     const checkIn = db.prepare(`
-      SELECT checkin_id FROM check_in WHERE id = (SELECT check_in_id FROM bill WHERE id = ?)
-    `).get(billId) as { checkin_id: string };
+      SELECT checkin_id, rate_applied
+      FROM check_in
+      WHERE id = (SELECT check_in_id FROM bill WHERE id = ?)
+    `).get(bill_id) as { checkin_id: string; rate_applied: number };
 
     if (!checkIn) throw new Error("CheckIn not found for bill");
 
@@ -291,8 +430,8 @@ export const addPayment = async (
         (bill_id, guest_id, payment_type, amount, method, reference_no, note, created_at)
       VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'))
     `).run(
-      billId,
-      guestId,
+      bill_id,
+      guest_id,
       payment_type,
       amount,
       method,
@@ -305,35 +444,47 @@ export const addPayment = async (
         (bill_id, GUID, guest_id, amount, method, reference_no, payment_type)
       VALUES (?, ?, ?, ?, ?, ?, ?)
     `).run(
-      billId,
+      bill_id,
       checkIn.checkin_id,
-      guestId,
+      guest_id,
       amount,
       method,
       reference_no ?? null,
       payment_type
     );
+
     const mrId = Number(res.lastInsertRowid);
+    const today = new Date().toISOString().slice(0, 10);
 
+    db.prepare(`
+      INSERT INTO daily_summary 
+        (bill_id, summary_date, advance_total, room_charge)
+      VALUES (?, ?, ?, ?)
+    `).run(
+      bill_id,
+      today,
+      amount,
+      checkIn.rate_applied
+    );
 
-    return { savedBillId: billId, mrId };
+    return { savedBillId: bill_id, mrId };
   });
 
   const { savedBillId, mrId } = trx();
 
   await recalcBillTotals(savedBillId);
-
-
   return getMoneyReceipt(mrId);
 };
 
 
 
-function calculateStayCharge(checkIn: any, room: any, stayRule: any): number {
+
+export const calculateStayCharge = async (checkIn: any, room: any, stayRule: any): Promise<number> => {
   if (!checkIn || !room || !stayRule) return 0;
 
   const checkInTime = new Date(checkIn.check_in_time);
   const actualOut = checkIn.check_out_time ? new Date(checkIn.check_out_time) : new Date();
+
 
   const appliedRate = Number(checkIn.rate_applied || 0);
   const allowedExtraMinutes = Number(checkIn.extra_time || 0);
@@ -342,28 +493,39 @@ function calculateStayCharge(checkIn: any, room: any, stayRule: any): number {
   const fixedTime = stayRule.time;     // "12:00", "08:00", null
 
   let baseRate = appliedRate;
-
+  let rate = appliedRate;
 
   if (hours === 1) {
     const stayMinutes =
       (actualOut.getTime() - checkInTime.getTime()) / 60000;
 
-    // 1️ Base hours from pure 60-min blocks
-    let slots = Math.floor(stayMinutes / 60);
+    const hourCount = Number(checkIn.hour_count || 1);
+    const bundleMinutes = hourCount * 60;
+    const extraMinutes = allowedExtraMinutes || 0;
 
-    // Minimum 1 hour charge
-    if (slots < 1) slots = 1;
+    // Calculate how many bundles are needed
+    let bundles = Math.floor(stayMinutes / bundleMinutes);
+    if (bundles < 1) bundles = 1;
 
-    // 2️ Max minutes allowed for these slots (with extraMinutes)
-    const maxMinutesForSlots = slots * 60 + allowedExtraMinutes;
+    // Max minutes allowed for these bundles
+    const maxAllowed =
+      bundles * bundleMinutes + extraMinutes;
 
-    // 3️ If guest crosses allowed time, charge next hour
-    if (stayMinutes > maxMinutesForSlots) {
-      slots += 1;
+    // If crossed grace → move to next bundle
+    if (stayMinutes > maxAllowed) {
+      bundles += 1;
     }
 
-    return slots * Number(room.hourly_rate);
+    const totalCharge = bundles * appliedRate;
+
+
+    await updateSummaryTable(checkIn.id, totalCharge)
+
+    return totalCharge;
   }
+  const isSameDay =
+    actualOut.toDateString() === checkInTime.toDateString();
+
 
 
   if (hours === 24 || hours === 12) {
@@ -374,13 +536,47 @@ function calculateStayCharge(checkIn: any, room: any, stayRule: any): number {
 
 
 
-    if (stayMinutes <= 0) return baseRate;
+    if (stayMinutes <= 0) {
+      await updateSummaryTable(checkIn.id, rate)
+      return baseRate;
+    }
 
     // 2️ First block includes extraMinutes
     const firstBlockLimit = baseBlockMinutes + extraMinutes;
+
     // 3️ If stay fits in first block -> 1 day charge
+
     if (stayMinutes <= firstBlockLimit) {
+
+      if (isSameDay) {
+        await updateSummaryTable(checkIn.id, appliedRate);
+      } else {
+        await updateSummaryTable(checkIn.id, 0);
+      }
       return baseRate;
+    }
+    const blocksPassed = Math.floor(stayMinutes / baseBlockMinutes);
+
+    const todayBlockStart = new Date(checkInTime);
+    todayBlockStart.setMinutes(
+      todayBlockStart.getMinutes() + blocksPassed * baseBlockMinutes
+    );
+
+    const todayBlockEnd = new Date(todayBlockStart);
+    todayBlockEnd.setMinutes(
+      todayBlockEnd.getMinutes() + baseBlockMinutes + extraMinutes
+    );
+    const chargeStartTime = new Date(todayBlockStart);
+    chargeStartTime.setMinutes(
+      chargeStartTime.getMinutes() + extraMinutes
+    );
+
+    if (actualOut < chargeStartTime) {
+      // before block start + grace
+      await updateSummaryTable(checkIn.id, 0);
+    } else {
+      // crossed today's block
+      await updateSummaryTable(checkIn.id, appliedRate);
     }
 
     // 4️ Beyond first block: only pure baseBlockMinutes are charged
@@ -393,39 +589,74 @@ function calculateStayCharge(checkIn: any, room: any, stayRule: any): number {
 
 
   if (!hours && fixedTime) {
-    const expectedOut = new Date(checkInTime);
+
+    let expectedOut = new Date(checkInTime);
     const [fh, fm] = fixedTime.split(":").map(Number);
     expectedOut.setHours(fh, fm || 0, 0, 0);
 
-    // Next day handling
+    // checkout must be next day if fixed time already passed
     if (expectedOut <= checkInTime) {
       expectedOut.setDate(expectedOut.getDate() + 1);
     }
 
-    const stayMinutes = (actualOut.getTime() - expectedOut.getTime()) / 60000;
+    const stayMinutes =
+      (actualOut.getTime() - expectedOut.getTime()) / 60000;
 
-    // 1️ If they leave on/before scheduled time → always 1 day
+    // 1️ Left before or on time
     if (stayMinutes <= 0) {
-      return baseRate;
+
+      updateSummaryTable(checkIn.id, appliedRate);
+      return appliedRate;
     }
 
-    // 2️ If they leave within extra minutes → still no extra block
+    // 2️ Grace period
     if (stayMinutes <= allowedExtraMinutes) {
-      return baseRate;
+      updateSummaryTable(checkIn.id, 0);
+      return appliedRate;
     }
 
-    // 3️ Beyond extended checkout → calculate extra blocks just like 24/12
-    // Each extra block = full baseRate
-    let slots = Math.ceil((stayMinutes - allowedExtraMinutes) / (60 * 24));
-    // But since first day already charged:
-    return baseRate * (1 + slots);
+    // 3️ FIXED TIME CROSSING → FULL DAY CHARGED
+    const extraDays =
+      Math.ceil((stayMinutes - allowedExtraMinutes) / (24 * 60));
+
+    updateSummaryTable(checkIn.id, appliedRate);
+
+
+    const finalrate = appliedRate * (1 + extraDays);
+
+
+    return finalrate;
   }
 
-
-  return baseRate;
+  await updateSummaryTable(checkIn.id, appliedRate);
+  return appliedRate;
 }
 
 
+export const updateSummaryTable = async (checkin_id: number, appliedRate: number) => {
+
+
+
+  const bill = db.prepare("SELECT id FROM bill WHERE check_in_id = ?").get(checkin_id) as { id: number };
+  // const todayData = new Date().toISOString().slice(0, 10);
+  const date = new Date().toLocaleDateString("en-CA");
+
+
+  const summary_data = db.prepare(`select id from daily_summary where bill_id = ? and summary_date = ?`).get(bill.id, date) as any;
+
+  if (!summary_data) {
+    db.prepare(`
+      INSERT INTO daily_summary (bill_id, summary_date, room_charge)
+      VALUES (?, ?, ?)
+    `).run(bill.id, date, appliedRate);
+  } else {
+
+    db.prepare(`
+      UPDATE daily_summary set room_charge = ? WHERE id = ?;
+      `).run(appliedRate, summary_data.id)
+  }
+
+}
 
 
 export const recalcBillTotals = async (billId: number): Promise<Bill> => {
@@ -435,6 +666,10 @@ export const recalcBillTotals = async (billId: number): Promise<Bill> => {
 
   const checkIn = db.prepare("SELECT * FROM check_in WHERE id = ?").get(bill.check_in_id) as CheckIn;
   if (!checkIn) throw new Error("CheckIn not found");
+
+
+
+
 
   const room = db.prepare("SELECT * FROM room WHERE id = ?").get(bill.room_id);
 
@@ -453,12 +688,12 @@ export const recalcBillTotals = async (billId: number): Promise<Bill> => {
   const discount = Number(bill.discount || 0);
   const gst_value = db.prepare("SELECT * FROM gst_management WHERE is_active = 1 ORDER BY id DESC LIMIT 1").get() as any;
   let tax = 0;
-  if(gst_value){
-    tax = Number(roomCharge + extraChargeTotal - discount) * (Number(gst_value?.gst_percent || 0) / 100) ;
-  }else{
+  if (gst_value) {
+    tax = Number(roomCharge + extraChargeTotal - discount) * (Number(gst_value?.gst_percent || 0) / 100);
+  } else {
     tax = bill.tax_total || 0;
   }
-  
+
 
 
   const final_amount = Number(roomCharge || 0) + Number(extraChargeTotal || 0) - discount + tax;
@@ -495,13 +730,18 @@ export const recalcBillTotals = async (billId: number): Promise<Bill> => {
           payment_status = ?,
           updated_at = datetime('now')
       WHERE id = ?
-    `).run(roomCharge, extraChargeTotal, final_amount, tax,paid, adv, balance, status, billId);
+    `).run(roomCharge, extraChargeTotal, final_amount, tax, paid, adv, balance, status, billId);
 
     return db.prepare("SELECT * FROM bill WHERE id = ?").get(billId) as Bill;
   });
 
   return trx();
 };
+
+//Daily Bill Summary
+
+
+
 
 
 /* ============================

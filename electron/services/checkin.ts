@@ -36,6 +36,7 @@ export const createCheckIn = (data: {
   expected_check_out_time?: string | null;
   stay_type?: number;
   rate_applied?: number;
+  hour_count?:number;
   no_of_guests?: number;
   extra_time : number;
 }) => {
@@ -51,9 +52,9 @@ export const createCheckIn = (data: {
     const res = db.prepare(`
       INSERT INTO check_in
         (checkin_id, guest_id, room_id, check_in_time, expected_check_out_time,
-         stay_type, rate_applied, no_of_guests, financial_year_id,
+         stay_type, rate_applied,hour_count, no_of_guests, financial_year_id,
          status, created_at, updated_at,extra_time)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'ACTIVE', datetime('now'), datetime('now'), ?)
+      VALUES (?, ?, ?, ?, ?, ?,?, ?, ?, ?, 'ACTIVE', datetime('now'), datetime('now'), ?)
     `).run(
       checkinIdString,
       d.guest_id,
@@ -62,6 +63,7 @@ export const createCheckIn = (data: {
       d.expected_check_out_time ?? null,
      d.stay_type ?? null,  
       d.rate_applied ?? 0,
+      d.hour_count ?? 1,
       d.no_of_guests ?? 1,
       fy.id,
       d.extra_time
@@ -79,7 +81,17 @@ export const createCheckIn = (data: {
       financial_year_id: fy.id
     });
 
-       console.log("checkin data received in service:", billId);
+      const today = new Date().toISOString().slice(0, 10);
+       db.prepare(`
+         INSERT INTO daily_summary 
+           (bill_id, summary_date, room_charge)
+         VALUES (?, ?, ?);
+       `).run(
+         billId,
+         today,
+         d.rate_applied
+       );
+    
 
     return { checkin_id: checkInId, bill_id: billId };
   });
@@ -88,6 +100,6 @@ export const createCheckIn = (data: {
 };
 
 /* get active checkins */
-export const getActiveCheckins = (): CheckIn[] => {
+export const getActiveCheckins = (_payload?: any): CheckIn[] => {
   return db.prepare(`SELECT * FROM check_in WHERE status = 'ACTIVE' ORDER BY check_in_time DESC`).all() as CheckIn[];
 };

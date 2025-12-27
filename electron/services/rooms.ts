@@ -8,13 +8,14 @@ const db = getDb();
    FLOORS
 ==================================== */
 
-export const getFloors = (): Floor[] => {
+export const getFloors = (_payload?: any): Floor[] => {
   return db
     .prepare("SELECT * FROM floor ORDER BY floor_number ASC")
     .all() as Floor[];
 };
 
-export const addFloor = (floor_name: string, floor_number?: number) => {
+export const addFloor = (data : {floor_name: string, floor_number?: number}) => {
+  const {floor_name,floor_number} = data;
   return db
     .prepare(
       `INSERT INTO floor (floor_name, floor_number, created_at)
@@ -24,7 +25,8 @@ export const addFloor = (floor_name: string, floor_number?: number) => {
 };
 
 //  NEW — rename floor
-export const renameFloor = (id: number, floor_name: string) => {
+export const renameFloor = (data :{id: number, floor_name: string}) => {
+  const { id, floor_name } = data;
   return db
     .prepare(
       `UPDATE floor SET floor_name = ?, created_at = datetime('now')
@@ -39,7 +41,7 @@ export const renameFloor = (id: number, floor_name: string) => {
 
 
 
-export const getAllRooms = (): any[] => {
+export const getAllRooms = (_payload?: any): any[] => {
    return db.prepare(`
     SELECT 
       r.*,
@@ -61,14 +63,16 @@ export const getAllRooms = (): any[] => {
   `).all();
 };
 
-export const getRoomById = (id: number): Room | undefined => {
+export const getRoomById = (payload: number | { id: number }): Room | undefined => {
+  const id = typeof payload === "number" ? payload : payload.id;
   return db.prepare("SELECT * FROM room WHERE id = ?").get(id) as Room;
 };
 
-export const addRoom = (
-  roomNumber: string,
-  floorId: number
-) => {
+export const addRoom = (data :{
+  room_number: string,
+  floor_id: number
+}) => {
+  const { room_number : roomNumber, floor_id :floorId } = data;
 
    const validFloor = floorId ? db.prepare(`SELECT id FROM floor WHERE id = ?`).get(floorId) : null;
   return db
@@ -80,7 +84,11 @@ export const addRoom = (
     .run(validFloor ? floorId : null, roomNumber);
 };
 
-export const updateRoomStatus = (roomId: number, status: string) => {
+export const updateRoomStatus = (data: {
+  room_id: number;
+  status: string;
+}) => {
+  const { room_id : roomId, status } = data;
   if(status.toLocaleLowerCase() === "blocked"){
      return db
     .prepare(
@@ -100,7 +108,11 @@ export const updateRoomStatus = (roomId: number, status: string) => {
 };
 
 //  NEW — update room (type, status, prices)
-export const updateRoom = (id: number, data: Partial<Room>) => {
+export const updateRoom = (payload: {
+  id: number;
+  data: Partial<Room>;
+}) => {
+  const { id, data } = payload;
   const fields = Object.keys(data);
   if (fields.length === 0) return;
 

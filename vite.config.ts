@@ -10,6 +10,10 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 export default defineConfig({
+  server: {
+    host: true,
+    port: 8100
+  },
   plugins: [
     react(),
     tailwindcss(),
@@ -30,6 +34,7 @@ export default defineConfig({
           },
         },
       },
+      
 
       preload: {
         input: path.join(__dirname, 'electron/preload.ts'),

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { api } from "../../api/api";
 import { CheckOutSetting } from "../../components/rooms/types";
 import {

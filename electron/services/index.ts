@@ -8,4 +8,6 @@ export * as UserService from './user'
 export * as RoomTypeService from './roomTypes'
 export * as CheckOutService from './checkOutType'
 export * as GSTService from './GSTService'
+export * as PoliceReportService  from './policeReport'
+export * as DailyCollectionService  from './dailyCollection'
 

@@ -3,7 +3,7 @@ import { CheckOutSetting } from "../types";
 
 const db = getDb();
 
-export const getCheckOutSettings = (): CheckOutSetting[] => {
+export const getCheckOutSettings = (_payload?: any): CheckOutSetting[] => {
   return db.prepare("SELECT * FROM check_out_settings ORDER BY id").all() as CheckOutSetting[];
 };
 
@@ -31,11 +31,14 @@ export const updateCheckOutSetting = (data: {
   `).run(data.label, data.hours ?? null, data.time ?? null, data.id);
 };
 
-export const deleteCheckOutSetting = (id: number) => {
+export const deleteCheckOutSetting = (payload: number | { id: number }) => {
+  const id = typeof payload === "number" ? payload : payload.id;
+
   return db.prepare("DELETE FROM check_out_settings WHERE id = ?").run(id);
 };
 
-export const setDefaultCheckOut = (id: number) => {
+export const setDefaultCheckOut = (payload: number | { id: number }) => {
+  const id = typeof payload === "number" ? payload : payload.id;
   return db.prepare(`
     UPDATE check_out_settings
     SET is_default = 1, updated_at = datetime('now')

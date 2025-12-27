@@ -26,11 +26,17 @@ CREATE TABLE IF NOT EXISTS gst_management (
   cgst_percent NUMERIC DEFAULT 0.00,
   sgst_percent NUMERIC DEFAULT 0.00,
   igst_percent NUMERIC DEFAULT 0.00,
-  effective_from DATE NOT NULL,
+  effective_from DATE  NULL,
   effective_to DATE,
   is_active INTEGER DEFAULT 1,
   created_at DATETIME DEFAULT (datetime('now'))
 );
+
+INSERT INTO gst_management (gst_percent, cgst_percent, sgst_percent, is_active)
+SELECT gst_percent, cgst_percent, sgst_percent, is_active FROM (
+  SELECT 18 AS gst_percent, 9 AS cgst_percent, 9 AS sgst_percent, 1 AS is_active
+)
+WHERE NOT EXISTS (SELECT 1 FROM gst_management);
 
 CREATE TRIGGER IF NOT EXISTS trg_gst_unique_active
 BEFORE UPDATE ON gst_management
@@ -193,6 +199,7 @@ CREATE TABLE IF NOT EXISTS check_in (
   stay_type INTEGER NOT NULL,
   extra_time INTEGER DEFAULT 0,
   rate_applied NUMERIC DEFAULT 0.00,
+  hour_count INTEGER DEFAULT 1,
   no_of_guests INTEGER DEFAULT 1,
 
   -- Link to FY table
@@ -278,6 +285,33 @@ CREATE TABLE IF NOT EXISTS extra_bill (
   FOREIGN KEY (bill_type_id) REFERENCES bill_type(id) ON DELETE RESTRICT
 );
 
+
+CREATE TABLE IF NOT EXISTS daily_summary (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  bill_id INTEGER NOT NULL,
+  summary_date DATE NOT NULL,
+
+  room_charge NUMERIC DEFAULT 0.00,
+  extra_charge NUMERIC DEFAULT 0.00,
+  discount_total NUMERIC DEFAULT 0.00,
+  tax_total NUMERIC DEFAULT 0.00,
+
+  advance_total NUMERIC DEFAULT 0.00,
+  final_payment_total NUMERIC DEFAULT 0.00,
+  refund_total NUMERIC DEFAULT 0.00,
+
+  created_at DATETIME DEFAULT (datetime('now')),
+  updated_at DATETIME DEFAULT (datetime('now')),
+
+  FOREIGN KEY (bill_id) REFERENCES bill(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_daily_summary_date ON daily_summary(summary_date);
+
+
+
+
+
 CREATE INDEX IF NOT EXISTS idx_extra_bill_billid ON extra_bill(bill_id);
 
 -- 11) payment (advances, final, refund)
@@ -323,6 +357,63 @@ CREATE TABLE IF NOT EXISTS audit_log (
   created_at DATETIME DEFAULT (datetime('now')),
   FOREIGN KEY (user_id) REFERENCES user_account(id) ON DELETE SET NULL
 );
+
+CREATE TABLE IF NOT EXISTS police_report (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+  check_in_id INTEGER NOT NULL,
+  guest_id INTEGER NOT NULL,
+
+  report_no TEXT UNIQUE,
+  station_name TEXT NOT NULL,
+  station_address TEXT,
+  officer_name TEXT,
+
+  purpose TEXT,
+  remarks TEXT,
+
+  submitted INTEGER DEFAULT 0,
+  submitted_at DATETIME,
+
+  created_at DATETIME DEFAULT (datetime('now')),
+  updated_at DATETIME DEFAULT (datetime('now')),
+
+  FOREIGN KEY (check_in_id) REFERENCES check_in(id) ON DELETE CASCADE,
+  FOREIGN KEY (guest_id) REFERENCES guest(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS daily_collection_register (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+  report_date DATE NOT NULL,
+
+  entry_type TEXT NOT NULL,
+  -- ROOM / REST / CC / OFFICE / MANUAL
+
+  reference_no TEXT,
+  -- MR No / Bill No / Manual text
+
+  room_id INTEGER,
+
+  base_amount NUMERIC DEFAULT 0.00,
+
+  payment_amount NUMERIC DEFAULT 0.00,
+  payment_mode TEXT,
+  -- CASH / CARD / UPI / WALLET
+
+  particulars TEXT,
+
+  created_by INTEGER,
+  created_at DATETIME DEFAULT (datetime('now')),
+
+  FOREIGN KEY (room_id) REFERENCES room(id) ON DELETE SET NULL,
+  FOREIGN KEY (created_by) REFERENCES user_account(id) ON DELETE SET NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_dcr_date
+ON daily_collection_register(report_date);
+
+
 
 -- OPTIONAL: booking table (reservations)
 CREATE TABLE IF NOT EXISTS booking (

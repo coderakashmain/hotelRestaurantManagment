@@ -7,7 +7,7 @@ import { useEffect } from "react";
 export default function FinancialYearList() {
    const { years, setActiveYear,loading,reloadYears } = useFinancialYear();
 
- 
+
   const deleteYear = async (id: number) => {
     if (!window.confirm("Delete this financial year?")) return;
 
@@ -58,7 +58,10 @@ export default function FinancialYearList() {
                   </span>
                 ) : (
                   <button
-                    onClick={() => setActiveYear(fy.id)}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      
+                      setActiveYear(fy.id)}}
                     className="px-3 py-1 bg-blue-600 text-white text-xs rounded"
                   >
                     Set Active
@@ -68,7 +71,7 @@ export default function FinancialYearList() {
 
               <td className="p-3 flex gap-3">
                 <NavLink
-                  to={`/fy-edit/${fy.id}`}
+                  to={`/hotel/fy-edit/${fy.id}`}
                   className="text-blue-600 underline"
                 >
                   Edit

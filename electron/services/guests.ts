@@ -5,17 +5,17 @@ import { Guest } from "../types";
 const db = getDb();
 
 /* ==================================================
-   ADD GUEST
+   ADD GUEST  ✅ UPDATED (OBJECT-BASED)
 ================================================== */
-export const addGuest = (
-  full_name: string,
-  phone?: string,
-  email?: string,
-  address?: string,
-  id_proof_type?: string,
-  id_proof_number?: string,
-  id_proof_image?: string
-) => {
+export const addGuest = (data: {
+  full_name: string;
+  phone?: string;
+  email?: string;
+  address?: string;
+  id_proof_type?: string;
+  id_proof_number?: string;
+  id_proof_image?: string;
+}) => {
   return db
     .prepare(
       `INSERT INTO guest 
@@ -23,20 +23,20 @@ export const addGuest = (
        VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'))`
     )
     .run(
-      full_name,
-      phone ?? null,
-      email ?? null,
-      address ?? null,
-      id_proof_type ?? null,
-      id_proof_number ?? null,
-      id_proof_image ?? null
+      data.full_name,
+      data.phone ?? null,
+      data.email ?? null,
+      data.address ?? null,
+      data.id_proof_type ?? null,
+      data.id_proof_number ?? null,
+      data.id_proof_image ?? null
     );
 };
 
 /* ==================================================
    LIST GUESTS
 ================================================== */
-export const getAllGuests = (): Guest[] => {
+export const getAllGuests = (_payload?: any): Guest[] => {
   return db
     .prepare("SELECT * FROM guest ORDER BY created_at DESC")
     .all() as Guest[];
@@ -45,17 +45,21 @@ export const getAllGuests = (): Guest[] => {
 /* ==================================================
    GET ONE GUEST
 ================================================== */
-export const getGuestById = (id: number): Guest | undefined => {
+export const getGuestById = (payload: number | { id: number }): Guest | undefined => {
+  const id = typeof payload === "number" ? payload : payload.id;
   return db.prepare("SELECT * FROM guest WHERE id = ?").get(id) as Guest;
 };
 
-export const getGuestByPhone = (phone: string): Guest | undefined => {
+export const getGuestByPhone = ( payload: string | { phone: string }): Guest | undefined => {
+  const phone = typeof payload === "string" ? payload : payload.phone;
   return db.prepare("SELECT * FROM guest WHERE phone = ?").get(phone) as Guest;
-}
+};
+
 /* ==================================================
    SEARCH GUEST (for check-in search box)
 ================================================== */
-export const searchGuests = (query: string): Guest[] => {
+export const searchGuests = (  payload: string | { query: string }): Guest[] => {
+  const query = typeof payload === "string" ? payload : payload.query;
   return db
     .prepare(
       `SELECT * FROM guest 
@@ -68,8 +72,12 @@ export const searchGuests = (query: string): Guest[] => {
 /* ==================================================
    UPDATE GUEST
 ================================================== */
-export const updateGuest = (id: number, data: Partial<Guest>) => {
-  const fields = Object.keys(data);
+export const updateGuest = (data: {
+  id: number;
+  payload: Partial<Guest>;
+}) => {
+  const { id, payload } = data;
+  const fields = Object.keys(payload);
   if (!fields.length) return;
 
   const setClause = fields.map((f) => `${f} = ?`).join(", ");
@@ -86,6 +94,7 @@ export const updateGuest = (id: number, data: Partial<Guest>) => {
 /* ==================================================
    DELETE GUEST
 ================================================== */
-export const deleteGuest = (id: number) => {
+export const deleteGuest = (payload: number | { id: number }) => {
+  const id = typeof payload === "number" ? payload : payload.id;
   return db.prepare("DELETE FROM guest WHERE id = ?").run(id);
 };

@@ -19,9 +19,17 @@ export const useCheckOutRule = () => {
 };
 
 export const CheckOutRuleProvider = ({ children }: any) => {
-  const [allowChange, setAllowChange] = useState<boolean>(true); // default TRUE
+ const [allowChange, setAllowChangeState] = useState<boolean>(() => {
+    const saved = localStorage.getItem("allowChange");
+    return saved !== null ? JSON.parse(saved) : false;
+  });
   const [checkOutType, setCheckOutType] = useState<CheckOutSetting[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+
+    const setAllowChange = (val: boolean) => {
+    setAllowChangeState(val);
+    localStorage.setItem("allowChange", JSON.stringify(val));
+  };
 
   const refreshCheckOutType = async () => {
     setLoading(true);

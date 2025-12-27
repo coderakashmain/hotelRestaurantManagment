@@ -1,44 +1,54 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { api } from "../../api/api";
-import InvoicePrint from "./InvoicePrint";
-import { useCompany } from "../../context/CompanyInfoContext";
 import { useAsync } from "../../hooks/useAsync";
 import { formatDateTime } from "../../utils/date";
+import { useInvoiceData } from "../../context/InvoiceDataContext";
+import { useCompany } from "../../context/CompanyInfoContext";
+import { useNavigate } from "react-router";
 
 export default function CheckoutModal({
   bill: billdata,
   onClose,
-  onDone,
 }: any) {
   const [amount, setAmount] = useState<number>(billdata.balance_amount || 0);
-  const [finalbill, setFinalBill] = useState<any>(null);
   const [method, setMethod] = useState("CASH");
-  const [print, setPrint] = useState(false);
-  const { company } = useCompany();
+  const {company} =useCompany();
+  const {setInvoiceData,setCompanyData}=  useInvoiceData() ;
+  const [checkoutstate,setCheckoutstate] = useState(false);
+  const navigate  = useNavigate();
+  
 
   const {
-    loading,
     data: bill,
     reload,
   } = useAsync(() => api.bill.get(billdata.id), [billdata.id]);
 
   const finalPay = async () => {
-    const updatedBill = await api.bill.checkout({
+   await api.bill.checkout({
       billId: billdata.id,
       finalPaymentAmount: amount,
       finalPaymentMethod: method,
       doRefundIfOverpaid: true,
     });
-
     reload();
-    setPrint(true);
+    setCheckoutstate(true)
+
+    
 
     // refresh parent but don't close immediately (print first)
   };
+  useEffect(()=>{
+    if(checkoutstate){
+      setInvoiceData(bill);
+      setCompanyData(company)
+      navigate('/hotel/print/invoice');
+    }
+
+  },[checkoutstate])
 
   if (!bill) return null;
 
-  console.log("This is bill", bill);
+ 
 
   return (
     <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
@@ -145,7 +155,7 @@ export default function CheckoutModal({
         </div>
       </div>
 
-      {print && (
+      {/* {print && (
         <InvoicePrint
           data={bill}
           company={company}
@@ -155,7 +165,7 @@ export default function CheckoutModal({
             setPrint(false);
           }}
         />
-      )}
+      )} */}
     </div>
   );
 }

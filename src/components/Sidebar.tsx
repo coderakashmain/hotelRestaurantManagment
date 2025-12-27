@@ -1,88 +1,204 @@
 import { Link, useLocation } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import {
+  HomeIcon,
+  BuildingOffice2Icon,
+  ArrowRightOnRectangleIcon,
+  Cog6ToothIcon,
+  CalendarDaysIcon,
+  UsersIcon,
+  DocumentTextIcon,
+  ChartBarIcon,
+  BanknotesIcon,
+  ClockIcon,
+} from "@heroicons/react/24/outline";
 
 export default function Sidebar() {
   const { pathname } = useLocation();
-  const [fyOpen, setFyOpen] = useState(false);
-  const [profileOpen, setProfileOpen] = useState(false);
 
-  const linkClass = (path: string) =>
-    `block px-4 py-2 rounded mb-2 ${
-      pathname === path ? "bg-blue-600 text-white" : "text-gray-200"
-    }`;
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [fyOpen, setFyOpen] = useState(false);
+  const [reportsOpen, setReportsOpen] = useState(false);
+
+  /* ---------- ACTIVE GROUP DETECTION ---------- */
+  const isSettingsChildActive =
+    pathname.startsWith("/hotel/hotel-info") ||
+    pathname.startsWith("/hotel/room-type") ||
+    pathname.startsWith("/hotel/rooms") ||
+    pathname.startsWith("/hotel/check-out-hours") ||
+    pathname.startsWith("/hotel/extra-charges") ||
+    pathname.startsWith("/hotel/gst-management") ||
+    pathname.startsWith("/hotel/users-list") ||
+    pathname.startsWith("/hotel/fy");
+
+  const isFYChildActive =
+    pathname.startsWith("/hotel/fy");
+
+  const isReportsChildActive =
+    pathname.startsWith("/hotel/daily-reports") ||
+    pathname.startsWith("/hotel/police-reports");
+
+  /* ---------- AUTO OPEN WHEN CHILD ACTIVE ---------- */
+  useEffect(() => {
+    if (isSettingsChildActive) setProfileOpen(true);
+    if (isFYChildActive) setFyOpen(true);
+    if (isReportsChildActive) setReportsOpen(true);
+  }, [pathname]);
+
+  /* ---------- CLASSES ---------- */
+  const itemClass = (path: string) =>
+    `w-full flex flex-col items-center gap-1 px-2 py-3 rounded-sm
+     transition-all duration-200
+     ${
+       pathname === path
+         ? "bg-primary text-white"
+         : "text-secondary hover-bg-lightColor"
+     }`;
+
+  const parentButton = (active: boolean) =>
+    `w-full flex flex-col items-center gap-1 px-2 py-3 rounded-sm
+     transition-all duration-200
+     text-secondary hover-bg-lightColor
+     ${active ? "border-l-2 border-primary bg-lightColor" : ""}`;
+
+  const label = "text-[10px] font-medium tracking-wide whitespace-nowrap";
 
   return (
-    <aside className="h-full p-4">
-      <h2 className="text-xl font-bold mb-4">Hotel Admin</h2>
+    <aside className="w-full   flex flex-col items-center px-2 py-3 gap-1 ">
 
-      <Link to="/" className={linkClass("/")}>
-        Dashboard
+      {/* Dashboard */}
+      <Link to="/hotel" className={itemClass("/hotel")}>
+        <HomeIcon className="w-5 h-5" />
+        <span className={label}>Dashboard</span>
       </Link>
 
-      <Link to="/rooms-chart" className={linkClass("/rooms-chart")}>
-        Room Chart
-      </Link>
-      <Link to="/checkin" className={linkClass("/checkin")}>
-        Check In
+      {/* Room Chart */}
+      <Link to="/hotel/rooms-chart" className={itemClass("/hotel/rooms-chart")}>
+        <BuildingOffice2Icon className="w-5 h-5" />
+        <span className={label}>Rooms</span>
       </Link>
 
-      {/* Financial Year Dropdown */}
+      {/* Check In */}
+      <Link to="/hotel/checkin" className={itemClass("/hotel/checkin")}>
+        <ArrowRightOnRectangleIcon className="w-5 h-5" />
+        <span className={label}>Check-In</span>
+      </Link>
 
-      <div>
-        <button
-          onClick={() => setProfileOpen(!profileOpen)}
-          className="block w-full text-left px-4 py-2 text-black rounded mb-2 "
+      {/* Divider */}
+      <div className="w-8 h-px bg-gray my-2" />
+
+      {/* SETTINGS (PARENT) */}
+      <button
+        onClick={() => setProfileOpen(!profileOpen)}
+        className={parentButton(isSettingsChildActive)}
+      >
+        <Cog6ToothIcon className="w-5 h-5" />
+        <span className={label}>
+          Settings {profileOpen ? "▾" : "▸"}
+        </span>
+      </button>
+
+      {profileOpen && (
+        <div
+          className={`w-full flex flex-col gap-1 pl-1
+            ${isSettingsChildActive ? "border-l-2 border-primary" : ""}
+          `}
         >
-          Setting ▾
-        </button>
+          <Link to="/hotel/hotel-info" className={itemClass("/hotel/hotel-info")}>
+            <DocumentTextIcon className="w-4 h-4" />
+            <span className={label}>Hotel</span>
+          </Link>
 
-        {profileOpen && (
-          <div className="ml-4">
-            <Link to="/hotel-info" className={linkClass("/hotel-info")}>
-              Hotel info
-            </Link>
+          <Link to="/hotel/room-type" className={itemClass("/hotel/room-type")}>
+            <CalendarDaysIcon className="w-4 h-4" />
+            <span className={label}>Types</span>
+          </Link>
 
-            <Link to="/room-type" className={linkClass("/room-type")}>
-              Room Type
-            </Link>
-            <Link to="/rooms" className={linkClass("/rooms")}>
-               Room Setting
-            </Link>
-            <Link to="/check-out-hours" className={linkClass("/check-out-hours")}>
-              Check Out Hours
-            </Link>
-            <Link to="/extra-charges" className={linkClass("/extra-charges")}>
-              Extra Charges
-            </Link>
-            <Link to="/gst-management" className={linkClass("/gst-management")}>
-              GST Management
-            </Link>
-            <Link to="/users" className={linkClass("/users")}>
-              Users
-            </Link>
-            <div>
-              <button
-                onClick={() => setFyOpen(!fyOpen)}
-                className="block w-full text-left px-4 py-2 text-black rounded mb-2 "
-              >
-                Financial Year ▾
-              </button>
+          <Link to="/hotel/rooms" className={itemClass("/hotel/rooms")}>
+            <BuildingOffice2Icon className="w-4 h-4" />
+            <span className={label}>Rooms</span>
+          </Link>
 
-              {fyOpen && (
-                <div className="ml-4">
-                  <Link to="/fy" className={linkClass("/fy")}>
-                    Manage Years
-                  </Link>
+          <Link to="/hotel/check-out-hours" className={itemClass("/hotel/check-out-hours")}>
+            <ClockIcon className="w-4 h-4" />
+            <span className={label}>Checkout</span>
+          </Link>
 
-                  <Link to="/fy-create" className={linkClass("/fy-create")}>
-                    Create Year
-                  </Link>
-                </div>
-              )}
+          <Link to="/hotel/extra-charges" className={itemClass("/hotel/extra-charges")}>
+            <BanknotesIcon className="w-4 h-4" />
+            <span className={label}>Charges</span>
+          </Link>
+
+          <Link to="/hotel/gst-management" className={itemClass("/hotel/gst-management")}>
+            <DocumentTextIcon className="w-4 h-4" />
+            <span className={label}>GST</span>
+          </Link>
+
+          <Link to="/hotel/users-list" className={itemClass("/hotel/users-list")}>
+            <UsersIcon className="w-4 h-4" />
+            <span className={label}>Users</span>
+          </Link>
+
+          {/* FINANCIAL YEAR */}
+          <button
+            onClick={() => setFyOpen(!fyOpen)}
+            className={parentButton(isFYChildActive)}
+          >
+            <CalendarDaysIcon className="w-4 h-4" />
+            <span className={label}>
+              FY {fyOpen ? "▾" : "▸"}
+            </span>
+          </button>
+
+          {fyOpen && (
+            <div
+              className={`w-full  flex flex-col gap-1 pl-1
+                ${isFYChildActive ? "border-l-2 border-primary" : ""}
+              `}
+            >
+              <Link to="/hotel/fy" className={itemClass("/hotel/fy")}>
+                <CalendarDaysIcon className="w-4 h-4" />
+                <span className={label}>Years</span>
+              </Link>
+
+              <Link to="/hotel/fy-create" className={itemClass("/hotel/fy-create")}>
+                <CalendarDaysIcon className="w-4 h-4" />
+                <span className={label}>Create</span>
+              </Link>
             </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      )}
+
+      {/* REPORTS */}
+      <button
+        onClick={() => setReportsOpen(!reportsOpen)}
+        className={parentButton(isReportsChildActive)}
+        // style={{ paddingBottom :reportsOpen ? '20px' : ''}}
+      >
+        <ChartBarIcon className="w-5 h-5 " />
+        <span className={label}>
+          Reports {reportsOpen ? "▾" : "▸"}
+        </span>
+      </button>
+
+      {reportsOpen && (
+        <div
+          className={`w-full flex flex-col gap-1 pl-1 pb-10
+            ${isReportsChildActive ? "border-l-2 border-primary" : ""}
+          `}
+        >
+          <Link to="/hotel/daily-reports" className={itemClass("/hotel/daily-reports")}>
+            <DocumentTextIcon className="w-4 h-4" />
+            <span className={label}>Daily</span>
+          </Link>
+
+          <Link to="/hotel/police-reports" className={itemClass("/hotel/police-reports")}>
+            <DocumentTextIcon className="w-4 h-4" />
+            <span className={label}>Police</span>
+          </Link>
+        </div>
+      )}
     </aside>
   );
 }

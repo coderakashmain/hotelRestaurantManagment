@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { api } from "../api/api";
 import { useNavigate } from "react-router";
 
@@ -23,32 +23,59 @@ type FYContextType = {
 const FinancialYearContext = createContext<FYContextType | null>(null);
 
 export const FinancialYearProvider = ({ children }: { children: any }) => {
-  const [years, setYears] = useState<FY[]>([]);
-  const [activeYear, setActive] = useState<FY | null>(null);
-  const [loading, setloading] = useState<boolean>(true);
   const navigate = useNavigate();
 
-  // Load FY list
+  const [years, setYears] = useState<FY[]>([]);
+  const [activeYear, setActiveYear] = useState<FY | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  /* ============================
+     LOAD FINANCIAL YEARS
+  ============================ */
   const reloadYears = async () => {
-    setloading(true);
-    const data = await api.fy.list();
+    setLoading(true);
+
+    const data: FY[] = await api.fy.list();
     setYears(data);
-    setActive(data.find((y: FY) => y.is_active === 1) || null);
-    setloading(false);
-  };
- useEffect(() => {
-    if (!loading) {
-     
-      if (years.length === 0) navigate("/fy-create");
+
+    setLoading(false);
+
+    if (data.length === 0) {
+      navigate("/hotel/fy-create");
     }
-  }, [loading, years]);
-
-  // Set active FY
-  const setActiveYear = async (id: number) => {
-    await api.fy.setActive(id);
-    await reloadYears();
   };
 
+  /* ============================
+     SET ACTIVE FY
+     (NO reload here)
+  ============================ */
+  const setActiveFY = async (id: number) => {
+    // guard: prevent re-setting same FY
+    if (activeYear?.id === id) return;
+
+    await api.fy.setActive(id);
+
+    // optimistic local update
+    setYears((prev) =>
+      prev.map((y) =>
+        y.id === id
+          ? { ...y, is_active: 1 }
+          : { ...y, is_active: 0 }
+      )
+    );
+  };
+
+  /* ============================
+     DERIVE ACTIVE YEAR
+     (single source of truth)
+  ============================ */
+  useEffect(() => {
+    setActiveYear(years.find((y) => y.is_active === 1) || null);
+  }, [years]);
+
+  /* ============================
+     INITIAL LOAD
+  ============================ */
   useEffect(() => {
     reloadYears();
   }, []);
@@ -60,7 +87,7 @@ export const FinancialYearProvider = ({ children }: { children: any }) => {
         years,
         activeYear,
         reloadYears,
-        setActiveYear,
+        setActiveYear: setActiveFY,
       }}
     >
       {children}
@@ -68,9 +95,15 @@ export const FinancialYearProvider = ({ children }: { children: any }) => {
   );
 };
 
-// Hook to use in components
+/* ============================
+   HOOK
+============================ */
 export const useFinancialYear = () => {
   const ctx = useContext(FinancialYearContext);
-  if (!ctx) throw new Error("useFinancialYear must be inside Provider");
+  if (!ctx) {
+    throw new Error(
+      "useFinancialYear must be used inside FinancialYearProvider"
+    );
+  }
   return ctx;
 };

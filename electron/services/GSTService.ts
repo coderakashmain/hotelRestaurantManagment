@@ -2,7 +2,7 @@ import { getDb } from "../db/database";
 const db = getDb();
 
 export const GSTService = {
-  list() {
+  list(_payload?: any) {
     return db.prepare(`SELECT * FROM gst_management ORDER BY id DESC`).all();
   },
 
@@ -43,11 +43,13 @@ export const GSTService = {
     );
   },
 
-  delete(id: number) {
+  delete(payload: number | { id: number }) {
+    const id = typeof payload === "number" ? payload : payload.id;
     return db.prepare(`DELETE FROM gst_management WHERE id = ?`).run(id);
   },
 
-  setActive(id: number) {
+  setActive(payload: number | { id: number }) {
+    const id = typeof payload === "number" ? payload : payload.id;
     return db.prepare(`
       UPDATE gst_management SET is_active = 1 WHERE id = ?
     `).run(id);

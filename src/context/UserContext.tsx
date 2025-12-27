@@ -1,44 +1,67 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect } from "react";
 import { api } from "../api/api";
 import { useNavigate } from "react-router-dom";
+import { useAsync } from "../hooks/useAsync";
 
 interface UserContextType {
   users: any[];
   loading: boolean;
+  refreshUsers: () => Promise<void>;
 }
 
-const UserContext = createContext<UserContextType>({
-  users: [],
-  loading: true,
-});
+const UserContext = createContext<UserContextType | null>(null);
 
-export const useUsers = () => useContext(UserContext);
+export const useUsers = () => {
+  const ctx = useContext(UserContext);
+  if (!ctx) {
+    throw new Error("useUsers must be used inside UserProvider");
+  }
+  return ctx;
+};
 
-export function UserProvider({ children }: any) {
-  const [users, setUsers] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+const STORAGE_KEY = import.meta.env.VITE_STORAGE_KEY || "3klsdfoidskfsdo";
+
+export function UserProvider({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
 
-  async function loadUsers() {
-    setLoading(true);
-    const list = await api.users.list();
-    setUsers(list);
-    setLoading(false);
-
-    //  If no system user exists, force redirect to user create setup page
-    if (list.length === 0) {
-      navigate("/setup/user-create");
-    }else{
-      navigate('/')
+  const { data, loading, reload } = useAsync<any[]>(async () => {
+    const cached = localStorage.getItem(STORAGE_KEY);
+    if (cached) {
+      return JSON.parse(cached);
     }
-  }
 
-  useEffect(() => {
-    loadUsers();
+    const list = await api.users.list();
+
+    if (list.length > 0) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+    }
+    return list;
   }, []);
 
+  const users = data ?? []; // ✅ normalize null → []
+
+  // redirect logic
+  useEffect(() => {
+    if (!loading && users.length === 0) {
+      navigate("/setup/user-create");
+    }
+  }, [loading, users]);
+
+  const refreshUsers = async () => {
+    const list = await api.users.list();
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+    await reload();
+  };
+
   return (
-    <UserContext.Provider value={{ users, loading }}>
+    <UserContext.Provider
+      value={{
+        users,
+        loading,
+        refreshUsers,
+      }}
+    >
       {children}
     </UserContext.Provider>
   );

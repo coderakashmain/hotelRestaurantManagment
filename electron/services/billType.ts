@@ -32,7 +32,15 @@ export const create = (data: {
   );
 };
 
-export const update = (id: number, data: any) => {
+/* ============================
+   UPDATE BILL TYPE  ✅ FIXED
+============================ */
+export const update = (payload: {
+  id: number;
+  data: any;
+}) => {
+  const { id, data } = payload;
+
   return db.prepare(
     `UPDATE bill_type SET 
         name = COALESCE(?, name),
@@ -51,6 +59,9 @@ export const update = (id: number, data: any) => {
   );
 };
 
-export const remove = (id: number) => {
-  return db.prepare(`UPDATE bill_type SET is_active = 0 WHERE id = ?`).run(id);
+export const remove = (payload: number | { id: number }) => {
+  const id = typeof payload === "number" ? payload : payload.id;
+  return db.prepare(
+    `UPDATE bill_type SET is_active = 0 WHERE id = ?`
+  ).run(id);
 };

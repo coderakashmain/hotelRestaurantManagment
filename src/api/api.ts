@@ -1,203 +1,316 @@
-/* =========================================================
-   GLOBAL API WRAPPER FOR RENDERER (FRONTEND)
-   Clean & typed wrapper for all window.api.invoke calls.
-========================================================= */
+import { safeInvoke } from "./invoke";
 
 export const api = {
+
   /* ================================
      COMPANY
   ================================= */
   company: {
-    get: () => window.api.invoke("company:get"),
-    save: (data: any) => window.api.invoke("company:save", data),
+    get: () => safeInvoke("company:get"),
+    save: (data: any) => safeInvoke("company:save", data),
   },
 
   financial: {
-    getActive: () => window.api.invoke("financial:get-active"),
-    create: (data: any) => window.api.invoke("financial:create", data),
-    setActive: (id: number) => window.api.invoke("financial:set-active", id),
+    getActive: () => safeInvoke("financial:get-active"),
+    create: (data: any) => safeInvoke("financial:create", data),
+    setActive: (id: number) => safeInvoke("financial:set-active", id),
   },
 
-  /* ================================
-     FLOORS
-  ================================= */
   floor: {
-    list: () => window.api.invoke("floor:list"),
+    list: () => safeInvoke("floor:list"),
     add: (data: { floor_name: string; floor_number?: number }) =>
-      window.api.invoke("floor:add", data),
-
+      safeInvoke("floor:add", data),
     rename: (id: number, floor_name: string) =>
-      window.api.invoke("floor:rename", { id, floor_name }),
+      safeInvoke("floor:rename", { id, floor_name }),
   },
 
   room: {
-    list: () => window.api.invoke("room:list"),
-
-    add: (data: {
-      room_number: string;
-      floor_id?: number;
-    }) => window.api.invoke("room:add", data),
-
+    list: () => safeInvoke("room:list"),
+    add: (data: any) => safeInvoke("room:add", data),
     updateStatus: (room_id: number, status: string) =>
-      window.api.invoke("room:updateStatus", { room_id, status }),
-
-    update: (id: number, data: any) => window.api.invoke("room:update", { id, data }),
+      safeInvoke("room:updateStatus", { room_id, status }),
+    update: (id: number, data: any) =>
+      safeInvoke("room:update", { id, data }),
   },
 
-  /* ================================
-     GUESTS
-  ================================= */
   guest: {
-    add: (data: any) => window.api.invoke("guest:add", data),
-    list: () => window.api.invoke("guest:list"),
-    get: (id: number) => window.api.invoke("guest:get", id),
-    search: (q: string) => window.api.invoke("guest:search", q),
+    add: (data: any) => safeInvoke("guest:add", data),
+    list: () => safeInvoke("guest:list"),
+    get: (id: number) => safeInvoke("guest:get", id),
+    search: (q: string) => safeInvoke("guest:search", q),
     update: (id: number, payload: any) =>
-      window.api.invoke("guest:update", { id, payload }),
-    delete: (id: number) => window.api.invoke("guest:delete", id),
-    getByPhone: (phone: string) => window.api.invoke("guest:get-by-phone", phone),
+      safeInvoke("guest:update", { id, payload }),
+    delete: (id: number) => safeInvoke("guest:delete", id),
+    getByPhone: (phone: string) =>
+      safeInvoke("guest:get-by-phone", phone),
   },
 
-
-  /* ================================
-     CHECK-IN
-  ================================= */
   checkin: {
-    create: (data: {
-      guest_id: number;
-      room_id: number;
-      check_in_time: string;
-      expected_check_out_time?: string | null;
-      stay_type?: string;
-      rate_applied?: number;
-      no_of_guests?: number;
-      extra_time : number;
-    }) => window.api.invoke("checkin:create", data),
-
-    active: () => window.api.invoke("checkin:list-active"),
+    create: (data: any) => safeInvoke("checkin:create", data),
+    active: () => safeInvoke("checkin:list-active"),
   },
 
-  /* ================================
-     BILLING
-  ================================= */
   bill: {
-    get: (billId: number) => window.api.invoke("bill:get", billId),
-    getBillByRoom: (billId: number) => window.api.invoke("billBYroom:get", billId),
-
-    addExtra: (data: {
-      bill_id: number;
-      bill_type_id: number;
-      description: string;
-      amount: number;
-      quantity?: number;
-      added_by?: number;
-    }) => window.api.invoke("bill:add-extra", data),
-
-    addPayment: (data: {
-      bill_id: number;
-      guest_id: number;
-      payment_type: "ADVANCE" | "FINAL" | "REFUND";
-      amount: number;
-      method?: string;
-      reference_no?: string;
-      note?: string;
-    }) => window.api.invoke("bill:add-payment", data),
-
-    recalc: (billId: number) => window.api.invoke("bill:recalc", billId),
-
-    checkout: (data: {
-      billId: number;
-      finalPaymentAmount?: number;
-      finalPaymentMethod?: string;
-      doRefundIfOverpaid?: boolean;
-      userId?: number;
-    }) => window.api.invoke("bill:checkout", data),
-
-    updateDiscount: (data: {
-      bill_id: number;
-      value?: number;
-      type?: "FLAT" | "PERCENT";
-    }) => window.api.invoke("bill:discount_update", data),
-
-    list: (filter?: { status?: string }) =>
-      window.api.invoke("bill:list", filter),
+    get: (billId: number) => safeInvoke("bill:get", billId),
+    getBillByRoom: (billId: number) =>
+      safeInvoke("billBYroom:get", billId),
+    addExtra: (data: any) =>
+      safeInvoke("bill:add-extra", data),
+    addPayment: (data: any) =>
+      safeInvoke("bill:add-payment", data),
+    recalc: (billId: number) =>
+      safeInvoke("bill:recalc", billId),
+    checkout: (data: any) =>
+      safeInvoke("bill:checkout", data),
+    updateDiscount: (data: any) =>
+      safeInvoke("bill:discount_update", data),
+    list: (filter?: any) =>
+      safeInvoke("bill:list", filter),
   },
 
-  /* ================================
-     REPORTS
-  ================================= */
   report: {
     dailyRevenue: (date: string) =>
-      window.api.invoke("report:daily-revenue", date),
-
-    outstanding: () => window.api.invoke("report:outstanding"),
-
+      safeInvoke("report:daily-revenue", date),
+    outstanding: () =>
+      safeInvoke("report:outstanding"),
     occupancy: (from: string, to: string) =>
-      window.api.invoke("report:occupancy", { from, to }),
+      safeInvoke("report:occupancy", { from, to }),
   },
-  //financilayear
 
   fy: {
-    list: () => window.api.invoke("fy:list"),
-    active: () => window.api.invoke("fy:active"),
-    create: (year: number, prefix?: string) => window.api.invoke("fy:create", year, prefix),
-    setActive: (id: number) => window.api.invoke("fy:set-active", id),
-    update: (id: number, data: any) => window.api.invoke("fy:update", id, data),
-    delete: (id: number) => window.api.invoke("fy:delete", id),
-    nextInvoice: (id: number) => window.api.invoke("fy:next-invoice", id),
-    resetCounter: (id: number) => window.api.invoke("fy:reset-counter", id),
+    list: () => safeInvoke("fy:list"),
+    active: () => safeInvoke("fy:active"),
+      create: (data: { year: number; prefix?: string }) =>
+        safeInvoke("fy:create", data ),
+    setActive: (id: number) =>
+      safeInvoke("fy:set-active", id),
+    update: (id: number, data: any) =>
+      safeInvoke("fy:update", { id, data }),
+    delete: (id: number) =>
+      safeInvoke("fy:delete", id),
+    nextInvoice: (id: number) =>
+      safeInvoke("fy:next-invoice", id),
+    resetCounter: (id: number) =>
+      safeInvoke("fy:reset-counter", id),
   },
 
-
   billType: {
-    list: () => window.api.invoke("billType:list"),
-    active: () => window.api.invoke("billType:active"),
-    create: (data: any) => window.api.invoke("billType:create", data),
-    update: (id: number, data: any) => window.api.invoke("billType:update", id, data),
-    delete: (id: number) => window.api.invoke("billType:delete", id),
+    list: () => safeInvoke("billType:list"),
+    active: () => safeInvoke("billType:active"),
+    create: (data: any) =>
+      safeInvoke("billType:create", data),
+    update: (id: number, data: any) =>
+      safeInvoke("billType:update", { id, data }),
+    delete: (id: number) =>
+      safeInvoke("billType:delete", id),
   },
 
   users: {
-    create: (data: {
-      name: string;
-      username: string;
-      password: string;
-      email: string
-    }) => window.api.invoke("users:create", data),
-    list: () => window.api.invoke("users:list")
+    create: (data: any) =>
+      safeInvoke("users:create", data),
+    list: () => safeInvoke("users:list"),
   },
+
   roomType: {
-    list: () => window.api.invoke("roomType:list"),
-    toggle: (id: number, active: number) => window.api.invoke("roomType:toggle", { id, active }),
-    create: (data: any) => window.api.invoke("roomType:create", data),
-    update: (id: number, data: any) => window.api.invoke("roomType:update", { id, data }),
-    delete: (id: number) => window.api.invoke("roomType:delete", id),
+    list: () => safeInvoke("roomType:list"),
+    toggle: (id: number, active: number) =>
+      safeInvoke("roomType:toggle", { id, active }),
+    create: (data: any) =>
+      safeInvoke("roomType:create", data),
+    update: (id: number, data: any) =>
+      safeInvoke("roomType:update", { id, data }),
+    delete: (id: number) =>
+      safeInvoke("roomType:delete", id),
   },
 
   checkOut: {
-  list: () => window.api.invoke("checkout:list"),
-  create: (data: any) => window.api.invoke("checkout:create", data),
-  update: (data: any) => window.api.invoke("checkout:update", data),
-  delete: (id: number) => window.api.invoke("checkout:delete", id),
-  setDefault: (id: number) => window.api.invoke("checkout:setDefault", id),
-},
+    list: () => safeInvoke("checkout:list"),
+    create: (data: any) =>
+      safeInvoke("checkout:create", data),
+    update: (data: any) =>
+      safeInvoke("checkout:update", data),
+    delete: (id: number) =>
+      safeInvoke("checkout:delete", id),
+    setDefault: (id: number) =>
+      safeInvoke("checkout:setDefault", id),
+  },
 
-gst: {
-  list: () => window.api.invoke("gst:list"),
-  create: (data: any) => window.api.invoke("gst:create", data),
-  update: (data: any) => window.api.invoke("gst:update", data),
-  delete: (id: number) => window.api.invoke("gst:delete", id),
-  setActive: (id: number) => window.api.invoke("gst:setActive", id),
-},
+  gst: {
+    list: () => safeInvoke("gst:list"),
+    create: (data: any) =>
+      safeInvoke("gst:create", data),
+    update: (data: any) =>
+      safeInvoke("gst:update", data),
+    delete: (id: number) =>
+      safeInvoke("gst:delete", id),
+    setActive: (id: number) =>
+      safeInvoke("gst:setActive", id),
+  },
 
+  policeReport: {
+    create: (data: any) =>
+      safeInvoke("police-report:create", data),
+    getByCheckIn: (checkInId: number) =>
+      safeInvoke("police-report:getByCheckIn", checkInId),
+    markSubmitted: (id: number) =>
+      safeInvoke("police-report:markSubmitted", id),
+  },
+    dcr: {
+    add: (data: any) =>
+      safeInvoke("dcr:add", data),
 
+    list: (date: string) =>
+      safeInvoke("dcr:list", date),
 
+    delete: (id: number) =>
+      safeInvoke("dcr:delete", id),
+  },
 
+//restaurent apis
+
+  category: {
+    add: (data: any) =>
+      safeInvoke("category:add", data),
+
+    list: () =>
+      safeInvoke("category:list"),
+
+    get: (id: number) =>
+      safeInvoke("category:get", id),
+
+    update: (id: number, data: any) =>
+      safeInvoke("category:update", {id, data}),
+
+    delete: (id: number) =>
+      safeInvoke("category:delete", id),
+  },
+
+  /* =========================
+     DISH
+  ========================= */
+  dish: {
+    add: (data: any) =>
+      safeInvoke("dish:add", data),
+
+    list: () =>
+      safeInvoke("dish:list"),
+
+    get: (id: number) =>
+      safeInvoke("dish:get", id),
+
+    update: (id: number, data: any) =>
+      safeInvoke("dish:update", {id, data}),
+
+    delete: (id: number) =>
+      safeInvoke("dish:delete", id),
+  },
+
+  /* =========================
+     RESTAURANT TABLE
+  ========================= */
+  table: {
+    add: (data: any) =>
+      safeInvoke("table:add", data),
+
+    list: () =>
+      safeInvoke("table:list"),
+
+    get: (id: number) =>
+      safeInvoke("table:get", id),
+
+    update: (id: number, data: any) =>
+      safeInvoke("table:update", {id, data}),
+
+    delete: (id: number) =>
+      safeInvoke("table:delete", id),
+  },
+
+  /* =========================
+     EMPLOYEE
+  ========================= */
+  employee: {
+    add: (data: any) =>
+      safeInvoke("employee:add", data),
+
+    list: () =>
+      safeInvoke("employee:list"),
+
+    get: (id: number) =>
+      safeInvoke("employee:get", id),
+
+    update: (id: number, data: any) =>
+      safeInvoke("employee:update", {id, data}),
+
+    delete: (id: number) =>
+      safeInvoke("employee:delete", id),
+  },
+
+  /* =========================
+     KOT
+  ========================= */
+  kot: {
+    create: (data: any) =>
+      safeInvoke("kot:create", data),
+
+    addItem: (data: any) =>
+      safeInvoke("kot:add-item", data),
+
+    get: (kotId: number) =>
+      safeInvoke("kot:get", kotId),
+
+    close: (kotId: number) =>
+      safeInvoke("kot:close", kotId),
+    listClosed: () => safeInvoke("kot:list-closed")
+
+  },
+
+  /* =========================
+     BILLING
+  ========================= */
+  restaurant_bill: {
+    preview: (data: { kotIds: number[] }) =>
+      safeInvoke("bill:preview", data),
+    create: (data: any) =>
+      safeInvoke("bill:create", data),
+
+    addItemsFromKot: (billId: number) =>
+      safeInvoke("bill:add-items", billId),
+
+    checkout: (data: any) =>
+      safeInvoke("bill:checkout", data),
+  },
+
+  /* =========================
+     GST
+  ========================= */
+  restaurant_gst: {
+    add: (data: any) =>
+      safeInvoke("gst:add", data),
+
+    list: () =>
+      safeInvoke("gst:list"),
+
+    getActive: () =>
+      safeInvoke("gst:get-active"),
+
+    update: (id: number, data: any) =>
+      safeInvoke("gst:update", {id, data}),
+  },
+
+  /* =========================
+     SERVICE TAX
+  ========================= */
+  serviceTax: {
+    add: (data: any) =>
+      safeInvoke("service-tax:add", data),
+
+    list: () =>
+      safeInvoke("service-tax:list"),
+
+    getActive: () =>
+      safeInvoke("service-tax:get-active"),
+
+    update: (id: number, data: any) =>
+      safeInvoke("service-tax:update", {id, data}),
+  },
 };
-
-
-
-
-
-
-

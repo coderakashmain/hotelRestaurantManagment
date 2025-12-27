@@ -17,7 +17,7 @@ export const getAllFinancialYears = (): FinancialYear[] => {
 /* ============================================================
    2) GET ACTIVE YEAR
 ============================================================ */
-export const getActiveFinancialYear = (): FinancialYear | undefined => {
+export const getActiveFinancialYear = (_payload?: any): FinancialYear | undefined => {
   return db
     .prepare("SELECT * FROM financial_year WHERE is_active = 1 LIMIT 1")
     .get() as FinancialYear | undefined;
@@ -37,11 +37,19 @@ export const calculateFYDates = (year: number) => {
 /* ============================================================
    4) CREATE FY
 ============================================================ */
-export const createFinancialYear = (
+export const createFinancialYear = (data :{
   year: number,
   invoice_prefix?: string
-) => {
+}) => {
+  const {year,invoice_prefix} = data;
+  
+  
+  if(typeof year !== 'number'){
+  
+    throw new Error("Invalid year!")
+  }
   const { start_date, end_date, year_name } = calculateFYDates(year);
+
 
   const exists = db
     .prepare("SELECT id FROM financial_year WHERE year_name = ?")
@@ -61,7 +69,9 @@ export const createFinancialYear = (
 /* ============================================================
    5) SET ACTIVE FY
 ============================================================ */
-export const setActiveFinancialYear = (id: number) => {
+export const setActiveFinancialYear = (payload: number | { id: number }) => {
+  const id = typeof payload === "number" ? payload : payload.id;
+
   const trx = db.transaction(() => {
     db.prepare("UPDATE financial_year SET is_active = 0").run();
     db.prepare("UPDATE financial_year SET is_active = 1 WHERE id = ?").run(id);
@@ -74,10 +84,11 @@ export const setActiveFinancialYear = (id: number) => {
 /* ============================================================
    6) UPDATE FY DETAILS
 ============================================================ */
-export const updateFinancialYear = (
+export const updateFinancialYear = (payload :  {
   id: number,
   data: { invoice_prefix?: string; year_name?: string }
-) => {
+}) => {
+  const {id,data} = payload;
   const fy = db
     .prepare("SELECT * FROM financial_year WHERE id = ?")
     .get(id) as FinancialYear | undefined;

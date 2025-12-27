@@ -13,6 +13,8 @@ const CompanyContext = createContext<CompanyInfoContext>({
    refreshCompany: async () => {},
 });
 
+
+
 export const useCompany = () => useContext(CompanyContext);
 
 export function CompanyProvider({ children }: any) {

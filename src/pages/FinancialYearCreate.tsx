@@ -3,29 +3,30 @@ import { api } from "../api/api";
 import { useNavigate } from "react-router";
 import { useFinancialYear } from "../context/FinancialYearContext";
 
-
 export default function FinancialYearCreate() {
   const getFinancialYear = () => {
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = today.getMonth() + 1; 
-  if (month > 3) {
-    return year;
-  } else {
-    return year - 1;
-  }
-};
-
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = today.getMonth() + 1;
+    if (month > 3) {
+      return year;
+    } else {
+      return year - 1;
+    }
+  };
 
   const [year, setYear] = useState(getFinancialYear());
   const [prefix, setPrefix] = useState("");
   const navigate = useNavigate();
-     const { reloadYears } = useFinancialYear();
+  const { reloadYears } = useFinancialYear();
 
   const save = async () => {
-    await api.fy.create(Number(year), prefix || undefined);
+    await api.fy.create({
+      year: Number(year),
+      prefix: prefix || undefined,
+    });
     alert("Financial Year Created");
-    navigate("/fy");
+    navigate("/hotel/fy");
     reloadYears();
   };
 
@@ -42,7 +43,9 @@ export default function FinancialYearCreate() {
           className="border rounded p-2 w-full"
         />
 
-        <label className="block text-sm font-medium">Invoice Prefix (optional)</label>
+        <label className="block text-sm font-medium">
+          Invoice Prefix (optional)
+        </label>
         <input
           value={prefix}
           onChange={(e) => setPrefix(e.target.value)}

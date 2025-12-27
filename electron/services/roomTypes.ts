@@ -3,10 +3,9 @@ import { RoomType } from "../../src/components/rooms/types";
 
 const db = getDb();
 
-export const getRoomTypes = (): RoomType[] => {
+export const getRoomTypes = (_payload?: any): RoomType[] => {
   return db.prepare(`SELECT * FROM room_type ORDER BY id DESC`).all() as RoomType[];
 };
-
 
 export const createRoomType = (data: {
   type_name: string;
@@ -19,25 +18,40 @@ export const createRoomType = (data: {
   `).run(data.type_name, data.full_rate, data.hourly_rate ?? 0);
 };
 
-export const updateRoomType = (id : number ,data: {
+/* ============================
+   UPDATE ROOM TYPE  ✅ FIXED
+============================ */
+export const updateRoomType = (payload: {
   id: number;
-  type_name: string;
-  full_rate: number;
-  hourly_rate: number;
+  data: {
+    type_name: string;
+    full_rate: number;
+    hourly_rate: number;
+  };
 }) => {
+  const { id, data } = payload;
   return db.prepare(`
     UPDATE room_type
     SET type_name = ?, full_rate = ?, hourly_rate = ?, updated_at = datetime('now')
     WHERE id = ?
-  `).run(data.type_name, data.full_rate, data.hourly_rate, data.id);
+  `).run(
+    data.type_name,
+    data.full_rate,
+    data.hourly_rate,
+    id
+  );
 };
 
-
-export const deleteRoomType = (id: number) => {
+export const deleteRoomType = (payload: number | { id: number }) => {
+  const id = typeof payload === "number" ? payload : payload.id;
   return db.prepare(`DELETE FROM room_type WHERE id = ?`).run(id);
 };
 
-export const toggleRoomType = (id: number, active: number) => {
+export const toggleRoomType = (payload: {
+  id: number;
+  active: number;
+}) => {
+  const {id,active} = payload;
   return db.prepare(`
     UPDATE room_type
     SET is_active = ?, updated_at = datetime('now')

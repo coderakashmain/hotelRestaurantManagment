@@ -123,7 +123,7 @@ export default function RoomChart() {
           {dropdownRoom.status.toLowerCase() === "available" && (
             <button  onClick={() => {
               closeDropdown();
-              navigate(`/checkin?room=${dropdownRoom.id}`)
+              navigate(`/hotel/checkin?room=${dropdownRoom.id}`)
               }} className="block w-full text-left px-4 py-2 hover:bg-gray-100">
                Check In
             </button>

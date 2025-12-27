@@ -29,7 +29,7 @@ export default function FinancialYearEdit() {
     });
 
     alert("Financial Year updated successfully!");
-    navigate("/fy");
+    navigate("/hotel/fy");
   };
 
   if (loading || !fy) return <div className="p-6">Loading…</div>;
@@ -68,7 +68,7 @@ export default function FinancialYearEdit() {
         </button>
 
         <button
-          onClick={() => navigate("/fy")}
+          onClick={() => navigate("/hotel/fy")}
           className="w-full bg-gray-300 text-black py-2 rounded mt-2"
         >
           Cancel

@@ -7,7 +7,7 @@ const db = getDb();
 /* ====================================
    COMPANY INFO
 ==================================== */
-export const getCompanyInfo = (): CompanyInfo | undefined => {
+export const getCompanyInfo = (_payload?: any): CompanyInfo | undefined => {
   return db.prepare("SELECT * FROM company_info LIMIT 1").get() as CompanyInfo;
 };
 

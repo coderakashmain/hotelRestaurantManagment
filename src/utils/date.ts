@@ -17,6 +17,20 @@ export const formatDate = (iso: string) => {
   });
 };
 
+export function formatDateinNumber(input: string): string {
+  if (!input) return "";
+
+  // Supports both yyyy-mm-dd and yyyy/mm/dd
+  const normalized = input.replace(/-/g, "/");
+
+  const [year, month, day] = normalized.split("/");
+
+  if (!year || !month || !day) return "";
+
+  return `${day.padStart(2, "0")}/${month.padStart(2, "0")}/${year}`;
+}
+
+
 //  Convert ISO → Local time only
 export const formatTime = (iso: string) => {
   if (!iso) return "";

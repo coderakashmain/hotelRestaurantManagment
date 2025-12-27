@@ -9,15 +9,22 @@ export function useAsync<T = any>(
   const [data, setData] = useState<T | null>(null);
   const [error, setError] = useState<any>(null);
 
-  const load = useCallback(() => {
-    setLoading(true);
-    setError(null);
+const load = useCallback(() => {
+  setLoading(true);
+  setError(null);
 
-    return promiseFactory()
-      .then((res) => setData(res))
-      .catch((err) => setError(err))
+  try {
+    return Promise.resolve(promiseFactory())
+      .then(setData)
+      .catch(setError)
       .finally(() => setLoading(false));
-  }, deps);
+  } catch (err) {
+    setError(err);
+    setLoading(false);
+    return Promise.reject(err);
+  }
+}, deps);
+
 
   // initial call
   useEffect(() => {

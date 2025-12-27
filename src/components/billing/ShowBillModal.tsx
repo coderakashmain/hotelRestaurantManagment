@@ -1,27 +1,40 @@
 import { useAsync } from "../../hooks/useAsync";
 import { api } from "../../api/api";
 import { useCompany } from "../../context/CompanyInfoContext";
-import InvoicePrint from "./InvoicePrint";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useInvoiceData } from "../../context/InvoiceDataContext";
+import { useNavigate } from "react-router";
+
 
 export default function ShowBillModal({ billId, onClose }: any) {
   const [discountValue, setDiscountValue] = useState(0);
   const [discountType, setDiscountType] = useState<"FLAT" | "PERCENT">("FLAT");
+  const {setInvoiceData,setCompanyData} = useInvoiceData();
+  const navigate = useNavigate();
 
   const { company } = useCompany();
-  const [print, setPrint] = useState(false);
+  // const [print, setPrint] = useState(false);
   const {
     loading,
     data: bill,
     reload,
   } = useAsync(() => api.bill.get(billId), [billId]);
 
+  useEffect(()=>{
+    if(bill){
+      setInvoiceData(bill);
+    }
+    if(company && company.length>0){
+      setCompanyData(company[0]);
+    }
 
+
+  },[bill]);
 
   if (!bill || loading) return <div>Loading...</div>;
 
   const applyDiscount = async () => {
-    const res = await api.bill.updateDiscount({
+     await api.bill.updateDiscount({
       bill_id: billId,
       value: discountValue,
       type: discountType,
@@ -30,6 +43,7 @@ export default function ShowBillModal({ billId, onClose }: any) {
     alert("Discount applied successfully!");
     reload();
   };
+
 
   return (
     <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
@@ -138,19 +152,22 @@ export default function ShowBillModal({ billId, onClose }: any) {
             Close
           </button>
           <button
-            onClick={() => setPrint(true)}
+            // onClick={() => setPrint(true)}
+            onClick={() => {  
+              navigate("/hotel/print/invoice")}}
+           
             className="px-6 py-2 bg-green-600 text-white rounded cursor-pointer"
           >
             Print Bill
           </button>
 
-          {print && (
+          {/* {print && (
             <InvoicePrint
               data={bill}
               company={company}
               onClose={() => setPrint(false)}
             />
-          )}
+          )} */}
         </div>
       </div>
     </div>

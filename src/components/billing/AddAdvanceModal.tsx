@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { api } from "../../api/api";
-import MoneyReceiptPrint from "./MoneyReceiptPrint";
-
+// import MoneyReceiptPrint from "./MoneyReceiptPrint";
+import { useMrData } from "../../context/MrDataContext";
+import { useNavigate } from "react-router";
 export default function AddAdvanceModal({
   billId,
   guestId,
@@ -14,10 +15,10 @@ export default function AddAdvanceModal({
   const [amount, setAmount] = useState(0);
   const [method, setMethod] = useState("CASH");
   const [reference, setReference] = useState("");
-  const [receiptData, setReceiptData] = useState(null);
-  const [customerView, setCustomerView] = useState(false);
-  const [employeeView, setEmployeeView] = useState(false);
-  const [paidStatus, setPaidStatus] = useState(false);
+  const {setMrData} = useMrData();
+  const navigate = useNavigate();
+
+
 
   const save = async () => {
     if (amount <= 0) return alert("Amount must be greater than 0");
@@ -31,8 +32,10 @@ export default function AddAdvanceModal({
       reference_no: reference || "",
     });
 
-    setPaidStatus(true);
-    setReceiptData(data); // ready for print
+ 
+    setMrData(data);
+    navigate('/hotel/print/mr')
+
   };
 
   return (
@@ -40,7 +43,7 @@ export default function AddAdvanceModal({
       <div className="bg-white min-w-96 p-6 rounded shadow space-y-4">
         <h2 className="text-xl font-bold">Add Advance Payment</h2>
 
-        {!paidStatus && (
+       
           <>
             <div>
               <label className="text-sm block">Amount</label>
@@ -89,9 +92,9 @@ export default function AddAdvanceModal({
               </button>
             </div>
           </>
-        )}
+       
 
-        {paidStatus && (
+        {/* {paidStatus && (
           <div className="mt-4 p-3 border rounded  bg-green-50 text-center space-y-3">
             <p className="font-semibold text-green-700">
               Advance added successfully!
@@ -116,28 +119,10 @@ export default function AddAdvanceModal({
               </button>
             </div>
           </div>
-        )}
+        )} */}
       </div>
 
-      {receiptData && customerView && (
-        <MoneyReceiptPrint
-          data={receiptData}
-          viewFor={"CUSTOMER"}
-          onClose={() => {
-            setCustomerView(false);
-          }}
-        />
-      )}
-
-      {receiptData && employeeView && (
-        <MoneyReceiptPrint
-          data={receiptData}
-          viewFor={"EMPLOYEE"}
-          onClose={() => {
-            setEmployeeView(false);
-          }}
-        />
-      )}
+     
     </div>
   );
 }
