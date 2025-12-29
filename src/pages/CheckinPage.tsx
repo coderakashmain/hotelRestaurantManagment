@@ -456,7 +456,7 @@ export default function CheckinPage() {
             min={1}
             value={noOfGuests}
             onChange={(e) => setNoOfGuests(Number(e.target.value))}
-            className="w-full border p-2 rounded mb-2"
+            className="w-full border border-gray p-2 rounded mb-2"
           />
         </div>
 
@@ -500,7 +500,7 @@ export default function CheckinPage() {
                 min={1}
                 value={hourCount}
                 onChange={(e) => setHourCount(Number(e.target.value))}
-                className="w-full border p-2 rounded mb-2"
+                className="w-full border border-gray p-2 rounded mb-2"
                 placeholder="Hours"
               />
 
@@ -513,7 +513,7 @@ export default function CheckinPage() {
             type="number"
             value={extraTime}
             onChange={(e) => setExtraTime(Number(e.target.value))}
-            className="w-full border p-2 rounded mb-2"
+            className="w-full border  p-2 rounded mb-2"
           />
 
           <label className="block text-sm mb-1">Expected Checkout</label>
@@ -723,16 +723,16 @@ export default function CheckinPage() {
           onChange={(e) =>
             setGuestForm({ ...guestForm, address: e.target.value })
           }
-          className="w-full border rounded-sm p-2"
+          className="w-full border border-gray rounded-sm p-2"
           rows={3}
           placeholder="Guest address"
         />
       </div>
 
       {/* Actions */}
-      <div className="flex justify-end gap-3 pt-3 border-t">
+      <div className="flex justify-end gap-3 pt-3  border-t border-gray">
         <button
-          className="px-4 py-2 border rounded-sm"
+          className="px-4 py-2 border border-gray rounded-sm"
           onClick={() => setShowGuestModal(false)}
         >
           Cancel

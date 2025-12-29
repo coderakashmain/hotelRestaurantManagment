@@ -119,9 +119,9 @@ export default function DailyCollection() {
       )}
 
       {/* ================= TABLE ================= */}
-      <div className="bg-white shadow-card rounded overflow-auto">
-        <table className="w-full text-sm border border-gray-collapse">
-          <thead className="bg-gray-100 sticky top-0">
+      <div className="bg-white  rounded overflow-auto">
+        <table className="w-full text-sm border rounded border-gray  ">
+          <thead className="bg-gray-100 sticky top-0 rounded">
             <tr>
               <th className="border border-gray  p-2">Type</th>
               <th className="border border-gray p-2">Ref</th>

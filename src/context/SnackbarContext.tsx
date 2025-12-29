@@ -45,7 +45,7 @@ export const SnackbarProvider = ({ children }: { children: any }) => {
       {children}
 
       {snackbar.open && (
-        <div className="fixed bottom-6 right-6 z-[9999] snackbar-enter">
+        <div className="fixed bottom-10 right-3 z-[9999] snackbar-enter">
           <div
             className={`${bg} text-white rounded-sm shadow-card px-4 py-3 flex items-start gap-3 min-w-[260px]`}
           >

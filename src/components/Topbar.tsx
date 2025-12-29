@@ -5,11 +5,13 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
 } from "@heroicons/react/24/solid";
+import { useSnackbar } from "../context/SnackbarContext";
 
 const Topbar = () => {
   const { users } = useUsers();
   const navigate = useNavigate();
   const location = useLocation();
+  const {showSnackbar} = useSnackbar();
 
   const isHotel = location.pathname.startsWith("/hotel");
   const isRestaurant = location.pathname.startsWith("/restaurant");
@@ -123,6 +125,7 @@ const Topbar = () => {
 
         {/* Upgrade */}
         <button
+        onClick={()=>showSnackbar("Free to use for Now.",'warning')}
           className="
             mr-2 px-4 h-7 text-xs font-medium
             rounded-sm border border-accent
