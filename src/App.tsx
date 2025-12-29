@@ -7,8 +7,6 @@ const RoomChart = lazy(() => import("./components/rooms/RoomChart"));
 const CompanySetupPage = lazy(() => import("./pages/CompanySetupPage"));
 const CheckinPage = lazy(() => import("./pages/CheckinPage"));
 const FinancialYearList = lazy(() => import("./pages/FinancialYearList"));
-const FinancialYearCreate = lazy(() => import("./pages/FinancialYearCreate"));
-const FinancialYearEdit = lazy(() => import("./pages/FinancialYearEdit"));
 const UserCreatePage = lazy(() => import("./pages/masters/UserCreatePage"));
 const ExtraCharge = lazy(() => import("./pages/masters/ExtraCharge"));
 const Company = lazy(() => import("./pages/masters/Company"));
@@ -26,6 +24,8 @@ const RestaurantTablePage = lazy(
 );
 const EmployeePage = lazy(() => import("./pages/restaurant/EmployeePage"));
 const BillingPage = lazy(() => import("./pages/restaurant/BillingPage"));
+const GstPageRestaurant = lazy(() => import("./pages/restaurant/GstPageRestaurant"));
+
 
 import IndexRouter from "./Router/IndexRouter";
 import OuterRouter from "./Router/OuterRouter";
@@ -68,8 +68,8 @@ function App() {
               <Route path="rooms-chart" element={<RoomChart />} />
               <Route path="checkin" element={<CheckinPage />} />
               <Route path="fy" element={<FinancialYearList />} />
-              <Route path="fy-create" element={<FinancialYearCreate />} />
-              <Route path="fy-edit/:id" element={<FinancialYearEdit />} />
+              {/* <Route path="fy-create" element={<FinancialYearCreate />} />
+              <Route path="fy-edit/:id" element={<FinancialYearEdit />} /> */}
               <Route path="hotel-info" element={<Company />} />
               <Route path="extra-charges" element={<ExtraCharge />} />
               <Route path="room-type" element={<RoomTypePage />} />
@@ -89,12 +89,14 @@ function App() {
             <Route path="dish-master" element={<DishPage />} />
             <Route path="table-master" element={<RestaurantTablePage />} />
             <Route path="employee-master" element={<EmployeePage />} />
+            <Route path="gst-master-restaurent" element={<GstPageRestaurant />} />
             <Route path="kot" element={<KOT />} />
             <Route path="kot-billing" element={<BillingPage />} />
           </Route>
-        </Route>
-        <Route path="setup/user-create" element={<UserCreatePage />} />
+          <Route path="setup/user-create" element={<UserCreatePage />} />
         <Route path="company-setup" element={<CompanySetupPage />} />
+        </Route>
+        
       </Routes>
     </Suspense>
   );

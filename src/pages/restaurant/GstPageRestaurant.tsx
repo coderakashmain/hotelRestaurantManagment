@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useGST } from "../../context/GSTContext";
 import { api } from "../../api/api";
 import {
   CheckIcon,
@@ -7,11 +6,18 @@ import {
   PencilSquareIcon,
   TrashIcon,
 } from "@heroicons/react/24/solid";
+
 import { useSnackbar } from "../../context/SnackbarContext";
 import { useKeyboardShortcuts } from "../../hooks/useKeyboardShortcuts";
+import { useAsync } from "../../hooks/useAsync";
 
-const GSTPage = () => {
-  const { list, loading, reload } = useGST();
+const GstPageRestaurant = () => {
+
+  const { data: list, reload, loading } = useAsync<any>(
+    () => api.restaurant_gst.list(),
+    []
+  );
+
   const { showSnackbar } = useSnackbar();
 
   const [edit, setEdit] = useState<any | null>(null);
@@ -80,7 +86,7 @@ const GSTPage = () => {
       return;
     }
 
-    await api.gst.create(newGST);
+    await api.restaurant_gst.create(newGST);
     showSnackbar("GST slab added", "success");
 
     setNewGST({
@@ -99,7 +105,7 @@ const GSTPage = () => {
   const update = async () => {
     if (!edit) return;
 
-    await api.gst.update(edit);
+    await api.restaurant_gst.update(edit);
     showSnackbar("GST slab updated", "success");
 
     setEdit(null);
@@ -107,22 +113,22 @@ const GSTPage = () => {
   };
 
   const setActive = async (id: number) => {
-    await api.gst.setActive(id);
+    await api.restaurant_gst.setActive(id);
     showSnackbar("Active GST updated", "warning");
     reload();
   };
 
   const remove = async (id: number) => {
-    await api.gst.delete(id);
+    await api.restaurant_gst.delete(id);
     showSnackbar("GST slab removed", "success");
     reload();
   };
 
 
+
   useKeyboardShortcuts({
     Enter: create
-  },[newGST])
-  
+  },[newGST]);
   if (loading) {
     return <div className="p-10 text-lg">Loading GST slabs…</div>;
   }
@@ -319,4 +325,4 @@ const GSTPage = () => {
   );
 };
 
-export default GSTPage;
+export default GstPageRestaurant;

@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect } from "react";
 import { api } from "../api/api";
 import { useNavigate } from "react-router-dom";
 import { useAsync } from "../hooks/useAsync";
+import { useCompany } from "./CompanyInfoContext";
 
 interface UserContextType {
   users: any[];
@@ -12,16 +13,17 @@ interface UserContextType {
 const UserContext = createContext<UserContextType | null>(null);
 
 export const useUsers = () => {
+
   const ctx = useContext(UserContext);
   if (!ctx) {
     throw new Error("useUsers must be used inside UserProvider");
   }
   return ctx;
 };
-
 const STORAGE_KEY = import.meta.env.VITE_STORAGE_KEY || "3klsdfoidskfsdo";
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
+  const {company} = useCompany();
   const navigate = useNavigate();
 
   const { data, loading, reload } = useAsync<any[]>(async () => {
@@ -42,7 +44,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
   // redirect logic
   useEffect(() => {
-    if (!loading && users.length === 0) {
+    if (!loading && users.length === 0 &&company ) {
       navigate("/setup/user-create");
     }
   }, [loading, users]);

@@ -3,8 +3,10 @@ import { useEffect, useState } from "react";
 import { useAsync } from "../hooks/useAsync";
 import { api } from "../api/api";
 import { useFinancialYear } from "../context/FinancialYearContext";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useCheckOutRule } from "../context/CheckOutRuleContext";
+import { useSnackbar } from "../context/SnackbarContext";
+import { useKeyboardShortcuts } from "../hooks/useKeyboardShortcuts";
 
 type GuestType = {
   id: number;
@@ -29,6 +31,8 @@ export default function CheckinPage() {
   const [guestDetails, setGuestDetails] = useState<any | null>(null);
   const [selectedGuest, setSelectedGuest] = useState<any | null>(null);
   const [extraTime, setExtraTime] = useState<number>(0);
+  const {showSnackbar} = useSnackbar();
+  const navigate= useNavigate();
   // load guests & rooms
   const {
     loading: loadingGuests,
@@ -136,14 +140,16 @@ export default function CheckinPage() {
   // create guest quick
   const createGuest = async () => {
     if (!guestForm.full_name.trim()) {
-      alert("Guest name required");
+      
+      showSnackbar("Guest name required",'warning')
       return;
     }
     if (
       guestForm.phone.trim().length > 0 &&
       guestForm.phone.trim().length < 10
     ) {
-      alert("Enter 10 digit phone number!");
+      
+      showSnackbar("Enter 10 digit phone number!",'warning')
       return;
     }
     if (guestForm?.phone === guestDetails?.phone && autoFilled) {
@@ -180,15 +186,17 @@ export default function CheckinPage() {
     reloadGuests();
   };
 
+  
+
   // main submit - create checkin, create bill (if backend does it), add advance payment if provided
   const doCheckin = async () => {
-    if (!selectedGuestId) return alert("Select a guest or create new.");
-    if (!selectedRoomId) return alert("Select a room.");
+    if (!selectedGuestId) return     showSnackbar("Select a guest or create new.",'warning');
+    if (!selectedRoomId) return  showSnackbar("Select a room.",'warning'); 
 
     const activeYear = years.find((y) => y.is_active === 1);
 
     if (!activeYear) {
-      alert("First select a Financial Year!");
+      showSnackbar("First select a Financial Year!",'warning'); 
       return;
     }
 
@@ -197,7 +205,7 @@ export default function CheckinPage() {
     const end = new Date(activeYear.end_date);
 
     if (today < start || today > end) {
-      return alert("Today is outside the Financial Year range!");
+      return showSnackbar("Today is outside the Financial Year range!",'warning'); 
     }
 
     // ensure we have a rate number
@@ -272,9 +280,8 @@ export default function CheckinPage() {
           });
         } else {
           // fallback: warn user that advance couldn't be attached to bill
-          alert(
-            "Advance collected but could not attach to bill automatically. You can add it manually later."
-          );
+          
+          showSnackbar("Advance collected but could not attach to bill automatically. You can add it manually later.",'warning'); 
         }
       }
     }
@@ -286,7 +293,8 @@ export default function CheckinPage() {
       await api.room.update(selectedRoomId, { status: "OCCUPIED" });
     }
 
-    alert("Checked in successfully.");
+
+    showSnackbar("Checked in successfully.",'success'); 
      setSelectedGuestId(null);
      setSelectedGuest(null);
      setSelectedRoomId(null)
@@ -325,34 +333,64 @@ export default function CheckinPage() {
     }
   };
 
+
+  useKeyboardShortcuts(
+    {
+      Enter: doCheckin,
+  
+      Escape: ({ inInput, target }) => {
+        // 1️⃣ If inside input → clear THAT FIELD via STATE
+        if (inInput && target instanceof HTMLInputElement && target.name) {
+          setGuestForm((prev) => ({
+            ...prev,
+            [target.name]: "",
+          }));
+          return;
+        }
+  
+        // 2️⃣ If popup open → close it
+        if (showGuestModal) {
+          setShowGuestModal(false);
+          return;
+        }
+  
+        // 3️⃣ Else → navigate back / fallback
+        navigate(-1);
+      },
+  
+    },
+    [guestForm, showGuestModal]
+  );
+  
+
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">New Check-In</h1>
+      <h1 className="text-lg font-bold mb-4">New Check-In</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Guest select */}
-        <div className="col-span-1 bg-white p-4 rounded shadow">
+        <div className="col-span-1 card">
           <div className="flex items-center justify-between mb-3">
             <h2 className="font-semibold">Guest Data</h2>
             <div className="flex gap-5">
               {selectedGuest && (
                 <button
                   onClick={() => setSelectedGuest(null)}
-                  className="text-sm text-red-600 cursor-pointer"
+                  className="text-xs text-red-600 cursor-pointer"
                 >
                   Remove Guest
                 </button>
               )}
               <button
-                className="text-sm text-blue-600 cursor-pointer"
+                className="text-xs   text-blue-600 cursor-pointer"
                 onClick={() => setShowGuestModal(true)}
               >
-                + Add
+                + Add Guest
               </button>
             </div>
           </div>
 
-          <div className="mt-2">
+          <div className="mt-2 text-sm">
             {selectedGuest ? (
               <p>
                 Name : {selectedGuest.full_name} <br />
@@ -367,7 +405,7 @@ export default function CheckinPage() {
             )}
           </div>
 
-          <div className="mt-5">
+          <div className="mt-5 text-sm">
             {selectedRoomId ? (
               <p>
                 Room No : {selectedRoom?.room_number} <br />
@@ -389,11 +427,11 @@ export default function CheckinPage() {
         </div>
 
         {/* Room select */}
-        <div className="col-span-1 bg-white p-4 rounded shadow">
+        <div className="col-span-1 card">
           <h2 className="font-semibold mb-2">Room</h2>
 
           <select
-            className="w-full border p-2 rounded"
+            className="w-full border border-gray p-2 rounded bg-white"
             value={selectedRoomId ?? 0}
             onChange={(e) => setSelectedRoomId(Number(e.target.value) || null)}
           >
@@ -423,7 +461,7 @@ export default function CheckinPage() {
         </div>
 
         {/* Stay details */}
-        <div className="col-span-1 bg-white p-4 rounded shadow">
+        <div className="col-span-1 card">
           <h2 className="font-semibold mb-2">Stay Details</h2>
 
           <label className="block text-sm mb-1">Stay Type</label>
@@ -436,7 +474,7 @@ export default function CheckinPage() {
               );
               setStayType(selected || null);
             }}
-            className="w-full border p-2 rounded mb-2"
+            className="w-full border border-gray bg-white p-2 rounded mb-2"
           >
             {allowChange
               ? checkOutType.map((type) => (
@@ -489,7 +527,7 @@ export default function CheckinPage() {
       </div>
 
       {/* Advance + notes */}
-      <div className="mt-4 bg-white p-4 rounded shadow grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="mt-4 card  grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
           <label className="block text-sm mb-1">Advance Amount</label>
           <input
@@ -506,7 +544,7 @@ export default function CheckinPage() {
           <select
             value={advanceMethod}
             onChange={(e) => setAdvanceMethod(e.target.value)}
-            className="w-full border p-2 rounded"
+            className="w-full border border-gray bg-white p-2 rounded"
           >
             <option>CASH</option>
             <option>UPI</option>
@@ -525,6 +563,9 @@ export default function CheckinPage() {
             placeholder="Any notes..."
           />
         </div>
+        <p className="text-xs text-secondary">
+            ⏎ Enter = Create &nbsp; • &nbsp; Esc = Back
+          </p>
       </div>
 
       <div className="mt-4 flex justify-end gap-3">
@@ -552,104 +593,162 @@ export default function CheckinPage() {
 
       {/* Add Guest Modal */}
       {showGuestModal && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded w-96">
-            <h3 className="text-lg font-semibold mb-3">Add Guest</h3>
+  <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+    <div className="bg-white w-[420px] rounded-md shadow-card p-6">
+      
+      {/* Header */}
+      <div className="mb-4">
+        <h3 className="text-lg font-semibold">Add Guest</h3>
+        <p className="text-sm text-secondary">
+          Enter guest details to continue check-in
+        </p>
+      </div>
 
-            <input
-              type="number"
-              value={guestForm.phone}
-              placeholder="Phone Number"
-              className="w-full border p-2 rounded mb-2"
-              onChange={(e) => {
-                const value = e.target.value;
-                setGuestForm({ ...guestForm, phone: value });
+      {/* Phone */}
+      <div className="mb-3">
+        <label className="block text-xs text-secondary font-medium mb-1">
+          Phone Number <span className="text-error">*</span>
+        </label>
+        <input
+          type="number"
+          value={guestForm.phone}
+          className="w-full border rounded-sm p-2"
+          placeholder="10 digit mobile number"
+          onChange={(e) => {
+            const value = e.target.value;
+            setGuestForm({ ...guestForm, phone: value });
 
-                // When full number entered → fetch attempt
-                if (value.length === 10) {
-                  guestByPhone(value);
-                  return;
-                }
+            // When full number entered → fetch attempt
+            if (value.length === 10) {
+              guestByPhone(value);
+              return;
+            }
 
-                // If guest data was auto-filled & phone becomes < 10 → clear auto imported data only
-                if (autoFilled && value.length < 10) {
-                  setAutoFilled(false);
-                  setGuestDetails(null);
-                  setGuestForm({
-                    ...guestForm,
-                    id: null,
-                    full_name: "",
-                    email: "",
-                    id_proof_type: "",
-                    id_proof_number: "",
-                    address: "",
-                  });
-                  return;
-                }
+            // Clear auto-filled data if phone reduced
+            if (autoFilled && value.length < 10) {
+              setAutoFilled(false);
+              setGuestDetails(null);
+              setGuestForm({
+                ...guestForm,
+                id: null,
+                full_name: "",
+                email: "",
+                id_proof_type: "",
+                id_proof_number: "",
+                address: "",
+              });
+            }
+          }}
+        />
+      </div>
 
-                setGuestDetails(null);
-              }}
-            />
+      {/* Name */}
+      <div className="mb-3">
+        <label className="block  text-xs text-secondary font-medium mb-1">
+          Full Name <span className="text-error">*</span>
+        </label>
+        <input
+        name="full_name"
+          value={guestForm.full_name}
+          onChange={(e) =>
+            setGuestForm({ ...guestForm, full_name: e.target.value })
+          }
+          className="w-full border rounded-sm p-2"
+          placeholder="Guest full name"
+        />
+      </div>
 
-            <input
-              value={guestForm.full_name}
-              onChange={(e) =>
-                setGuestForm({ ...guestForm, full_name: e.target.value })
-              }
-              className="w-full border p-2 rounded mb-2"
-              placeholder="Full name"
-            />
+      {/* Email */}
+      <div className="mb-3">
+        <label className="block text-xs text-secondary font-medium mb-1">
+          Email (optional)
+        </label>
+        <input
+          value={guestForm.email}
+          onChange={(e) =>
+            setGuestForm({ ...guestForm, email: e.target.value })
+          }
+          className="w-full border rounded-sm p-2"
+          placeholder="guest@email.com"
+        />
+      </div>
 
-            <input
-              value={guestForm.email}
-              onChange={(e) =>
-                setGuestForm({ ...guestForm, email: e.target.value })
-              }
-              className="w-full border p-2 rounded mb-2"
-              placeholder="Email"
-            />
-            <input
-              value={guestForm.id_proof_type}
-              onChange={(e) =>
-                setGuestForm({ ...guestForm, id_proof_type: e.target.value })
-              }
-              className="w-full border p-2 rounded mb-2"
-              placeholder="ID proof type (Aadhar, PAN...)"
-            />
-            <input
-              value={guestForm.id_proof_number}
-              onChange={(e) =>
-                setGuestForm({ ...guestForm, id_proof_number: e.target.value })
-              }
-              className="w-full border p-2 rounded mb-2"
-              placeholder="ID proof number"
-            />
-            <textarea
-              value={guestForm.address}
-              onChange={(e) =>
-                setGuestForm({ ...guestForm, address: e.target.value })
-              }
-              className="w-full border p-2 rounded mb-3"
-              placeholder="Address"
-            />
+      {/* ID Proof */}
+      <div className="grid grid-cols-2 gap-3 mb-3">
+  {/* ID Proof Type */}
+  <div>
+    <label className="block text-xs text-secondary mb-1">
+      ID Proof Type
+    </label>
+    <select
+      value={guestForm.id_proof_type}
+      onChange={(e) =>
+        setGuestForm({ ...guestForm, id_proof_type: e.target.value })
+      }
+      className="w-full border border-gray rounded-sm p-2 text-sm"
+    >
+      <option value="">Select ID Proof</option>
+      <option value="AADHAAR">Aadhaar</option>
+      <option value="PAN">PAN Card</option>
+      <option value="PASSPORT">Passport</option>
+      <option value="DRIVING_LICENSE">Driving License</option>
+      <option value="VOTER_ID">Voter ID</option>
+    </select>
+  </div>
 
-            <div className="flex gap-2 justify-end">
-              <button
-                className="px-4 py-2 border rounded"
-                onClick={() => setShowGuestModal(false)}
-              >
-                Cancel
-              </button>
-              <button
-                className="px-4 py-2 bg-sky-600 text-white rounded cursor-pointer"
-                onClick={createGuest}
-              >
-                Select
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+  {/* ID Proof Number */}
+  <div>
+    <label className="block text-xs text-secondary mb-1">
+      ID Proof Number
+    </label>
+    <input
+      value={guestForm.id_proof_number}
+      onChange={(e) =>
+        setGuestForm({ ...guestForm, id_proof_number: e.target.value })
+      }
+      className="w-full border rounded-sm p-2 text-sm"
+      placeholder="Enter ID number"
+    />
+  </div>
+</div>
+
+
+      {/* Address */}
+      <div className="mb-4">
+        <label className="block text-xs text-secondary font-medium mb-1">
+          Address
+        </label>
+        <textarea
+          value={guestForm.address}
+          onChange={(e) =>
+            setGuestForm({ ...guestForm, address: e.target.value })
+          }
+          className="w-full border rounded-sm p-2"
+          rows={3}
+          placeholder="Guest address"
+        />
+      </div>
+
+      {/* Actions */}
+      <div className="flex justify-end gap-3 pt-3 border-t">
+        <button
+          className="px-4 py-2 border rounded-sm"
+          onClick={() => setShowGuestModal(false)}
+        >
+          Cancel
+        </button>
+
+        <button
+          className="px-5 py-2 bg-primary text-white rounded-sm"
+          onClick={createGuest}
+        >
+          Select Guest
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
     </div>
   );
 }

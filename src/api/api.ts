@@ -80,8 +80,8 @@ export const api = {
   fy: {
     list: () => safeInvoke("fy:list"),
     active: () => safeInvoke("fy:active"),
-      create: (data: { year: number; prefix?: string }) =>
-        safeInvoke("fy:create", data ),
+    create: (data: { year: number; prefix?: string }) =>
+      safeInvoke("fy:create", data),
     setActive: (id: number) =>
       safeInvoke("fy:set-active", id),
     update: (id: number, data: any) =>
@@ -148,25 +148,50 @@ export const api = {
   },
 
   policeReport: {
-    create: (data: any) =>
+    // Create police report (backend decides check-ins)
+    create: (data: {
+      station_name: string;
+      station_address?: string;
+      officer_name?: string;
+      purpose?: string;
+      remarks?: string;
+    }) =>
       safeInvoke("police-report:create", data),
+
+    // Get police report by report ID
+    getById: (id: number) =>
+      safeInvoke("police-report:getById", id),
+
+    // Get police report linked to a check-in
     getByCheckIn: (checkInId: number) =>
       safeInvoke("police-report:getByCheckIn", checkInId),
+
+    // List all police reports
+    list: () =>
+      safeInvoke("police-report:list"),
+
+    // Mark report as submitted
     markSubmitted: (id: number) =>
       safeInvoke("police-report:markSubmitted", id),
+
+    // Delete police report
+    delete: (id: number) =>
+      safeInvoke("police-report:delete", id),
   },
-    dcr: {
+
+  dcr: {
     add: (data: any) =>
       safeInvoke("dcr:add", data),
-
+  
     list: (date: string) =>
-      safeInvoke("dcr:list", date),
-
-    delete: (id: number) =>
-      safeInvoke("dcr:delete", id),
+      safeInvoke("dcr:list", { date }),
+  
+    reverse: (data: { id: number; userId: number }) =>
+      safeInvoke("dcr:reverse", data),
   },
+  
 
-//restaurent apis
+  //restaurent apis
 
   category: {
     add: (data: any) =>
@@ -179,7 +204,7 @@ export const api = {
       safeInvoke("category:get", id),
 
     update: (id: number, data: any) =>
-      safeInvoke("category:update", {id, data}),
+      safeInvoke("category:update", { id, data }),
 
     delete: (id: number) =>
       safeInvoke("category:delete", id),
@@ -199,7 +224,7 @@ export const api = {
       safeInvoke("dish:get", id),
 
     update: (id: number, data: any) =>
-      safeInvoke("dish:update", {id, data}),
+      safeInvoke("dish:update", { id, data }),
 
     delete: (id: number) =>
       safeInvoke("dish:delete", id),
@@ -219,7 +244,7 @@ export const api = {
       safeInvoke("table:get", id),
 
     update: (id: number, data: any) =>
-      safeInvoke("table:update", {id, data}),
+      safeInvoke("table:update", { id, data }),
 
     delete: (id: number) =>
       safeInvoke("table:delete", id),
@@ -239,7 +264,7 @@ export const api = {
       safeInvoke("employee:get", id),
 
     update: (id: number, data: any) =>
-      safeInvoke("employee:update", {id, data}),
+      safeInvoke("employee:update", { id, data }),
 
     delete: (id: number) =>
       safeInvoke("employee:delete", id),
@@ -260,7 +285,11 @@ export const api = {
 
     close: (kotId: number) =>
       safeInvoke("kot:close", kotId),
-    listClosed: () => safeInvoke("kot:list-closed")
+    listClosed: () => safeInvoke("kot:list-closed"),
+    // frontend api
+delete: (data : {kotIds: number[]}) =>
+  safeInvoke("kot:delete", data),
+
 
   },
 
@@ -272,9 +301,13 @@ export const api = {
       safeInvoke("bill:preview", data),
     create: (data: any) =>
       safeInvoke("bill:create", data),
+    get:(billId:number)=> 
+      safeInvoke("bill-kot:get",billId),
 
     addItemsFromKot: (billId: number) =>
       safeInvoke("bill:add-items", billId),
+    list: () =>
+      safeInvoke("restaurant_bill:list"),
 
     checkout: (data: any) =>
       safeInvoke("bill:checkout", data),
@@ -284,17 +317,19 @@ export const api = {
      GST
   ========================= */
   restaurant_gst: {
-    add: (data: any) =>
-      safeInvoke("gst:add", data),
+    create: (data: any) =>
+      safeInvoke("gst-res:add", data),
 
     list: () =>
-      safeInvoke("gst:list"),
+      safeInvoke("gst-res:list"),
 
-    getActive: () =>
-      safeInvoke("gst:get-active"),
+    setActive: (id: number) =>
+      safeInvoke("gst:setActive", id),
 
-    update: (id: number, data: any) =>
-      safeInvoke("gst:update", {id, data}),
+    update: (data  : any) =>
+      safeInvoke("gst-res:update", data),
+    delete: (id: number) =>
+      safeInvoke("gst:delete", id),
   },
 
   /* =========================
@@ -311,6 +346,11 @@ export const api = {
       safeInvoke("service-tax:get-active"),
 
     update: (id: number, data: any) =>
-      safeInvoke("service-tax:update", {id, data}),
+      safeInvoke("service-tax:update", { id, data }),
   },
+
+  pdfExport:{
+    export :(data:any) =>
+      safeInvoke("pdf:export",data)
+  }
 };

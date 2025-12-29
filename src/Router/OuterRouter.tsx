@@ -5,7 +5,7 @@ import { useCompany } from "../context/CompanyInfoContext";
 
 const OuterRouter = () => {
   const navigate = useNavigate();
-  const { company } = useCompany();
+  const { company,loading } = useCompany();
   const { users } = useUsers();
   const STORAGE_KEY =
   import.meta.env.VITE_STORAGE_KEY || "3klsdfoidskfsdo";
@@ -17,7 +17,7 @@ const OuterRouter = () => {
         localStorage.removeItem(STORAGE_KEY);
         navigate("/company-setup");
       } else {
-        if (!users[0]?.is_active) {
+        if (!users[0]?.is_active && !loading) {
           navigate("/setup/user-create");
         }
       };

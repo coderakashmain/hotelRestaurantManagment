@@ -2,6 +2,7 @@
 import { getDb } from "../db/database";
 import { Bill, BillDetails } from "../types/bill";
 import { CheckIn } from "../types/checkin";
+import { addDailyEntry } from "./dailyCollection";
 const db = getDb();
 
 /* ============================
@@ -393,6 +394,36 @@ export const getMoneyReceipt = (mrId: number) => {
   `).get(mrId);
 };
 
+
+const mapPaymentToDcrType = (
+  paymentType: "ADVANCE" | "FINAL" | "REFUND"
+): "ADVANCE" | "BILL" | "REFUND" => {
+  switch (paymentType) {
+    case "ADVANCE":
+      return "ADVANCE";
+    case "FINAL":
+      return "BILL";   // 🔑 important
+    case "REFUND":
+      return "REFUND";
+  }
+};
+
+const normalizePaymentMode = (
+  method?: string
+): "CASH" | "UPI" | "CARD" | "BANK" => {
+  if (!method) return "CASH";
+
+  const m = method.toUpperCase();
+
+  if (m === "UPI") return "UPI";
+  if (m === "CARD") return "CARD";
+  if (m === "BANK") return "BANK";
+
+  return "CASH"; // fallback
+};
+
+
+
 export const addPayment = async (data: {
   bill_id: number;
   guest_id: number;
@@ -413,15 +444,26 @@ export const addPayment = async (data: {
     note
   } = data;
 
+
+
   if (amount <= 0) throw new Error("Amount must be > 0");
 
+
   const trx = db.transaction(() => {
+    
+  const users = db.prepare(`SELECT id from user_account WHERE  is_active = 1`).all() as  any;
+  const created_by = users[0].id;
 
     const checkIn = db.prepare(`
-      SELECT checkin_id, rate_applied
-      FROM check_in
-      WHERE id = (SELECT check_in_id FROM bill WHERE id = ?)
-    `).get(bill_id) as { checkin_id: string; rate_applied: number };
+     SELECT 
+        c.checkin_id,
+        c.room_id,
+        c.rate_applied
+      FROM check_in c
+      WHERE c.id = (SELECT check_in_id FROM bill WHERE id = ?)
+    `).get(bill_id) as { checkin_id: string;
+      room_id: number;
+      rate_applied: number; };
 
     if (!checkIn) throw new Error("CheckIn not found for bill");
 
@@ -439,7 +481,7 @@ export const addPayment = async (data: {
       note ?? null
     );
 
-    const res = db.prepare(`
+    const mrRes = db.prepare(`
       INSERT INTO money_receipt
         (bill_id, GUID, guest_id, amount, method, reference_no, payment_type)
       VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -453,8 +495,28 @@ export const addPayment = async (data: {
       payment_type
     );
 
-    const mrId = Number(res.lastInsertRowid);
+    const mrId = Number(mrRes.lastInsertRowid);
     const today = new Date().toISOString().slice(0, 10);
+
+    const mr = db.prepare(`
+      SELECT mr_no FROM money_receipt WHERE id = ?
+    `).get(mrId) as { mr_no: string };
+
+    addDailyEntry({
+      report_date: today,
+      entry_type: mapPaymentToDcrType(payment_type),
+      source_type: "MR",
+      source_id: mrId,
+      reference_no: mr.mr_no,
+      room_id: checkIn.room_id,
+      base_amount: payment_type === "ADVANCE" ? amount : 0,
+      tax_amount: 0,
+      payment_amount: amount,
+      direction: payment_type === "REFUND" ? "DR" : "CR",
+      payment_mode: normalizePaymentMode(method),
+      particulars: note || `Payment ${payment_type}`,
+      created_by,
+    });
 
     db.prepare(`
       INSERT INTO daily_summary 

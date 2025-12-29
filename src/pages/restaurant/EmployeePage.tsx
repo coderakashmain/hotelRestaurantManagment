@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { api } from "../../api/api";
 import { useAsync } from "../../hooks/useAsync";
+import { useSnackbar } from "../../context/SnackbarContext";
 
 type Employee = {
   id: number;
@@ -35,17 +36,25 @@ const emptyForm = {
   is_active: 1,
 };
 
+const DESIGNATIONS = [
+  "Manager",
+  "Cashier",
+  "Waiter",
+  "Chef",
+  "Helper",
+  "Cleaner",
+];
+
 export default function EmployeePage() {
   const [form, setForm] = useState<any>(emptyForm);
   const [editingId, setEditingId] = useState<number | null>(null);
-
+const {showSnackbar} = useSnackbar();
   /* =========================
-     LOAD EMPLOYEES
+     LOAD
   ========================= */
   const {
     data: employees,
     loading,
-    error,
     reload,
   } = useAsync<Employee[]>(() => api.employee.list(), []);
 
@@ -54,39 +63,48 @@ export default function EmployeePage() {
   ========================= */
   const handleSubmit = async () => {
     if (!form.emp_code || !form.name) {
-      alert("Employee code and name are required");
+      showSnackbar("Plese enter required filled!",'warning')
       return;
+    };
+
+    const payload = {
+      emp_code: Number(form.emp_code),
+      name: form.name,
+      father_name: form.father_name || null,
+      location: form.location || null,
+      city: form.city || null,
+      district: form.district || null,
+      state: form.state || null,
+      country: form.country || null,
+      nationality: form.nationality || null,
+      aadhaar_no: form.aadhaar_no || null,
+      mobile: form.mobile || null,
+      designation: form.designation || null,
+      is_active: form.is_active,
+    };
+    try{
+
+   
+    if (editingId) {
+      await api.employee.update(editingId, payload);
+    } else {
+      await api.employee.add(payload);
     }
 
-    try {
-      const payload = {
-        emp_code: Number(form.emp_code),
-        name: form.name,
-        father_name: form.father_name || null,
-        location: form.location || null,
-        city: form.city || null,
-        district: form.district || null,
-        state: form.state || null,
-        country: form.country || null,
-        nationality: form.nationality || null,
-        aadhaar_no: form.aadhaar_no || null,
-        mobile: form.mobile || null,
-        designation: form.designation || null,
-        is_active: form.is_active,
-      };
+    setForm(emptyForm);
+    setEditingId(null);
+    reload();
+  }catch(err:any){
+    showSnackbar(err.message,"error")
+  }
+  };
 
-      if (editingId) {
-        await api.employee.update(editingId, payload);
-      } else {
-        await api.employee.add(payload);
-      }
-
-      setForm(emptyForm);
-      setEditingId(null);
-      reload();
-    } catch (err: any) {
-      alert(err.message || "Operation failed");
-    }
+  /* =========================
+     CANCEL
+  ========================= */
+  const handleCancel = () => {
+    setForm(emptyForm);
+    setEditingId(null);
   };
 
   /* =========================
@@ -112,233 +130,317 @@ export default function EmployeePage() {
   };
 
   /* =========================
-     DELETE
+     DELETE (silent)
   ========================= */
   const handleDelete = async (id: number) => {
-    if (!confirm("Delete this employee?")) return;
-
-    try {
-      await api.employee.delete(id);
-      reload();
-    } catch (err: any) {
-      alert(err.message || "Delete failed");
-    }
+    await api.employee.delete(id);
+    reload();
   };
 
-  const DESIGNATIONS = [
-    "Manager",
-    "Cashier",
-    "Waiter",
-    "Chef",
-    "Helper",
-    "Cleaner",
-  ];
+  /* =========================
+     KEYBOARD SHORTCUTS
+     ENTER → SAVE
+     ESC → CANCEL
+  ========================= */
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement)?.tagName;
+      if (tag === "TEXTAREA" && e.key === "Enter") return;
+
+      if (e.key === "Enter") {
+        e.preventDefault();
+        handleSubmit();
+      }
+
+      if (e.key === "Escape") {
+        e.preventDefault();
+        handleCancel();
+      }
+    };
+
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [form, editingId]);
 
   return (
-    <div className="p-6">
-      <h1 className="text-xl font-semibold mb-4">Employee Master</h1>
+    <div className="p-8 space-y-6 w-full">
+      {/* ================= HEADER ================= */}
+      <div>
+        <h1 className="text-2xl font-semibold">Employee Master</h1>
+        <p className="text-sm text-secondary">
+          Manage hotel staff and roles
+        </p>
+      </div>
 
-      {/* =========================
-          FORM
-      ========================= */}
-      <div className="bg-white p-4 rounded shadow mb-6 grid grid-cols-4 gap-4">
-        <input
-          type="number"
-          placeholder="Employee Code"
-          value={form.emp_code}
-          onChange={(e) => setForm({ ...form, emp_code: e.target.value })}
-          className="border px-2 py-1 rounded"
-        />
+      {/* ================= FORM ================= */}
+      <div className="card space-y-4">
+        <h2 className="text-lg font-semibold">
+          {editingId ? "Edit Employee" : "Add New Employee"}
+        </h2>
 
-        <input
-          type="text"
-          placeholder="Employee Name"
-          value={form.name}
-          onChange={(e) => setForm({ ...form, name: e.target.value })}
-          className="border px-2 py-1 rounded col-span-2"
-        />
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div>
+            <label className="block text-xs text-secondary mb-1">
+              Employee Code
+            </label>
+            <input
+              type="number"
+              value={form.emp_code}
+              onChange={(e) =>
+                setForm({ ...form, emp_code: e.target.value })
+              }
+              className="w-full border rounded-sm p-2 text-sm"
+            />
+          </div>
 
-        <select
-          value={form.is_active}
-          onChange={(e) =>
-            setForm({ ...form, is_active: Number(e.target.value) })
-          }
-          className="border px-2 py-1 rounded"
-        >
-          <option value={1}>Active</option>
-          <option value={0}>Inactive</option>
-        </select>
+          <div className="md:col-span-2">
+            <label className="block text-xs text-secondary mb-1">
+              Employee Name
+            </label>
+            <input
+              value={form.name}
+              onChange={(e) =>
+                setForm({ ...form, name: e.target.value })
+              }
+              className="w-full border rounded-sm p-2 text-sm"
+            />
+          </div>
 
-        <input
-          type="text"
-          placeholder="Father Name"
-          value={form.father_name}
-          onChange={(e) => setForm({ ...form, father_name: e.target.value })}
-          className="border px-2 py-1 rounded"
-        />
+          <div>
+            <label className="block text-xs text-secondary mb-1">
+              Status
+            </label>
+            <select
+              value={form.is_active}
+              onChange={(e) =>
+                setForm({ ...form, is_active: Number(e.target.value) })
+              }
+              className="w-full border border-gray bg-white rounded-sm p-2 text-sm"
+            >
+              <option value={1}>Active</option>
+              <option value={0}>Inactive</option>
+            </select>
+          </div>
 
-        <input
-          type="text"
-          placeholder="Mobile"
-          value={form.mobile}
-          onChange={(e) => setForm({ ...form, mobile: e.target.value })}
-          className="border px-2 py-1 rounded"
-        />
+          <div>
+            <label className="block text-xs text-secondary mb-1">
+              Father Name
+            </label>
+            <input
+              value={form.father_name}
+              onChange={(e) =>
+                setForm({ ...form, father_name: e.target.value })
+              }
+              className="w-full border rounded-sm p-2 text-sm"
+            />
+          </div>
 
-        <input
-          type="text"
-          placeholder="Aadhaar No"
-          value={form.aadhaar_no}
-          onChange={(e) => setForm({ ...form, aadhaar_no: e.target.value })}
-          className="border px-2 py-1 rounded"
-        />
+          <div>
+            <label className="block text-xs text-secondary mb-1">
+              Mobile
+            </label>
+            <input
+              value={form.mobile}
+              onChange={(e) =>
+                setForm({ ...form, mobile: e.target.value })
+              }
+              className="w-full border rounded-sm p-2 text-sm"
+            />
+          </div>
 
-        <select
-          value={form.designation}
-          onChange={(e) => setForm({ ...form, designation: e.target.value })}
-          className="border px-2 py-1 rounded"
-        >
-          <option value="">Select Designation</option>
-          {DESIGNATIONS.map((d) => (
-            <option key={d} value={d}>
-              {d}
-            </option>
-          ))}
-        </select>
+          <div>
+            <label className="block text-xs text-secondary mb-1">
+              Aadhaar No
+            </label>
+            <input
+              value={form.aadhaar_no}
+              onChange={(e) =>
+                setForm({ ...form, aadhaar_no: e.target.value })
+              }
+              className="w-full border rounded-sm p-2 text-sm"
+            />
+          </div>
 
-        <input
-          type="text"
-          placeholder="Location"
-          value={form.location}
-          onChange={(e) => setForm({ ...form, location: e.target.value })}
-          className="border px-2 py-1 rounded"
-        />
+          <div>
+            <label className="block text-xs text-secondary mb-1">
+              Designation
+            </label>
+            <select
+              value={form.designation}
+              onChange={(e) =>
+                setForm({ ...form, designation: e.target.value })
+              }
+              className="w-full border border-gray bg-white rounded-sm p-2 text-sm"
+            >
+              <option value="">Select</option>
+              {DESIGNATIONS.map((d) => (
+                <option key={d} value={d}>
+                  {d}
+                </option>
+              ))}
+            </select>
+          </div>
 
-        <input
-          type="text"
-          placeholder="City"
-          value={form.city}
-          onChange={(e) => setForm({ ...form, city: e.target.value })}
-          className="border px-2 py-1 rounded"
-        />
+          <div>
+            <label className="block text-xs text-secondary mb-1">
+              Location
+            </label>
+            <input
+              value={form.location}
+              onChange={(e) =>
+                setForm({ ...form, location: e.target.value })
+              }
+              className="w-full border rounded-sm p-2 text-sm"
+            />
+          </div>
 
-        <input
-          type="text"
-          placeholder="District"
-          value={form.district}
-          onChange={(e) => setForm({ ...form, district: e.target.value })}
-          className="border px-2 py-1 rounded"
-        />
+          <div>
+            <label className="block text-xs text-secondary mb-1">
+              City
+            </label>
+            <input
+              value={form.city}
+              onChange={(e) =>
+                setForm({ ...form, city: e.target.value })
+              }
+              className="w-full border rounded-sm p-2 text-sm"
+            />
+          </div>
 
-        <input
-          type="text"
-          placeholder="State"
-          value={form.state}
-          onChange={(e) => setForm({ ...form, state: e.target.value })}
-          className="border px-2 py-1 rounded"
-        />
+          <div>
+            <label className="block text-xs text-secondary mb-1">
+              District
+            </label>
+            <input
+              value={form.district}
+              onChange={(e) =>
+                setForm({ ...form, district: e.target.value })
+              }
+              className="w-full border rounded-sm p-2 text-sm"
+            />
+          </div>
 
-        <input
-          type="text"
-          placeholder="Country"
-          value={form.country}
-          onChange={(e) => setForm({ ...form, country: e.target.value })}
-          className="border px-2 py-1 rounded"
-        />
+          <div>
+            <label className="block text-xs text-secondary mb-1">
+              State
+            </label>
+            <input
+              value={form.state}
+              onChange={(e) =>
+                setForm({ ...form, state: e.target.value })
+              }
+              className="w-full border rounded-sm p-2 text-sm"
+            />
+          </div>
 
-        <input
-          type="text"
-          placeholder="Nationality"
-          value={form.nationality}
-          onChange={(e) => setForm({ ...form, nationality: e.target.value })}
-          className="border px-2 py-1 rounded"
-        />
+          <div>
+            <label className="block text-xs text-secondary mb-1">
+              Country
+            </label>
+            <input
+              value={form.country}
+              onChange={(e) =>
+                setForm({ ...form, country: e.target.value })
+              }
+              className="w-full border rounded-sm p-2 text-sm"
+            />
+          </div>
 
-        <div className="col-span-4 flex gap-2">
-          <button
-            onClick={handleSubmit}
-            className="px-4 py-1 bg-blue-600 text-white rounded"
-          >
-            {editingId ? "Update" : "Add"}
+          <div>
+            <label className="block text-xs text-secondary mb-1">
+              Nationality
+            </label>
+            <input
+              value={form.nationality}
+              onChange={(e) =>
+                setForm({ ...form, nationality: e.target.value })
+              }
+              className="w-full border rounded-sm p-2 text-sm"
+            />
+          </div>
+        </div>
+
+        <div className="flex gap-3">
+          <button onClick={handleSubmit} className="btn">
+            {editingId ? "Update Employee" : "Add Employee"}
           </button>
 
           {editingId && (
             <button
-              onClick={() => {
-                setEditingId(null);
-                setForm(emptyForm);
-              }}
-              className="px-4 py-1 bg-gray-400 text-white rounded"
+              onClick={handleCancel}
+              className="px-4 py-2 rounded-sm bg-gray text-black"
             >
               Cancel
             </button>
           )}
         </div>
+
+        <p className="text-xs text-secondary">
+          ⏎ Enter = Save &nbsp;&nbsp; • &nbsp;&nbsp; Esc = Cancel
+        </p>
       </div>
 
-      {/* =========================
-          TABLE
-      ========================= */}
-      <div className="bg-white rounded shadow overflow-x-auto">
-        <table className="w-full border-collapse text-sm">
-          <thead className="bg-gray-100">
+      {/* ================= TABLE ================= */}
+      <div className="card overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead className="border-b border-gray bg-lightColor">
             <tr>
-              <th className="border p-2">Code</th>
-              <th className="border p-2">Name</th>
-              <th className="border p-2">Mobile</th>
-              <th className="border p-2">Designation</th>
-              <th className="border p-2">City</th>
-              <th className="border p-2">Status</th>
-              <th className="border p-2">Actions</th>
+              <th className="p-3 text-left">Code</th>
+              <th className="p-3 text-left">Name</th>
+              <th className="p-3 text-left">Mobile</th>
+              <th className="p-3 text-left">Designation</th>
+              <th className="p-3 text-left">City</th>
+              <th className="p-3 text-left">Status</th>
+              <th className="p-3 text-right">Actions</th>
             </tr>
           </thead>
+
           <tbody>
-            {loading ? (
+            {loading && (
               <tr>
-                <td colSpan={7} className="p-4 text-center">
-                  Loading...
+                <td colSpan={7} className="p-6 text-center text-secondary">
+                  Loading…
                 </td>
               </tr>
-            ) : error ? (
-              <tr>
-                <td colSpan={7} className="p-4 text-center text-red-600">
-                  {error.message || "Failed to load"}
-                </td>
-              </tr>
-            ) : employees?.length === 0 ? (
-              <tr>
-                <td colSpan={7} className="p-4 text-center">
-                  No employees found
-                </td>
-              </tr>
-            ) : (
-              employees?.map((row) => (
-                <tr key={row.id}>
-                  <td className="border p-2">{row.emp_code}</td>
-                  <td className="border p-2">{row.name}</td>
-                  <td className="border p-2">{row.mobile}</td>
-                  <td className="border p-2">{row.designation}</td>
-                  <td className="border p-2">{row.city}</td>
-                  <td className="border p-2">
-                    {row.is_active ? "Active" : "Inactive"}
-                  </td>
-                  <td className="border p-2 flex gap-2">
-                    <button
-                      onClick={() => handleEdit(row)}
-                      className="px-2 py-1 bg-yellow-500 text-white rounded"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(row.id)}
-                      className="px-2 py-1 bg-red-600 text-white rounded"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))
             )}
+
+            {employees?.map((row) => (
+              <tr
+                key={row.id}
+                className="border-b border-gray hover:bg-lightColor transition"
+              >
+                <td className="p-3">{row.emp_code}</td>
+                <td className="p-3">{row.name}</td>
+                <td className="p-3">{row.mobile || "-"}</td>
+                <td className="p-3">{row.designation || "-"}</td>
+                <td className="p-3">{row.city || "-"}</td>
+                <td className="p-3">
+                  <span
+                    className={`px-3 py-1 text-xs rounded-full ${
+                      row.is_active
+                        ? "bg-success text-white"
+                        : "bg-gray text-black"
+                    }`}
+                  >
+                    {row.is_active ? "Active" : "Inactive"}
+                  </span>
+                </td>
+                <td className="p-3 flex justify-end gap-4">
+                  <button
+                    onClick={() => handleEdit(row)}
+                    className="text-primary"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(row.id)}
+                    className="text-error"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>

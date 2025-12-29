@@ -1,4 +1,4 @@
-import {  useState } from "react";
+import { useState, useEffect } from "react";
 import { api } from "../../api/api";
 import { RoomType } from "./types";
 import {
@@ -9,23 +9,52 @@ import {
   XMarkIcon,
 } from "@heroicons/react/24/solid";
 import { useRoomTypes } from "../../context/RoomTypeContext";
+import { useSnackbar } from "../../context/SnackbarContext";
+import { useKeyboardShortcuts } from "../../hooks/useKeyboardShortcuts";
 
 const RoomTypePage = () => {
+  const { roomTypes, loading, refreshRoomTypes } = useRoomTypes();
+  const { showSnackbar } = useSnackbar();
+  
   const [editRow, setEditRow] = useState<RoomType | null>(null);
-  const { roomTypes, loading,refreshRoomTypes} = useRoomTypes();
+  const [pendingDelete, setPendingDelete] = useState<number | null>(null);
+
   const [newType, setNewType] = useState({
     type_name: "",
     full_rate: 0,
     hourly_rate: 0,
   });
 
+  /* ================= KEYBOARD SHORTCUTS ================= */
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setEditRow(null);
+        setPendingDelete(null);
+      }
 
+      if (e.key === "Enter") {
+        if (editRow) update();
+        if (pendingDelete) confirmDelete();
+      }
+    };
+
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [editRow, pendingDelete]);
+
+  /* ================= ACTIONS ================= */
 
   const create = async () => {
-    if (!newType.type_name) return alert("Please enter Room Type!");
+    if (!newType.type_name.trim()) {
+      showSnackbar("Room type name is required", "warning");
+      return;
+    }
+
     await api.roomType.create(newType);
     setNewType({ type_name: "", full_rate: 0, hourly_rate: 0 });
     refreshRoomTypes();
+    showSnackbar("Room type created", "success");
   };
 
   const update = async () => {
@@ -33,211 +62,227 @@ const RoomTypePage = () => {
     await api.roomType.update(editRow.id, editRow);
     setEditRow(null);
     refreshRoomTypes();
+    showSnackbar("Room type updated", "success");
   };
 
-  const remove = async (id: number) => {
-    if (confirm("Delete this room type?")) {
-      await api.roomType.delete(id);
-      refreshRoomTypes();
-    }
+  const askDelete = (id: number) => {
+    setPendingDelete(id);
+    showSnackbar("Press ENTER to delete, ESC to cancel", "warning");
+  };
+
+  const confirmDelete = async () => {
+    if (!pendingDelete) return;
+    await api.roomType.delete(pendingDelete);
+    setPendingDelete(null);
+    refreshRoomTypes();
+    showSnackbar("Room type deleted", "success");
   };
 
   const toggle = async (t: RoomType) => {
     await api.roomType.toggle(t.id, t.is_active ? 0 : 1);
     refreshRoomTypes();
+    showSnackbar(
+      `Room type ${t.is_active ? "deactivated" : "activated"}`,
+      "warning"
+    );
   };
 
-  if (loading) return <div className="p-8 text-lg">Loading Room Types...</div>;
+  if (loading) {
+    return <div className="p-6 text-sm text-secondary">Loading room types…</div>;
+  }
 
+  /* ================= UI ================= */
+
+    useKeyboardShortcuts({
+      Enter :create,
+      
+    },[newType]);
   return (
-    <div className="w-full  p-10 min-h-screen">
+    <div className="p-8 space-y-6">
+
       {/* HEADER */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Room Types</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl font-semibold text-text">Room Types</h1>
       </div>
 
       {/* ADD NEW */}
-      <div className="bg-white shadow rounded-xl p-4 mb-6 border border-gray">
-        <h3 className="font-semibold text-gray-700 mb-2">Add New Room Type</h3>
-        <div className="grid grid-cols-3 gap-4 mb-10">
-          <div>
-            <label className="text-xs text-gray block mb-2" htmlFor="typename">
-              Type Name
-            </label>
-            <input
-              placeholder="Type Name"
-              value={newType.type_name}
-              id="typename"
-              onChange={(e) =>
-                setNewType({ ...newType, type_name: e.target.value })
-              }
-              className="w-full h-full rounded px-3"
-            />
-          </div>
+      <div className="  bg-bg-primary border  border-gray  rounded-sm  p-5 space-y-4">
+        <h3 className="text-sm font-semibold text-text">Add New Room Type</h3>
 
-          <div className="">
-            <label className="text-xs text-gray block mb-2" htmlFor="fullrate">
-              Full Rate
-            </label>
-            <input
-              placeholder="Full Rate"
-              id="fullrate"
-              type="number"
-              value={newType.full_rate}
-              onChange={(e) =>
-                setNewType({ ...newType, full_rate: +e.target.value })
-              }
-              className="w-full h-full rounded px-3"
-            />
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <input
+            placeholder="Type name"
+            value={newType.type_name}
+            onChange={(e) =>
+              setNewType({ ...newType, type_name: e.target.value })
+            }
+            className="border border-gray rounded-sm px-3 py-2 text-sm"
+          />
 
-          <div>
-            <label className="text-xs text-gray block mb-2" htmlFor="hourlyrate">
-              Hourly Rate
-            </label>
+          <input
+            type="number"
+            placeholder="Full rate"
+            value={newType.full_rate}
+            onChange={(e) =>
+              setNewType({ ...newType, full_rate: +e.target.value })
+            }
+            className="border border-gray rounded-sm px-3 py-2 text-sm"
+          />
 
-            <input
-              id="hourlyrate"
-              placeholder="Hourly Rate"
-              type="number"
-              value={newType.hourly_rate}
-              onChange={(e) =>
-                setNewType({ ...newType, hourly_rate: +e.target.value })
-              }
-              className="w-full h-full rounded px-3"
-            />
-          </div>
+          <input
+            type="number"
+            placeholder="Hourly rate"
+            value={newType.hourly_rate}
+            onChange={(e) =>
+              setNewType({ ...newType, hourly_rate: +e.target.value })
+            }
+            className="border border-gray rounded-sm px-3 py-2 text-sm"
+          />
         </div>
+
         <button
           onClick={create}
-          className="mt-3 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+          className="inline-flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-sm transition hover-lift"
         >
-          <PlusIcon className="h-5" /> Add Type
+          <PlusIcon className="w-4 h-4" />
+          Add Room Type
         </button>
+
+        <p className="text-xs text-secondary">
+            ⏎ Enter = Create &nbsp; • &nbsp; Esc = Back
+          </p>
       </div>
 
       {/* TABLE */}
-      <table className="w-full bg-white border border-gray rounded-xl shadow">
-        <thead className="bg-gray-100 border-b border-gray">
-          <tr>
-            <th className="p-3 text-left">ID</th>
-            <th className="p-3 text-left">Type Name</th>
-            <th className="p-3 text-left">Full Rate</th>
-            <th className="p-3 text-left">Hourly Rate</th>
-            <th className="p-3 text-center">Active</th>
-            <th className="p-3 text-right">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {roomTypes.map((rt) => {
-            const editing = editRow?.id === rt.id;
-            return (
-              <tr key={rt.id} className="border-b hover:bg-gray-50 transition">
-                <td className="p-3">{rt.id}</td>
+      <div className="bg-bg-primary  border border-gray  rounded-sm  overflow-hidden">
+        <table className="w-full text-sm">
+          <thead className="bg-lightColor border-b border-gray">
+            <tr className="text-left text-secondary">
+              <th className="p-3">ID</th>
+              <th className="p-3">Type</th>
+              <th className="p-3">Full Rate</th>
+              <th className="p-3">Hourly Rate</th>
+              <th className="p-3 text-center">Status</th>
+              <th className="p-3 text-right">Actions</th>
+            </tr>
+          </thead>
 
-                {/* TYPE NAME */}
-                <td className="p-3">
-                  {editing ? (
-                    <input
-                      className="border p-1 rounded w-full"
-                      value={editRow?.type_name || ""}
-                      onChange={(e) =>
-                        setEditRow({ ...editRow!, type_name: e.target.value })
-                      }
-                    />
-                  ) : (
-                    rt.type_name
-                  )}
-                </td>
+          <tbody>
+            {roomTypes.map((rt) => {
+              const editing = editRow?.id === rt.id;
 
-                {/* FULL RATE */}
-                <td className="p-3">
-                  {editing ? (
-                    <input
-                      className="border p-1 rounded w-full"
-                      type="number"
-                      value={editRow?.full_rate}
-                      onChange={(e) =>
-                        setEditRow({ ...editRow!, full_rate: +e.target.value })
-                      }
-                    />
-                  ) : (
-                    `₹ ${rt.full_rate}`
-                  )}
-                </td>
+              return (
+                <tr
+                  key={rt.id}
+                  className="border-b border-gray bg-bg-primary last:border-0 hover-bg-gray transition"
+                >
+                  <td className="p-3">{rt.id}</td>
 
-                {/* HOURLY RATE */}
-                <td className="p-3">
-                  {editing ? (
-                    <input
-                      className="border p-1 rounded w-full"
-                      type="number"
-                      value={editRow?.hourly_rate}
-                      onChange={(e) =>
-                        setEditRow({
-                          ...editRow!,
-                          hourly_rate: +e.target.value,
-                        })
-                      }
-                    />
-                  ) : (
-                    `₹ ${rt.hourly_rate}`
-                  )}
-                </td>
+                  <td className="p-3">
+                    {editing ? (
+                      <input
+                        className="border rounded-sm px-2 py-1 w-full"
+                        value={editRow?.type_name || ""}
+                        onChange={(e) =>
+                          setEditRow({
+                            ...editRow!,
+                            type_name: e.target.value,
+                          })
+                        }
+                      />
+                    ) : (
+                      rt.type_name
+                    )}
+                  </td>
 
-                {/* ACTIVE */}
-                <td className="p-3 text-center">
-                  <button
-                    className={`px-3 py-1 rounded-full text-sm ${
-                      rt.is_active
-                        ? "bg-green-100 text-green-600"
-                        : "bg-red-100 text-red-600"
-                    }`}
-                    onClick={() => toggle(rt)}
-                  >
-                    {rt.is_active ? "Active" : "Inactive"}
-                  </button>
-                </td>
+                  <td className="p-3">
+                    {editing ? (
+                      <input
+                        type="number"
+                        className="border rounded-sm px-2 py-1 w-full"
+                        value={editRow?.full_rate}
+                        onChange={(e) =>
+                          setEditRow({
+                            ...editRow!,
+                            full_rate: +e.target.value,
+                          })
+                        }
+                      />
+                    ) : (
+                      `₹ ${rt.full_rate}`
+                    )}
+                  </td>
 
-                {/* ACTIONS */}
-                <td className="p-3 text-right flex justify-end gap-2">
-                  {editing ? (
-                    <>
-                      <button
-                        onClick={update}
-                        className="text-green-600 hover:text-green-800"
-                      >
-                        <CheckIcon className="h-5" />
-                      </button>
-                      <button
-                        onClick={() => setEditRow(null)}
-                        className="text-gray-600 hover:text-gray-900"
-                      >
-                        <XMarkIcon className="h-5" />
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <button
-                        onClick={() => setEditRow(rt)}
-                        className="text-blue-600 hover:text-blue-800"
-                      >
-                        <PencilSquareIcon className="h-5" />
-                      </button>
-                      <button
-                        onClick={() => remove(rt.id)}
-                        className="text-red-600 hover:text-red-800"
-                      >
-                        <TrashIcon className="h-5" />
-                      </button>
-                    </>
-                  )}
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+                  <td className="p-3">
+                    {editing ? (
+                      <input
+                        type="number"
+                        className="border rounded-sm px-2 py-1 w-full"
+                        value={editRow?.hourly_rate}
+                        onChange={(e) =>
+                          setEditRow({
+                            ...editRow!,
+                            hourly_rate: +e.target.value,
+                          })
+                        }
+                      />
+                    ) : (
+                      `₹ ${rt.hourly_rate}`
+                    )}
+                  </td>
+
+                  <td className="p-3 text-center">
+                    <button
+                      onClick={() => toggle(rt)}
+                      className={`px-3 py-1 rounded-full text-xs font-medium ${
+                        rt.is_active
+                          ? "bg-success/15 text-success"
+                          : "bg-error/15 text-error"
+                      }`}
+                    >
+                      {rt.is_active ? "Active" : "Inactive"}
+                    </button>
+                  </td>
+
+                  <td className="p-3 text-right flex justify-end gap-2">
+                    {editing ? (
+                      <>
+                        <button
+                          onClick={update}
+                          className="text-success hover:text-success"
+                        >
+                          <CheckIcon className="w-5 h-5" />
+                        </button>
+                        <button
+                          onClick={() => setEditRow(null)}
+                          className="text-secondary hover:text-text"
+                        >
+                          <XMarkIcon className="w-5 h-5" />
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          onClick={() => setEditRow(rt)}
+                          className="text-primary hover:text-primary"
+                        >
+                          <PencilSquareIcon className="w-5 h-5" />
+                        </button>
+                        <button
+                          onClick={() => askDelete(rt.id)}
+                          className="text-error hover:text-error"
+                        >
+                          <TrashIcon className="w-5 h-5" />
+                        </button>
+                      </>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

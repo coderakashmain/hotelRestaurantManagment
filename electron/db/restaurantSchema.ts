@@ -18,6 +18,33 @@ CREATE TABLE IF NOT EXISTS category (
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
+INSERT INTO category (
+  category_code,
+  description,
+  sub_description,
+  short_name,
+  is_active
+)
+SELECT category_code, description, sub_description, short_name, is_active
+FROM (
+  SELECT 1  AS category_code, 'JUICE'           AS description, 'JUICE'           AS sub_description, 'JUC'  AS short_name, 1 AS is_active UNION ALL
+  SELECT 2, 'SOUP',            'SOUP',            'SUP',  1 UNION ALL
+  SELECT 3, 'CONTINENTAL',     'CONTINENTAL',     'CONT', 1 UNION ALL
+  SELECT 4, 'IND DELICIOUS',   'IND DELICIOUS',   'DELI', 1 UNION ALL
+  SELECT 5, 'FISH AND PRAWN',  'FISH AND PRAWN',  'FP',   1 UNION ALL
+  SELECT 6, 'CHICKEN',         'CHICKEN',         'CHK',  1 UNION ALL
+  SELECT 7, 'MUTTON',          'MUTTON',          'MTN',  1 UNION ALL
+  SELECT 8, 'TANDOOR',         'TANDOOR',         'TDR',  1 UNION ALL
+  SELECT 9, 'BAKED BREAD',     'BAKED BREAD',     'BRD',  1 UNION ALL
+  SELECT 10,'RAITA',           'RAITA',           'RT',   1 UNION ALL
+  SELECT 11,'PADDY FIELD',     'PADDY FIELD',     'PF',   1 UNION ALL
+  SELECT 12,'CHINESE',         'CHINESE',         'CHN',  1 UNION ALL
+  SELECT 13,'DESERT',          'DESERT',          'DRT',  1 UNION ALL
+  SELECT 14,'TIT BITS',        'TIT BITS',        'TIBT', 1 UNION ALL
+  SELECT 15,'BEVERAGES',       'BEVERAGES',       'BVRGS',1
+)
+WHERE NOT EXISTS (SELECT 1 FROM category);
+
 
 
 -- =========================
@@ -35,6 +62,11 @@ CREATE TABLE IF NOT EXISTS dish (
   FOREIGN KEY (category_id) REFERENCES category(id)
 );
 
+CREATE TABLE IF NOT EXISTS app_meta (
+  key TEXT PRIMARY KEY,
+  value TEXT
+);
+
 -- =========================
 -- TABLE MASTER
 -- =========================
@@ -45,6 +77,31 @@ CREATE TABLE IF NOT EXISTS restaurant_table (
   description TEXT,
   is_active INTEGER DEFAULT 1
 );
+INSERT INTO restaurant_table (table_code, table_no, description)
+SELECT * FROM (
+  SELECT 1,  '1',  'VIP' UNION ALL
+  SELECT 2,  '2',  'GEN' UNION ALL
+  SELECT 3,  '3',  'GHJ' UNION ALL
+  SELECT 4,  '4',  'G' UNION ALL
+  SELECT 5,  '5',  'G' UNION ALL
+  SELECT 6,  '6',  'G' UNION ALL
+  SELECT 7,  '7',  'G' UNION ALL
+  SELECT 8,  '8',  'G' UNION ALL
+  SELECT 9,  '9',  'G' UNION ALL
+  SELECT 10, '10', 'G' UNION ALL
+  SELECT 11, '11', 'G' UNION ALL
+  SELECT 12, '12', 'G' UNION ALL
+  SELECT 13, '13', 'G' UNION ALL
+  SELECT 14, '14', 'G' UNION ALL
+  SELECT 15, '15', 'G' UNION ALL
+  SELECT 16, '16', 'G' UNION ALL
+  SELECT 17, '17', 'G' UNION ALL
+  SELECT 18, '18', 'G' UNION ALL
+  SELECT 19, '19', 'G' UNION ALL
+  SELECT 20, '20', 'G'
+)
+WHERE NOT EXISTS (SELECT 1 FROM restaurant_table);
+
 
 -- =========================
 -- EMPLOYEE MASTER
@@ -76,6 +133,7 @@ CREATE TABLE IF NOT EXISTS kot (
   kot_date DATE NOT NULL,
   table_id INTEGER NOT NULL,
   waiter_id INTEGER NOT NULL,
+  is_deleted INTEGER DEFAULT 0,
   status TEXT DEFAULT 'OPEN',
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (table_id) REFERENCES restaurant_table(id),
@@ -160,7 +218,7 @@ CREATE TABLE IF NOT EXISTS restaurant_bill_item (
 );
 
 -- 2) GST management (history)
-CREATE TABLE IF NOT EXISTS gst_management (
+CREATE TABLE IF NOT EXISTS restaurent_gst_management (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   gst_percent NUMERIC DEFAULT 0.00,
   cgst_percent NUMERIC DEFAULT 0.00,
@@ -172,16 +230,16 @@ CREATE TABLE IF NOT EXISTS gst_management (
   created_at DATETIME DEFAULT (datetime('now'))
 );
 
-INSERT INTO gst_management (gst_percent, cgst_percent, sgst_percent, is_active)
+INSERT INTO restaurent_gst_management (gst_percent, cgst_percent, sgst_percent, is_active)
 SELECT gst_percent, cgst_percent, sgst_percent, is_active FROM (
-  SELECT 18 AS gst_percent, 9 AS cgst_percent, 9 AS sgst_percent, 1 AS is_active
+  SELECT 5 AS gst_percent, 2.5 AS cgst_percent, 2.5 AS sgst_percent, 1 AS is_active
 )
-WHERE NOT EXISTS (SELECT 1 FROM gst_management);
+WHERE NOT EXISTS (SELECT 1 FROM restaurent_gst_management);
 
 CREATE TRIGGER IF NOT EXISTS trg_gst_unique_active
-BEFORE UPDATE ON gst_management
+BEFORE UPDATE ON restaurent_gst_management
 WHEN NEW.is_active = 1
 BEGIN
-  UPDATE gst_management SET is_active = 0 WHERE id != NEW.id;
+  UPDATE restaurent_gst_management SET is_active = 0 WHERE id != NEW.id;
 END;
 `;

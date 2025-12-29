@@ -1,0 +1,2106 @@
+[
+  {
+    "DISH_CODE": 2,
+    "DISH_NAME": "Mango Juice",
+    "DISH_PRICE_HALF": 15,
+    "DISH_PRICE_FULL": 30,
+    "DISH_TAX": 0,
+    "CAT_CODE": 1
+  },
+  {
+    "DISH_CODE": 3,
+    "DISH_NAME": "Pine Apple Juice",
+    "DISH_PRICE_HALF": 15,
+    "DISH_PRICE_FULL": 30,
+    "DISH_TAX": 0,
+    "CAT_CODE": 1
+  },
+  {
+    "DISH_CODE": 4,
+    "DISH_NAME": "Cold drinks",
+    "DISH_PRICE_HALF": 6,
+    "DISH_PRICE_FULL": 12,
+    "DISH_TAX": 0,
+    "CAT_CODE": 1
+  },
+  {
+    "DISH_CODE": 5,
+    "DISH_NAME": "Fresh Lemon Water",
+    "DISH_PRICE_HALF": 2.5,
+    "DISH_PRICE_FULL": 5,
+    "DISH_TAX": 0,
+    "CAT_CODE": 1
+  },
+  {
+    "DISH_CODE": 6,
+    "DISH_NAME": "Fresh Lemon Soda",
+    "DISH_PRICE_HALF": 6,
+    "DISH_PRICE_FULL": 12,
+    "DISH_TAX": 0,
+    "CAT_CODE": 1
+  },
+  {
+    "DISH_CODE": 7,
+    "DISH_NAME": "Jaljeera",
+    "DISH_PRICE_HALF": 5,
+    "DISH_PRICE_FULL": 10,
+    "DISH_TAX": 0,
+    "CAT_CODE": 1
+  },
+  {
+    "DISH_CODE": 8,
+    "DISH_NAME": "Lassi",
+    "DISH_PRICE_HALF": 10,
+    "DISH_PRICE_FULL": 20,
+    "DISH_TAX": 0,
+    "CAT_CODE": 1
+  },
+  {
+    "DISH_CODE": 9,
+    "DISH_NAME": "SODA",
+    "DISH_PRICE_HALF": 5,
+    "DISH_PRICE_FULL": 10,
+    "DISH_TAX": 0,
+    "CAT_CODE": 1
+  },
+  {
+    "DISH_CODE": 10,
+    "DISH_NAME": "LEMON",
+    "DISH_PRICE_HALF": 1.5,
+    "DISH_PRICE_FULL": 3,
+    "DISH_TAX": 0,
+    "CAT_CODE": 1
+  },
+  {
+    "DISH_CODE": 11,
+    "DISH_NAME": "MINERAL WATER",
+    "DISH_PRICE_HALF": 7.5,
+    "DISH_PRICE_FULL": 15,
+    "DISH_TAX": 0,
+    "CAT_CODE": 1
+  },
+  {
+    "DISH_CODE": 13,
+    "DISH_NAME": "SODA .B.",
+    "DISH_PRICE_HALF": 9,
+    "DISH_PRICE_FULL": 18,
+    "DISH_TAX": 0,
+    "CAT_CODE": 1
+  },
+  {
+    "DISH_CODE": 25,
+    "DISH_NAME": "Cream of Tamato",
+    "DISH_PRICE_HALF": 15,
+    "DISH_PRICE_FULL": 30,
+    "DISH_TAX": 0,
+    "CAT_CODE": 2
+  },
+  {
+    "DISH_CODE": 26,
+    "DISH_NAME": "Cream of Vegetable",
+    "DISH_PRICE_HALF": 15,
+    "DISH_PRICE_FULL": 30,
+    "DISH_TAX": 0,
+    "CAT_CODE": 2
+  },
+  {
+    "DISH_CODE": 27,
+    "DISH_NAME": "Craem of Chicken",
+    "DISH_PRICE_HALF": 17.5,
+    "DISH_PRICE_FULL": 35,
+    "DISH_TAX": 0,
+    "CAT_CODE": 2
+  },
+  {
+    "DISH_CODE": 28,
+    "DISH_NAME": "Plian Swet Corn",
+    "DISH_PRICE_HALF": 15,
+    "DISH_PRICE_FULL": 30,
+    "DISH_TAX": 0,
+    "CAT_CODE": 2
+  },
+  {
+    "DISH_CODE": 29,
+    "DISH_NAME": "Vegetable Sweet Corn Soup",
+    "DISH_PRICE_HALF": 15,
+    "DISH_PRICE_FULL": 30,
+    "DISH_TAX": 0,
+    "CAT_CODE": 2
+  },
+  {
+    "DISH_CODE": 30,
+    "DISH_NAME": "Egg Sweet Corn",
+    "DISH_PRICE_HALF": 15,
+    "DISH_PRICE_FULL": 30,
+    "DISH_TAX": 0,
+    "CAT_CODE": 2
+  },
+  {
+    "DISH_CODE": 31,
+    "DISH_NAME": "Chicken Sweet Corn",
+    "DISH_PRICE_HALF": 17.5,
+    "DISH_PRICE_FULL": 35,
+    "DISH_TAX": 0,
+    "CAT_CODE": 2
+  },
+  {
+    "DISH_CODE": 32,
+    "DISH_NAME": "Vegetable Noodle",
+    "DISH_PRICE_HALF": 15,
+    "DISH_PRICE_FULL": 30,
+    "DISH_TAX": 0,
+    "CAT_CODE": 2
+  },
+  {
+    "DISH_CODE": 33,
+    "DISH_NAME": "Chicken Noodle",
+    "DISH_PRICE_HALF": 17.5,
+    "DISH_PRICE_FULL": 35,
+    "DISH_TAX": 0,
+    "CAT_CODE": 2
+  },
+  {
+    "DISH_CODE": 34,
+    "DISH_NAME": "Mix Noodle",
+    "DISH_PRICE_HALF": 17.5,
+    "DISH_PRICE_FULL": 35,
+    "DISH_TAX": 0,
+    "CAT_CODE": 2
+  },
+  {
+    "DISH_CODE": 35,
+    "DISH_NAME": "Chicken Clear",
+    "DISH_PRICE_HALF": 17.5,
+    "DISH_PRICE_FULL": 35,
+    "DISH_TAX": 0,
+    "CAT_CODE": 2
+  },
+  {
+    "DISH_CODE": 36,
+    "DISH_NAME": "Vegetable Hot -N-Sour",
+    "DISH_PRICE_HALF": 15,
+    "DISH_PRICE_FULL": 30,
+    "DISH_TAX": 0,
+    "CAT_CODE": 2
+  },
+  {
+    "DISH_CODE": 37,
+    "DISH_NAME": "Chicken Hot -N-Sour",
+    "DISH_PRICE_HALF": 17.5,
+    "DISH_PRICE_FULL": 35,
+    "DISH_TAX": 0,
+    "CAT_CODE": 2
+  },
+  {
+    "DISH_CODE": 38,
+    "DISH_NAME": "Chicken Mushroom",
+    "DISH_PRICE_HALF": 20,
+    "DISH_PRICE_FULL": 40,
+    "DISH_TAX": 0,
+    "CAT_CODE": 2
+  },
+  {
+    "DISH_CODE": 39,
+    "DISH_NAME": "Vegetable Mushroom",
+    "DISH_PRICE_HALF": 20,
+    "DISH_PRICE_FULL": 40,
+    "DISH_TAX": 0,
+    "CAT_CODE": 2
+  },
+  {
+    "DISH_CODE": 40,
+    "DISH_NAME": "Vegitable   Stew",
+    "DISH_PRICE_HALF": 25,
+    "DISH_PRICE_FULL": 50,
+    "DISH_TAX": 0,
+    "CAT_CODE": 3
+  },
+  {
+    "DISH_CODE": 41,
+    "DISH_NAME": "Vegetable Boiled",
+    "DISH_PRICE_HALF": 25,
+    "DISH_PRICE_FULL": 50,
+    "DISH_TAX": 0,
+    "CAT_CODE": 3
+  },
+  {
+    "DISH_CODE": 42,
+    "DISH_NAME": "Vegetable  Gratine",
+    "DISH_PRICE_HALF": 30,
+    "DISH_PRICE_FULL": 60,
+    "DISH_TAX": 0,
+    "CAT_CODE": 3
+  },
+  {
+    "DISH_CODE": 43,
+    "DISH_NAME": "BAKED FISH",
+    "DISH_PRICE_HALF": 35,
+    "DISH_PRICE_FULL": 70,
+    "DISH_TAX": 0,
+    "CAT_CODE": 3
+  },
+  {
+    "DISH_CODE": 44,
+    "DISH_NAME": "GRILLED FISH",
+    "DISH_PRICE_HALF": 35,
+    "DISH_PRICE_FULL": 70,
+    "DISH_TAX": 0,
+    "CAT_CODE": 3
+  },
+  {
+    "DISH_CODE": 45,
+    "DISH_NAME": "FRIED FISH",
+    "DISH_PRICE_HALF": 35,
+    "DISH_PRICE_FULL": 70,
+    "DISH_TAX": 0,
+    "CAT_CODE": 3
+  },
+  {
+    "DISH_CODE": 46,
+    "DISH_NAME": "CKN SISILAR",
+    "DISH_PRICE_HALF": 50,
+    "DISH_PRICE_FULL": 100,
+    "DISH_TAX": 0,
+    "CAT_CODE": 3
+  },
+  {
+    "DISH_CODE": 47,
+    "DISH_NAME": "CKN STEAK",
+    "DISH_PRICE_HALF": 50,
+    "DISH_PRICE_FULL": 100,
+    "DISH_TAX": 0,
+    "CAT_CODE": 3
+  },
+  {
+    "DISH_CODE": 48,
+    "DISH_NAME": "CKN GRILLED Half",
+    "DISH_PRICE_HALF": 50,
+    "DISH_PRICE_FULL": 100,
+    "DISH_TAX": 0,
+    "CAT_CODE": 3
+  },
+  {
+    "DISH_CODE": 49,
+    "DISH_NAME": "CKN FRIED",
+    "DISH_PRICE_HALF": 50,
+    "DISH_PRICE_FULL": 100,
+    "DISH_TAX": 0,
+    "CAT_CODE": 3
+  },
+  {
+    "DISH_CODE": 50,
+    "DISH_NAME": "CKN ROAST HALF",
+    "DISH_PRICE_HALF": 50,
+    "DISH_PRICE_FULL": 100,
+    "DISH_TAX": 0,
+    "CAT_CODE": 3
+  },
+  {
+    "DISH_CODE": 51,
+    "DISH_NAME": "CKN ROAST FULL",
+    "DISH_PRICE_HALF": 95,
+    "DISH_PRICE_FULL": 190,
+    "DISH_TAX": 0,
+    "CAT_CODE": 3
+  },
+  {
+    "DISH_CODE": 52,
+    "DISH_NAME": "CKN STEW HALF",
+    "DISH_PRICE_HALF": 50,
+    "DISH_PRICE_FULL": 100,
+    "DISH_TAX": 0,
+    "CAT_CODE": 3
+  },
+  {
+    "DISH_CODE": 53,
+    "DISH_NAME": "CKN STEW FULL",
+    "DISH_PRICE_HALF": 95,
+    "DISH_PRICE_FULL": 190,
+    "DISH_TAX": 0,
+    "CAT_CODE": 3
+  },
+  {
+    "DISH_CODE": 101,
+    "DISH_NAME": "Vegetable  Patiala",
+    "DISH_PRICE_HALF": 25,
+    "DISH_PRICE_FULL": 50,
+    "DISH_TAX": 0,
+    "CAT_CODE": 4
+  },
+  {
+    "DISH_CODE": 102,
+    "DISH_NAME": "Veg . Navratna Korma",
+    "DISH_PRICE_HALF": 25,
+    "DISH_PRICE_FULL": 50,
+    "DISH_TAX": 0,
+    "CAT_CODE": 4
+  },
+  {
+    "DISH_CODE": 103,
+    "DISH_NAME": "Veg . Sahi Korma",
+    "DISH_PRICE_HALF": 25,
+    "DISH_PRICE_FULL": 50,
+    "DISH_TAX": 0,
+    "CAT_CODE": 4
+  },
+  {
+    "DISH_CODE": 104,
+    "DISH_NAME": "Veg . Navratna Curry",
+    "DISH_PRICE_HALF": 25,
+    "DISH_PRICE_FULL": 50,
+    "DISH_TAX": 0,
+    "CAT_CODE": 4
+  },
+  {
+    "DISH_CODE": 105,
+    "DISH_NAME": "Veg . Jaipuri",
+    "DISH_PRICE_HALF": 25,
+    "DISH_PRICE_FULL": 50,
+    "DISH_TAX": 0,
+    "CAT_CODE": 4
+  },
+  {
+    "DISH_CODE": 106,
+    "DISH_NAME": "Veg . Dopiaza",
+    "DISH_PRICE_HALF": 20,
+    "DISH_PRICE_FULL": 40,
+    "DISH_TAX": 0,
+    "CAT_CODE": 4
+  },
+  {
+    "DISH_CODE": 107,
+    "DISH_NAME": "Mix Veg Curry",
+    "DISH_PRICE_HALF": 20,
+    "DISH_PRICE_FULL": 40,
+    "DISH_TAX": 0,
+    "CAT_CODE": 4
+  },
+  {
+    "DISH_CODE": 108,
+    "DISH_NAME": "Veg . Dry",
+    "DISH_PRICE_HALF": 20,
+    "DISH_PRICE_FULL": 40,
+    "DISH_TAX": 0,
+    "CAT_CODE": 4
+  },
+  {
+    "DISH_CODE": 109,
+    "DISH_NAME": "Veg . Jhalfrazi",
+    "DISH_PRICE_HALF": 20,
+    "DISH_PRICE_FULL": 40,
+    "DISH_TAX": 0,
+    "CAT_CODE": 4
+  },
+  {
+    "DISH_CODE": 110,
+    "DISH_NAME": "Veg Mallai Kofta",
+    "DISH_PRICE_HALF": 20,
+    "DISH_PRICE_FULL": 40,
+    "DISH_TAX": 0,
+    "CAT_CODE": 4
+  },
+  {
+    "DISH_CODE": 113,
+    "DISH_NAME": "ALU MUTTER",
+    "DISH_PRICE_HALF": 20,
+    "DISH_PRICE_FULL": 40,
+    "DISH_TAX": 0,
+    "CAT_CODE": 4
+  },
+  {
+    "DISH_CODE": 114,
+    "DISH_NAME": "ALU DUM",
+    "DISH_PRICE_HALF": 20,
+    "DISH_PRICE_FULL": 40,
+    "DISH_TAX": 0,
+    "CAT_CODE": 4
+  },
+  {
+    "DISH_CODE": 115,
+    "DISH_NAME": "ALU DUM KASHMIR",
+    "DISH_PRICE_HALF": 22.5,
+    "DISH_PRICE_FULL": 45,
+    "DISH_TAX": 0,
+    "CAT_CODE": 4
+  },
+  {
+    "DISH_CODE": 116,
+    "DISH_NAME": "ALU GOVI  Seasonal",
+    "DISH_PRICE_HALF": 20,
+    "DISH_PRICE_FULL": 40,
+    "DISH_TAX": 0,
+    "CAT_CODE": 4
+  },
+  {
+    "DISH_CODE": 117,
+    "DISH_NAME": "PALAK PANEER Seasonal",
+    "DISH_PRICE_HALF": 27.5,
+    "DISH_PRICE_FULL": 55,
+    "DISH_TAX": 0,
+    "CAT_CODE": 4
+  },
+  {
+    "DISH_CODE": 118,
+    "DISH_NAME": "PANEER MUTTER",
+    "DISH_PRICE_HALF": 27.5,
+    "DISH_PRICE_FULL": 55,
+    "DISH_TAX": 0,
+    "CAT_CODE": 4
+  },
+  {
+    "DISH_CODE": 119,
+    "DISH_NAME": "PANEER BTR MASALA",
+    "DISH_PRICE_HALF": 27.5,
+    "DISH_PRICE_FULL": 55,
+    "DISH_TAX": 0,
+    "CAT_CODE": 4
+  },
+  {
+    "DISH_CODE": 120,
+    "DISH_NAME": "SAHI PANEER",
+    "DISH_PRICE_HALF": 30,
+    "DISH_PRICE_FULL": 60,
+    "DISH_TAX": 0,
+    "CAT_CODE": 4
+  },
+  {
+    "DISH_CODE": 121,
+    "DISH_NAME": "STUFF PANEER",
+    "DISH_PRICE_HALF": 30,
+    "DISH_PRICE_FULL": 60,
+    "DISH_TAX": 0,
+    "CAT_CODE": 4
+  },
+  {
+    "DISH_CODE": 122,
+    "DISH_NAME": "Green Peas Masala",
+    "DISH_PRICE_HALF": 20,
+    "DISH_PRICE_FULL": 40,
+    "DISH_TAX": 0,
+    "CAT_CODE": 4
+  },
+  {
+    "DISH_CODE": 123,
+    "DISH_NAME": "Green Peas Dry",
+    "DISH_PRICE_HALF": 20,
+    "DISH_PRICE_FULL": 40,
+    "DISH_TAX": 0,
+    "CAT_CODE": 4
+  },
+  {
+    "DISH_CODE": 124,
+    "DISH_NAME": "Chana Masala",
+    "DISH_PRICE_HALF": 20,
+    "DISH_PRICE_FULL": 40,
+    "DISH_TAX": 0,
+    "CAT_CODE": 4
+  },
+  {
+    "DISH_CODE": 125,
+    "DISH_NAME": "Dal Fry",
+    "DISH_PRICE_HALF": 11,
+    "DISH_PRICE_FULL": 22,
+    "DISH_TAX": 0,
+    "CAT_CODE": 4
+  },
+  {
+    "DISH_CODE": 126,
+    "DISH_NAME": "Dal Butter Fry",
+    "DISH_PRICE_HALF": 12,
+    "DISH_PRICE_FULL": 24,
+    "DISH_TAX": 0,
+    "CAT_CODE": 4
+  },
+  {
+    "DISH_CODE": 127,
+    "DISH_NAME": "Dal Tarka",
+    "DISH_PRICE_HALF": 12,
+    "DISH_PRICE_FULL": 24,
+    "DISH_TAX": 0,
+    "CAT_CODE": 4
+  },
+  {
+    "DISH_CODE": 128,
+    "DISH_NAME": "Dal Egg Tarka",
+    "DISH_PRICE_HALF": 20,
+    "DISH_PRICE_FULL": 40,
+    "DISH_TAX": 0,
+    "CAT_CODE": 4
+  },
+  {
+    "DISH_CODE": 129,
+    "DISH_NAME": "Dal  Makhani",
+    "DISH_PRICE_HALF": 20,
+    "DISH_PRICE_FULL": 40,
+    "DISH_TAX": 0,
+    "CAT_CODE": 4
+  },
+  {
+    "DISH_CODE": 130,
+    "DISH_NAME": "Green Salad",
+    "DISH_PRICE_HALF": 10,
+    "DISH_PRICE_FULL": 20,
+    "DISH_TAX": 0,
+    "CAT_CODE": 4
+  },
+  {
+    "DISH_CODE": 131,
+    "DISH_NAME": "Onion Salad",
+    "DISH_PRICE_HALF": 9,
+    "DISH_PRICE_FULL": 18,
+    "DISH_TAX": 0,
+    "CAT_CODE": 4
+  },
+  {
+    "DISH_CODE": 132,
+    "DISH_NAME": "Cucumber Salad",
+    "DISH_PRICE_HALF": 9,
+    "DISH_PRICE_FULL": 18,
+    "DISH_TAX": 0,
+    "CAT_CODE": 4
+  },
+  {
+    "DISH_CODE": 133,
+    "DISH_NAME": "ALU BHAJEE",
+    "DISH_PRICE_HALF": 20,
+    "DISH_PRICE_FULL": 40,
+    "DISH_TAX": 0,
+    "CAT_CODE": 4
+  },
+  {
+    "DISH_CODE": 134,
+    "DISH_NAME": "Stuff Capsicum",
+    "DISH_PRICE_HALF": 25,
+    "DISH_PRICE_FULL": 50,
+    "DISH_TAX": 0,
+    "CAT_CODE": 4
+  },
+  {
+    "DISH_CODE": 135,
+    "DISH_NAME": "Paneer Hydrabadi",
+    "DISH_PRICE_HALF": 30,
+    "DISH_PRICE_FULL": 60,
+    "DISH_TAX": 0,
+    "CAT_CODE": 4
+  },
+  {
+    "DISH_CODE": 136,
+    "DISH_NAME": "Paneer Chatpati",
+    "DISH_PRICE_HALF": 30,
+    "DISH_PRICE_FULL": 60,
+    "DISH_TAX": 0,
+    "CAT_CODE": 4
+  },
+  {
+    "DISH_CODE": 137,
+    "DISH_NAME": "Paneer Pasinda",
+    "DISH_PRICE_HALF": 30,
+    "DISH_PRICE_FULL": 60,
+    "DISH_TAX": 0,
+    "CAT_CODE": 4
+  },
+  {
+    "DISH_CODE": 138,
+    "DISH_NAME": "Paneer Mughle-Azam",
+    "DISH_PRICE_HALF": 30,
+    "DISH_PRICE_FULL": 60,
+    "DISH_TAX": 0,
+    "CAT_CODE": 4
+  },
+  {
+    "DISH_CODE": 140,
+    "DISH_NAME": "Vegetable Hydrabadi",
+    "DISH_PRICE_HALF": 25,
+    "DISH_PRICE_FULL": 50,
+    "DISH_TAX": 0,
+    "CAT_CODE": 4
+  },
+  {
+    "DISH_CODE": 141,
+    "DISH_NAME": "Karahi Paneer",
+    "DISH_PRICE_HALF": 30,
+    "DISH_PRICE_FULL": 60,
+    "DISH_TAX": 0,
+    "CAT_CODE": 4
+  },
+  {
+    "DISH_CODE": 142,
+    "DISH_NAME": "Mushroom Dopiaza",
+    "DISH_PRICE_HALF": 35,
+    "DISH_PRICE_FULL": 70,
+    "DISH_TAX": 0,
+    "CAT_CODE": 4
+  },
+  {
+    "DISH_CODE": 143,
+    "DISH_NAME": "Paneer Capsicum",
+    "DISH_PRICE_HALF": 30,
+    "DISH_PRICE_FULL": 60,
+    "DISH_TAX": 0,
+    "CAT_CODE": 4
+  },
+  {
+    "DISH_CODE": 151,
+    "DISH_NAME": "FISH CURRY",
+    "DISH_PRICE_HALF": 30,
+    "DISH_PRICE_FULL": 60,
+    "DISH_TAX": 0,
+    "CAT_CODE": 5
+  },
+  {
+    "DISH_CODE": 152,
+    "DISH_NAME": "FISH MASALA",
+    "DISH_PRICE_HALF": 30,
+    "DISH_PRICE_FULL": 60,
+    "DISH_TAX": 0,
+    "CAT_CODE": 5
+  },
+  {
+    "DISH_CODE": 153,
+    "DISH_NAME": "FISH DOPIAZA",
+    "DISH_PRICE_HALF": 30,
+    "DISH_PRICE_FULL": 60,
+    "DISH_TAX": 0,
+    "CAT_CODE": 5
+  },
+  {
+    "DISH_CODE": 154,
+    "DISH_NAME": "FISH FRY",
+    "DISH_PRICE_HALF": 30,
+    "DISH_PRICE_FULL": 60,
+    "DISH_TAX": 0,
+    "CAT_CODE": 5
+  },
+  {
+    "DISH_CODE": 155,
+    "DISH_NAME": "FISH TIKA",
+    "DISH_PRICE_HALF": 30,
+    "DISH_PRICE_FULL": 60,
+    "DISH_TAX": 0,
+    "CAT_CODE": 5
+  },
+  {
+    "DISH_CODE": 156,
+    "DISH_NAME": "PRAWN FRY",
+    "DISH_PRICE_HALF": 45,
+    "DISH_PRICE_FULL": 90,
+    "DISH_TAX": 0,
+    "CAT_CODE": 5
+  },
+  {
+    "DISH_CODE": 157,
+    "DISH_NAME": "PRAWN CURRY",
+    "DISH_PRICE_HALF": 45,
+    "DISH_PRICE_FULL": 90,
+    "DISH_TAX": 0,
+    "CAT_CODE": 5
+  },
+  {
+    "DISH_CODE": 158,
+    "DISH_NAME": "PRAWN MASALA",
+    "DISH_PRICE_HALF": 45,
+    "DISH_PRICE_FULL": 90,
+    "DISH_TAX": 0,
+    "CAT_CODE": 5
+  },
+  {
+    "DISH_CODE": 159,
+    "DISH_NAME": "PRAWN DOPIAZA",
+    "DISH_PRICE_HALF": 45,
+    "DISH_PRICE_FULL": 90,
+    "DISH_TAX": 0,
+    "CAT_CODE": 5
+  },
+  {
+    "DISH_CODE": 160,
+    "DISH_NAME": "PRAWN MALAI CURRY",
+    "DISH_PRICE_HALF": 47.5,
+    "DISH_PRICE_FULL": 95,
+    "DISH_TAX": 0,
+    "CAT_CODE": 5
+  },
+  {
+    "DISH_CODE": 161,
+    "DISH_NAME": "TANDOORI PRAWN",
+    "DISH_PRICE_HALF": 50,
+    "DISH_PRICE_FULL": 100,
+    "DISH_TAX": 0,
+    "CAT_CODE": 5
+  },
+  {
+    "DISH_CODE": 171,
+    "DISH_NAME": "EGG CURRY",
+    "DISH_PRICE_HALF": 20,
+    "DISH_PRICE_FULL": 40,
+    "DISH_TAX": 0,
+    "CAT_CODE": 6
+  },
+  {
+    "DISH_CODE": 172,
+    "DISH_NAME": "EGG MASALA",
+    "DISH_PRICE_HALF": 20,
+    "DISH_PRICE_FULL": 40,
+    "DISH_TAX": 0,
+    "CAT_CODE": 6
+  },
+  {
+    "DISH_CODE": 173,
+    "DISH_NAME": "EGG DOPIAZA",
+    "DISH_PRICE_HALF": 20,
+    "DISH_PRICE_FULL": 40,
+    "DISH_TAX": 0,
+    "CAT_CODE": 6
+  },
+  {
+    "DISH_CODE": 174,
+    "DISH_NAME": "EGG BHUJIA",
+    "DISH_PRICE_HALF": 12.5,
+    "DISH_PRICE_FULL": 25,
+    "DISH_TAX": 0,
+    "CAT_CODE": 6
+  },
+  {
+    "DISH_CODE": 175,
+    "DISH_NAME": "CKN BUTTER MASALA",
+    "DISH_PRICE_HALF": 37.5,
+    "DISH_PRICE_FULL": 75,
+    "DISH_TAX": 0,
+    "CAT_CODE": 6
+  },
+  {
+    "DISH_CODE": 176,
+    "DISH_NAME": "CKN BHARTA",
+    "DISH_PRICE_HALF": 37.5,
+    "DISH_PRICE_FULL": 75,
+    "DISH_TAX": 0,
+    "CAT_CODE": 6
+  },
+  {
+    "DISH_CODE": 177,
+    "DISH_NAME": "CKN DAHIWALA",
+    "DISH_PRICE_HALF": 37.5,
+    "DISH_PRICE_FULL": 75,
+    "DISH_TAX": 0,
+    "CAT_CODE": 6
+  },
+  {
+    "DISH_CODE": 178,
+    "DISH_NAME": "CKN SAGWALA SEASONAL",
+    "DISH_PRICE_HALF": 37.5,
+    "DISH_PRICE_FULL": 75,
+    "DISH_TAX": 0,
+    "CAT_CODE": 6
+  },
+  {
+    "DISH_CODE": 179,
+    "DISH_NAME": "CKN MASALA",
+    "DISH_PRICE_HALF": 37.5,
+    "DISH_PRICE_FULL": 75,
+    "DISH_TAX": 0,
+    "CAT_CODE": 6
+  },
+  {
+    "DISH_CODE": 180,
+    "DISH_NAME": "CKN CURRY",
+    "DISH_PRICE_HALF": 37.5,
+    "DISH_PRICE_FULL": 75,
+    "DISH_TAX": 0,
+    "CAT_CODE": 6
+  },
+  {
+    "DISH_CODE": 181,
+    "DISH_NAME": "CKN MUGHLAI",
+    "DISH_PRICE_HALF": 37.5,
+    "DISH_PRICE_FULL": 75,
+    "DISH_TAX": 0,
+    "CAT_CODE": 6
+  },
+  {
+    "DISH_CODE": 182,
+    "DISH_NAME": "CKN MURGMASALAM HALF",
+    "DISH_PRICE_HALF": 75,
+    "DISH_PRICE_FULL": 150,
+    "DISH_TAX": 0,
+    "CAT_CODE": 6
+  },
+  {
+    "DISH_CODE": 183,
+    "DISH_NAME": "CKN MURGMASALAM FULL",
+    "DISH_PRICE_HALF": 145,
+    "DISH_PRICE_FULL": 290,
+    "DISH_TAX": 0,
+    "CAT_CODE": 6
+  },
+  {
+    "DISH_CODE": 184,
+    "DISH_NAME": "CKN PRAMOD SPL FULL",
+    "DISH_PRICE_HALF": 145,
+    "DISH_PRICE_FULL": 290,
+    "DISH_TAX": 0,
+    "CAT_CODE": 6
+  },
+  {
+    "DISH_CODE": 185,
+    "DISH_NAME": "CKN PRAMOD SPL HALF",
+    "DISH_PRICE_HALF": 75,
+    "DISH_PRICE_FULL": 150,
+    "DISH_TAX": 0,
+    "CAT_CODE": 6
+  },
+  {
+    "DISH_CODE": 186,
+    "DISH_NAME": "CKN FRY",
+    "DISH_PRICE_HALF": 37.5,
+    "DISH_PRICE_FULL": 75,
+    "DISH_TAX": 0,
+    "CAT_CODE": 6
+  },
+  {
+    "DISH_CODE": 187,
+    "DISH_NAME": "CKN KASSA",
+    "DISH_PRICE_HALF": 37.5,
+    "DISH_PRICE_FULL": 75,
+    "DISH_TAX": 0,
+    "CAT_CODE": 6
+  },
+  {
+    "DISH_CODE": 188,
+    "DISH_NAME": "CKN TIKKA BTR MSL",
+    "DISH_PRICE_HALF": 50,
+    "DISH_PRICE_FULL": 100,
+    "DISH_TAX": 0,
+    "CAT_CODE": 6
+  },
+  {
+    "DISH_CODE": 189,
+    "DISH_NAME": "MUTTON CURRY",
+    "DISH_PRICE_HALF": 40,
+    "DISH_PRICE_FULL": 80,
+    "DISH_TAX": 0,
+    "CAT_CODE": 7
+  },
+  {
+    "DISH_CODE": 190,
+    "DISH_NAME": "MUTTON MSL",
+    "DISH_PRICE_HALF": 40,
+    "DISH_PRICE_FULL": 80,
+    "DISH_TAX": 0,
+    "CAT_CODE": 7
+  },
+  {
+    "DISH_CODE": 191,
+    "DISH_NAME": "MUTTON DOPIAZA",
+    "DISH_PRICE_HALF": 40,
+    "DISH_PRICE_FULL": 80,
+    "DISH_TAX": 0,
+    "CAT_CODE": 7
+  },
+  {
+    "DISH_CODE": 192,
+    "DISH_NAME": "MUTTON KASSA",
+    "DISH_PRICE_HALF": 40,
+    "DISH_PRICE_FULL": 80,
+    "DISH_TAX": 0,
+    "CAT_CODE": 7
+  },
+  {
+    "DISH_CODE": 193,
+    "DISH_NAME": "MUTTON SAHI KORMA",
+    "DISH_PRICE_HALF": 40,
+    "DISH_PRICE_FULL": 80,
+    "DISH_TAX": 0,
+    "CAT_CODE": 7
+  },
+  {
+    "DISH_CODE": 194,
+    "DISH_NAME": "MUTTON SAGWALA Ssnl.",
+    "DISH_PRICE_HALF": 40,
+    "DISH_PRICE_FULL": 80,
+    "DISH_TAX": 0,
+    "CAT_CODE": 7
+  },
+  {
+    "DISH_CODE": 195,
+    "DISH_NAME": "MUTTON KIMMA CURRY",
+    "DISH_PRICE_HALF": 40,
+    "DISH_PRICE_FULL": 80,
+    "DISH_TAX": 0,
+    "CAT_CODE": 7
+  },
+  {
+    "DISH_CODE": 196,
+    "DISH_NAME": "CKN DOPIAZA",
+    "DISH_PRICE_HALF": 37.5,
+    "DISH_PRICE_FULL": 75,
+    "DISH_TAX": 0,
+    "CAT_CODE": 6
+  },
+  {
+    "DISH_CODE": 197,
+    "DISH_NAME": "CKN KARAHI",
+    "DISH_PRICE_HALF": 40,
+    "DISH_PRICE_FULL": 80,
+    "DISH_TAX": 0,
+    "CAT_CODE": 6
+  },
+  {
+    "DISH_CODE": 198,
+    "DISH_NAME": "STUFF CKN FULL",
+    "DISH_PRICE_HALF": 145,
+    "DISH_PRICE_FULL": 290,
+    "DISH_TAX": 0,
+    "CAT_CODE": 6
+  },
+  {
+    "DISH_CODE": 199,
+    "DISH_NAME": "CKN HYDRABADI",
+    "DISH_PRICE_HALF": 40,
+    "DISH_PRICE_FULL": 80,
+    "DISH_TAX": 0,
+    "CAT_CODE": 6
+  },
+  {
+    "DISH_CODE": 200,
+    "DISH_NAME": "MUTTON HYDRABADI",
+    "DISH_PRICE_HALF": 40,
+    "DISH_PRICE_FULL": 80,
+    "DISH_TAX": 0,
+    "CAT_CODE": 7
+  },
+  {
+    "DISH_CODE": 201,
+    "DISH_NAME": "CKN MUGHLE-AZAM",
+    "DISH_PRICE_HALF": 40,
+    "DISH_PRICE_FULL": 80,
+    "DISH_TAX": 0,
+    "CAT_CODE": 6
+  },
+  {
+    "DISH_CODE": 225,
+    "DISH_NAME": "TNDR CKN FULL",
+    "DISH_PRICE_HALF": 75,
+    "DISH_PRICE_FULL": 150,
+    "DISH_TAX": 0,
+    "CAT_CODE": 8
+  },
+  {
+    "DISH_CODE": 226,
+    "DISH_NAME": "TNDR CKN HALF",
+    "DISH_PRICE_HALF": 45,
+    "DISH_PRICE_FULL": 90,
+    "DISH_TAX": 0,
+    "CAT_CODE": 8
+  },
+  {
+    "DISH_CODE": 227,
+    "DISH_NAME": "CKN KALMI KABAB",
+    "DISH_PRICE_HALF": 50,
+    "DISH_PRICE_FULL": 100,
+    "DISH_TAX": 0,
+    "CAT_CODE": 8
+  },
+  {
+    "DISH_CODE": 228,
+    "DISH_NAME": "CKN RESMI KABAB",
+    "DISH_PRICE_HALF": 50,
+    "DISH_PRICE_FULL": 100,
+    "DISH_TAX": 0,
+    "CAT_CODE": 8
+  },
+  {
+    "DISH_CODE": 229,
+    "DISH_NAME": "CKN TENGRI KABAB",
+    "DISH_PRICE_HALF": 55,
+    "DISH_PRICE_FULL": 110,
+    "DISH_TAX": 0,
+    "CAT_CODE": 8
+  },
+  {
+    "DISH_CODE": 230,
+    "DISH_NAME": "CKN TIKKA",
+    "DISH_PRICE_HALF": 50,
+    "DISH_PRICE_FULL": 100,
+    "DISH_TAX": 0,
+    "CAT_CODE": 8
+  },
+  {
+    "DISH_CODE": 231,
+    "DISH_NAME": "PANEER TIKKA",
+    "DISH_PRICE_HALF": 30,
+    "DISH_PRICE_FULL": 60,
+    "DISH_TAX": 0,
+    "CAT_CODE": 8
+  },
+  {
+    "DISH_CODE": 232,
+    "DISH_NAME": "PNR TIKKABTR MSL",
+    "DISH_PRICE_HALF": 35,
+    "DISH_PRICE_FULL": 70,
+    "DISH_TAX": 0,
+    "CAT_CODE": 8
+  },
+  {
+    "DISH_CODE": 251,
+    "DISH_NAME": "ROTI",
+    "DISH_PRICE_HALF": 4,
+    "DISH_PRICE_FULL": 8,
+    "DISH_TAX": 0,
+    "CAT_CODE": 9
+  },
+  {
+    "DISH_CODE": 252,
+    "DISH_NAME": "BUTTER ROTI",
+    "DISH_PRICE_HALF": 5,
+    "DISH_PRICE_FULL": 10,
+    "DISH_TAX": 0,
+    "CAT_CODE": 9
+  },
+  {
+    "DISH_CODE": 253,
+    "DISH_NAME": "PARATHA",
+    "DISH_PRICE_HALF": 6,
+    "DISH_PRICE_FULL": 12,
+    "DISH_TAX": 0,
+    "CAT_CODE": 9
+  },
+  {
+    "DISH_CODE": 254,
+    "DISH_NAME": "BUTTER PARATHA",
+    "DISH_PRICE_HALF": 7,
+    "DISH_PRICE_FULL": 14,
+    "DISH_TAX": 0,
+    "CAT_CODE": 9
+  },
+  {
+    "DISH_CODE": 255,
+    "DISH_NAME": "STUFF PARATHA",
+    "DISH_PRICE_HALF": 7,
+    "DISH_PRICE_FULL": 14,
+    "DISH_TAX": 0,
+    "CAT_CODE": 9
+  },
+  {
+    "DISH_CODE": 256,
+    "DISH_NAME": "NAN",
+    "DISH_PRICE_HALF": 6,
+    "DISH_PRICE_FULL": 12,
+    "DISH_TAX": 0,
+    "CAT_CODE": 9
+  },
+  {
+    "DISH_CODE": 257,
+    "DISH_NAME": "KULCHA",
+    "DISH_PRICE_HALF": 6,
+    "DISH_PRICE_FULL": 12,
+    "DISH_TAX": 0,
+    "CAT_CODE": 9
+  },
+  {
+    "DISH_CODE": 258,
+    "DISH_NAME": "MSL NAN",
+    "DISH_PRICE_HALF": 8,
+    "DISH_PRICE_FULL": 16,
+    "DISH_TAX": 0,
+    "CAT_CODE": 9
+  },
+  {
+    "DISH_CODE": 259,
+    "DISH_NAME": "MSL KULCHA",
+    "DISH_PRICE_HALF": 8,
+    "DISH_PRICE_FULL": 16,
+    "DISH_TAX": 0,
+    "CAT_CODE": 9
+  },
+  {
+    "DISH_CODE": 260,
+    "DISH_NAME": "KASHMIR NAN",
+    "DISH_PRICE_HALF": 30,
+    "DISH_PRICE_FULL": 60,
+    "DISH_TAX": 0,
+    "CAT_CODE": 9
+  },
+  {
+    "DISH_CODE": 261,
+    "DISH_NAME": "PAPAD",
+    "DISH_PRICE_HALF": 2.5,
+    "DISH_PRICE_FULL": 5,
+    "DISH_TAX": 0,
+    "CAT_CODE": 9
+  },
+  {
+    "DISH_CODE": 262,
+    "DISH_NAME": "PAPAD FRY",
+    "DISH_PRICE_HALF": 3,
+    "DISH_PRICE_FULL": 6,
+    "DISH_TAX": 0,
+    "CAT_CODE": 9
+  },
+  {
+    "DISH_CODE": 263,
+    "DISH_NAME": "PAPAD MASALA",
+    "DISH_PRICE_HALF": 4,
+    "DISH_PRICE_FULL": 8,
+    "DISH_TAX": 0,
+    "CAT_CODE": 9
+  },
+  {
+    "DISH_CODE": 264,
+    "DISH_NAME": "BUTTER NAN",
+    "DISH_PRICE_HALF": 7,
+    "DISH_PRICE_FULL": 14,
+    "DISH_TAX": 0,
+    "CAT_CODE": 9
+  },
+  {
+    "DISH_CODE": 265,
+    "DISH_NAME": "BUTTER KULCHA",
+    "DISH_PRICE_HALF": 7,
+    "DISH_PRICE_FULL": 14,
+    "DISH_TAX": 0,
+    "CAT_CODE": 9
+  },
+  {
+    "DISH_CODE": 266,
+    "DISH_NAME": "SPL MSL PAPAD",
+    "DISH_PRICE_HALF": 10,
+    "DISH_PRICE_FULL": 20,
+    "DISH_TAX": 0,
+    "CAT_CODE": 9
+  },
+  {
+    "DISH_CODE": 271,
+    "DISH_NAME": "CURD",
+    "DISH_PRICE_HALF": 12.5,
+    "DISH_PRICE_FULL": 25,
+    "DISH_TAX": 0,
+    "CAT_CODE": 10
+  },
+  {
+    "DISH_CODE": 272,
+    "DISH_NAME": "ALU RAITA",
+    "DISH_PRICE_HALF": 12.5,
+    "DISH_PRICE_FULL": 25,
+    "DISH_TAX": 0,
+    "CAT_CODE": 10
+  },
+  {
+    "DISH_CODE": 273,
+    "DISH_NAME": "ONION RAITA",
+    "DISH_PRICE_HALF": 12.5,
+    "DISH_PRICE_FULL": 25,
+    "DISH_TAX": 0,
+    "CAT_CODE": 10
+  },
+  {
+    "DISH_CODE": 274,
+    "DISH_NAME": "TAMATO RAITA",
+    "DISH_PRICE_HALF": 12.5,
+    "DISH_PRICE_FULL": 25,
+    "DISH_TAX": 0,
+    "CAT_CODE": 10
+  },
+  {
+    "DISH_CODE": 275,
+    "DISH_NAME": "MIX RAITA",
+    "DISH_PRICE_HALF": 15,
+    "DISH_PRICE_FULL": 30,
+    "DISH_TAX": 0,
+    "CAT_CODE": 10
+  },
+  {
+    "DISH_CODE": 276,
+    "DISH_NAME": "PINEAPPLE RAITA",
+    "DISH_PRICE_HALF": 15,
+    "DISH_PRICE_FULL": 30,
+    "DISH_TAX": 0,
+    "CAT_CODE": 10
+  },
+  {
+    "DISH_CODE": 291,
+    "DISH_NAME": "PLAIN RICE",
+    "DISH_PRICE_HALF": 11,
+    "DISH_PRICE_FULL": 22,
+    "DISH_TAX": 0,
+    "CAT_CODE": 11
+  },
+  {
+    "DISH_CODE": 292,
+    "DISH_NAME": "VEG PALLAO",
+    "DISH_PRICE_HALF": 17.5,
+    "DISH_PRICE_FULL": 35,
+    "DISH_TAX": 0,
+    "CAT_CODE": 11
+  },
+  {
+    "DISH_CODE": 293,
+    "DISH_NAME": "PEAS PALLAO",
+    "DISH_PRICE_HALF": 17.5,
+    "DISH_PRICE_FULL": 35,
+    "DISH_TAX": 0,
+    "CAT_CODE": 11
+  },
+  {
+    "DISH_CODE": 294,
+    "DISH_NAME": "KASHMIR PALLAO",
+    "DISH_PRICE_HALF": 22.5,
+    "DISH_PRICE_FULL": 45,
+    "DISH_TAX": 0,
+    "CAT_CODE": 11
+  },
+  {
+    "DISH_CODE": 295,
+    "DISH_NAME": "PANEER PALLAO",
+    "DISH_PRICE_HALF": 22.5,
+    "DISH_PRICE_FULL": 45,
+    "DISH_TAX": 0,
+    "CAT_CODE": 11
+  },
+  {
+    "DISH_CODE": 296,
+    "DISH_NAME": "MUTTON BIRIYANI",
+    "DISH_PRICE_HALF": 47.5,
+    "DISH_PRICE_FULL": 95,
+    "DISH_TAX": 0,
+    "CAT_CODE": 11
+  },
+  {
+    "DISH_CODE": 297,
+    "DISH_NAME": "CKN BIRIYANI",
+    "DISH_PRICE_HALF": 47.5,
+    "DISH_PRICE_FULL": 95,
+    "DISH_TAX": 0,
+    "CAT_CODE": 11
+  },
+  {
+    "DISH_CODE": 298,
+    "DISH_NAME": "JEERA RICE",
+    "DISH_PRICE_HALF": 17.5,
+    "DISH_PRICE_FULL": 35,
+    "DISH_TAX": 0,
+    "CAT_CODE": 11
+  },
+  {
+    "DISH_CODE": 299,
+    "DISH_NAME": "LEMON RICE",
+    "DISH_PRICE_HALF": 17.5,
+    "DISH_PRICE_FULL": 35,
+    "DISH_TAX": 0,
+    "CAT_CODE": 11
+  },
+  {
+    "DISH_CODE": 300,
+    "DISH_NAME": "VEG BIRIYANI",
+    "DISH_PRICE_HALF": 22.5,
+    "DISH_PRICE_FULL": 45,
+    "DISH_TAX": 0,
+    "CAT_CODE": 11
+  },
+  {
+    "DISH_CODE": 325,
+    "DISH_NAME": "Mix Fried Rice",
+    "DISH_PRICE_HALF": 22.5,
+    "DISH_PRICE_FULL": 45,
+    "DISH_TAX": 0,
+    "CAT_CODE": 12
+  },
+  {
+    "DISH_CODE": 326,
+    "DISH_NAME": "Prawn Fried Rice",
+    "DISH_PRICE_HALF": 25,
+    "DISH_PRICE_FULL": 50,
+    "DISH_TAX": 0,
+    "CAT_CODE": 12
+  },
+  {
+    "DISH_CODE": 327,
+    "DISH_NAME": "Ckn Fried Rice",
+    "DISH_PRICE_HALF": 20,
+    "DISH_PRICE_FULL": 40,
+    "DISH_TAX": 0,
+    "CAT_CODE": 12
+  },
+  {
+    "DISH_CODE": 328,
+    "DISH_NAME": "Egg Fried Rice",
+    "DISH_PRICE_HALF": 20,
+    "DISH_PRICE_FULL": 40,
+    "DISH_TAX": 0,
+    "CAT_CODE": 12
+  },
+  {
+    "DISH_CODE": 329,
+    "DISH_NAME": "Veg Fried Rice",
+    "DISH_PRICE_HALF": 20,
+    "DISH_PRICE_FULL": 40,
+    "DISH_TAX": 0,
+    "CAT_CODE": 12
+  },
+  {
+    "DISH_CODE": 351,
+    "DISH_NAME": "MIX CHOWMINE",
+    "DISH_PRICE_HALF": 22.5,
+    "DISH_PRICE_FULL": 45,
+    "DISH_TAX": 0,
+    "CAT_CODE": 12
+  },
+  {
+    "DISH_CODE": 352,
+    "DISH_NAME": "PRAWN CHOWMINE",
+    "DISH_PRICE_HALF": 25,
+    "DISH_PRICE_FULL": 50,
+    "DISH_TAX": 0,
+    "CAT_CODE": 12
+  },
+  {
+    "DISH_CODE": 353,
+    "DISH_NAME": "CKN CHOWMINE",
+    "DISH_PRICE_HALF": 20,
+    "DISH_PRICE_FULL": 40,
+    "DISH_TAX": 0,
+    "CAT_CODE": 12
+  },
+  {
+    "DISH_CODE": 354,
+    "DISH_NAME": "EGG CHOWMINE",
+    "DISH_PRICE_HALF": 20,
+    "DISH_PRICE_FULL": 40,
+    "DISH_TAX": 0,
+    "CAT_CODE": 12
+  },
+  {
+    "DISH_CODE": 355,
+    "DISH_NAME": "VEG CHOWMINE",
+    "DISH_PRICE_HALF": 20,
+    "DISH_PRICE_FULL": 40,
+    "DISH_TAX": 0,
+    "CAT_CODE": 12
+  },
+  {
+    "DISH_CODE": 361,
+    "DISH_NAME": "MIX CHOW -CHOW",
+    "DISH_PRICE_HALF": 30,
+    "DISH_PRICE_FULL": 60,
+    "DISH_TAX": 0,
+    "CAT_CODE": 12
+  },
+  {
+    "DISH_CODE": 362,
+    "DISH_NAME": "PRAWN CHOW-CHOW",
+    "DISH_PRICE_HALF": 35,
+    "DISH_PRICE_FULL": 70,
+    "DISH_TAX": 0,
+    "CAT_CODE": 12
+  },
+  {
+    "DISH_CODE": 363,
+    "DISH_NAME": "CKN CHOW-CHOW",
+    "DISH_PRICE_HALF": 30,
+    "DISH_PRICE_FULL": 60,
+    "DISH_TAX": 0,
+    "CAT_CODE": 12
+  },
+  {
+    "DISH_CODE": 364,
+    "DISH_NAME": "VEG CHOW-CHOW",
+    "DISH_PRICE_HALF": 27.5,
+    "DISH_PRICE_FULL": 55,
+    "DISH_TAX": 0,
+    "CAT_CODE": 12
+  },
+  {
+    "DISH_CODE": 371,
+    "DISH_NAME": "PRAWN SWEET-N-SOUR",
+    "DISH_PRICE_HALF": 40,
+    "DISH_PRICE_FULL": 80,
+    "DISH_TAX": 0,
+    "CAT_CODE": 12
+  },
+  {
+    "DISH_CODE": 372,
+    "DISH_NAME": "CKN SWEET - N -SOUR",
+    "DISH_PRICE_HALF": 30,
+    "DISH_PRICE_FULL": 60,
+    "DISH_TAX": 0,
+    "CAT_CODE": 12
+  },
+  {
+    "DISH_CODE": 373,
+    "DISH_NAME": "VEG SWEET-N-SOUR",
+    "DISH_PRICE_HALF": 27.5,
+    "DISH_PRICE_FULL": 55,
+    "DISH_TAX": 0,
+    "CAT_CODE": 12
+  },
+  {
+    "DISH_CODE": 374,
+    "DISH_NAME": "CHILLY PANEER",
+    "DISH_PRICE_HALF": 30,
+    "DISH_PRICE_FULL": 60,
+    "DISH_TAX": 0,
+    "CAT_CODE": 12
+  },
+  {
+    "DISH_CODE": 375,
+    "DISH_NAME": "CHILLY CKN",
+    "DISH_PRICE_HALF": 32.5,
+    "DISH_PRICE_FULL": 65,
+    "DISH_TAX": 0,
+    "CAT_CODE": 12
+  },
+  {
+    "DISH_CODE": 376,
+    "DISH_NAME": "CHILLY CKN BONELESS",
+    "DISH_PRICE_HALF": 37.5,
+    "DISH_PRICE_FULL": 75,
+    "DISH_TAX": 0,
+    "CAT_CODE": 12
+  },
+  {
+    "DISH_CODE": 377,
+    "DISH_NAME": "GINGER CKN",
+    "DISH_PRICE_HALF": 32.5,
+    "DISH_PRICE_FULL": 65,
+    "DISH_TAX": 0,
+    "CAT_CODE": 12
+  },
+  {
+    "DISH_CODE": 378,
+    "DISH_NAME": "GNR CKN BONELESS",
+    "DISH_PRICE_HALF": 37.5,
+    "DISH_PRICE_FULL": 75,
+    "DISH_TAX": 0,
+    "CAT_CODE": 12
+  },
+  {
+    "DISH_CODE": 379,
+    "DISH_NAME": "GRLIC FRIED CKN",
+    "DISH_PRICE_HALF": 32.5,
+    "DISH_PRICE_FULL": 65,
+    "DISH_TAX": 0,
+    "CAT_CODE": 12
+  },
+  {
+    "DISH_CODE": 380,
+    "DISH_NAME": "CKN IN GLIC SAUCE",
+    "DISH_PRICE_HALF": 35,
+    "DISH_PRICE_FULL": 70,
+    "DISH_TAX": 0,
+    "CAT_CODE": 12
+  },
+  {
+    "DISH_CODE": 381,
+    "DISH_NAME": "GLIC FRIED CKN BL",
+    "DISH_PRICE_HALF": 37.5,
+    "DISH_PRICE_FULL": 75,
+    "DISH_TAX": 0,
+    "CAT_CODE": 12
+  },
+  {
+    "DISH_CODE": 382,
+    "DISH_NAME": "GOLDEN GOVI",
+    "DISH_PRICE_HALF": 25,
+    "DISH_PRICE_FULL": 50,
+    "DISH_TAX": 0,
+    "CAT_CODE": 12
+  },
+  {
+    "DISH_CODE": 383,
+    "DISH_NAME": "CHILLY MUSHROOM",
+    "DISH_PRICE_HALF": 35,
+    "DISH_PRICE_FULL": 70,
+    "DISH_TAX": 0,
+    "CAT_CODE": 12
+  },
+  {
+    "DISH_CODE": 384,
+    "DISH_NAME": "CHILLY BABY CORN",
+    "DISH_PRICE_HALF": 35,
+    "DISH_PRICE_FULL": 70,
+    "DISH_TAX": 0,
+    "CAT_CODE": 12
+  },
+  {
+    "DISH_CODE": 385,
+    "DISH_NAME": "GNR BABY CORN",
+    "DISH_PRICE_HALF": 35,
+    "DISH_PRICE_FULL": 70,
+    "DISH_TAX": 0,
+    "CAT_CODE": 12
+  },
+  {
+    "DISH_CODE": 401,
+    "DISH_NAME": "GARLIC FRIED PRAWN",
+    "DISH_PRICE_HALF": 47.5,
+    "DISH_PRICE_FULL": 95,
+    "DISH_TAX": 0,
+    "CAT_CODE": 12
+  },
+  {
+    "DISH_CODE": 402,
+    "DISH_NAME": "PRAWN IN GLIC SAUCE",
+    "DISH_PRICE_HALF": 47.5,
+    "DISH_PRICE_FULL": 95,
+    "DISH_TAX": 0,
+    "CAT_CODE": 12
+  },
+  {
+    "DISH_CODE": 403,
+    "DISH_NAME": "FRIED PRAWN",
+    "DISH_PRICE_HALF": 47.5,
+    "DISH_PRICE_FULL": 95,
+    "DISH_TAX": 0,
+    "CAT_CODE": 12
+  },
+  {
+    "DISH_CODE": 404,
+    "DISH_NAME": "GOLDEN PRAWN",
+    "DISH_PRICE_HALF": 47.5,
+    "DISH_PRICE_FULL": 95,
+    "DISH_TAX": 0,
+    "CAT_CODE": 12
+  },
+  {
+    "DISH_CODE": 405,
+    "DISH_NAME": "GOLD COIN PRAWN",
+    "DISH_PRICE_HALF": 47.5,
+    "DISH_PRICE_FULL": 95,
+    "DISH_TAX": 0,
+    "CAT_CODE": 12
+  },
+  {
+    "DISH_CODE": 406,
+    "DISH_NAME": "CHILLY PRAWN",
+    "DISH_PRICE_HALF": 47.5,
+    "DISH_PRICE_FULL": 95,
+    "DISH_TAX": 0,
+    "CAT_CODE": 12
+  },
+  {
+    "DISH_CODE": 407,
+    "DISH_NAME": "GINGER PRAWN",
+    "DISH_PRICE_HALF": 47.5,
+    "DISH_PRICE_FULL": 95,
+    "DISH_TAX": 0,
+    "CAT_CODE": 12
+  },
+  {
+    "DISH_CODE": 408,
+    "DISH_NAME": "PRAWN SPRING ROLL",
+    "DISH_PRICE_HALF": 47.5,
+    "DISH_PRICE_FULL": 95,
+    "DISH_TAX": 0,
+    "CAT_CODE": 12
+  },
+  {
+    "DISH_CODE": 409,
+    "DISH_NAME": "CKN SPRING ROLL",
+    "DISH_PRICE_HALF": 37.5,
+    "DISH_PRICE_FULL": 75,
+    "DISH_TAX": 0,
+    "CAT_CODE": 12
+  },
+  {
+    "DISH_CODE": 410,
+    "DISH_NAME": "VEG SPRING ROLL",
+    "DISH_PRICE_HALF": 32.5,
+    "DISH_PRICE_FULL": 65,
+    "DISH_TAX": 0,
+    "CAT_CODE": 12
+  },
+  {
+    "DISH_CODE": 411,
+    "DISH_NAME": "AMERICAN CHOPSUEY",
+    "DISH_PRICE_HALF": 37.5,
+    "DISH_PRICE_FULL": 75,
+    "DISH_TAX": 0,
+    "CAT_CODE": 12
+  },
+  {
+    "DISH_CODE": 412,
+    "DISH_NAME": "VEG CHOPSUEY",
+    "DISH_PRICE_HALF": 35,
+    "DISH_PRICE_FULL": 70,
+    "DISH_TAX": 0,
+    "CAT_CODE": 12
+  },
+  {
+    "DISH_CODE": 413,
+    "DISH_NAME": "CKN MANCHURIAN",
+    "DISH_PRICE_HALF": 35,
+    "DISH_PRICE_FULL": 70,
+    "DISH_TAX": 0,
+    "CAT_CODE": 12
+  },
+  {
+    "DISH_CODE": 414,
+    "DISH_NAME": "VEG MANCHURIAN",
+    "DISH_PRICE_HALF": 25,
+    "DISH_PRICE_FULL": 50,
+    "DISH_TAX": 0,
+    "CAT_CODE": 12
+  },
+  {
+    "DISH_CODE": 421,
+    "DISH_NAME": "FRUIT SALAD",
+    "DISH_PRICE_HALF": 12.5,
+    "DISH_PRICE_FULL": 25,
+    "DISH_TAX": 0,
+    "CAT_CODE": 13
+  },
+  {
+    "DISH_CODE": 422,
+    "DISH_NAME": "KULFI",
+    "DISH_PRICE_HALF": 10,
+    "DISH_PRICE_FULL": 20,
+    "DISH_TAX": 0,
+    "CAT_CODE": 13
+  },
+  {
+    "DISH_CODE": 423,
+    "DISH_NAME": "PUDDING",
+    "DISH_PRICE_HALF": 10,
+    "DISH_PRICE_FULL": 20,
+    "DISH_TAX": 0,
+    "CAT_CODE": 13
+  },
+  {
+    "DISH_CODE": 424,
+    "DISH_NAME": "VANILA ICE-CREAM",
+    "DISH_PRICE_HALF": 9,
+    "DISH_PRICE_FULL": 18,
+    "DISH_TAX": 0,
+    "CAT_CODE": 13
+  },
+  {
+    "DISH_CODE": 425,
+    "DISH_NAME": "PISTA ICE-CREAM",
+    "DISH_PRICE_HALF": 11,
+    "DISH_PRICE_FULL": 22,
+    "DISH_TAX": 0,
+    "CAT_CODE": 13
+  },
+  {
+    "DISH_CODE": 426,
+    "DISH_NAME": "Cheche P. A . Cherry",
+    "DISH_PRICE_HALF": 20,
+    "DISH_PRICE_FULL": 40,
+    "DISH_TAX": 0,
+    "CAT_CODE": 13
+  },
+  {
+    "DISH_CODE": 451,
+    "DISH_NAME": "TOAST BTR JAM",
+    "DISH_PRICE_HALF": 10,
+    "DISH_PRICE_FULL": 20,
+    "DISH_TAX": 0,
+    "CAT_CODE": 14
+  },
+  {
+    "DISH_CODE": 452,
+    "DISH_NAME": "CRYPS STMG CORN FLKS",
+    "DISH_PRICE_HALF": 10,
+    "DISH_PRICE_FULL": 20,
+    "DISH_TAX": 0,
+    "CAT_CODE": 14
+  },
+  {
+    "DISH_CODE": 453,
+    "DISH_NAME": "CHOLLA BATURA",
+    "DISH_PRICE_HALF": 17.5,
+    "DISH_PRICE_FULL": 35,
+    "DISH_TAX": 0,
+    "CAT_CODE": 14
+  },
+  {
+    "DISH_CODE": 454,
+    "DISH_NAME": "PUREE BHAJEE",
+    "DISH_PRICE_HALF": 11,
+    "DISH_PRICE_FULL": 22,
+    "DISH_TAX": 0,
+    "CAT_CODE": 14
+  },
+  {
+    "DISH_CODE": 455,
+    "DISH_NAME": "CHEESE ON TOAST",
+    "DISH_PRICE_HALF": 11,
+    "DISH_PRICE_FULL": 22,
+    "DISH_TAX": 0,
+    "CAT_CODE": 14
+  },
+  {
+    "DISH_CODE": 456,
+    "DISH_NAME": "EGG BOILED",
+    "DISH_PRICE_HALF": 6,
+    "DISH_PRICE_FULL": 12,
+    "DISH_TAX": 0,
+    "CAT_CODE": 14
+  },
+  {
+    "DISH_CODE": 457,
+    "DISH_NAME": "EGG FRIED",
+    "DISH_PRICE_HALF": 9,
+    "DISH_PRICE_FULL": 18,
+    "DISH_TAX": 0,
+    "CAT_CODE": 14
+  },
+  {
+    "DISH_CODE": 458,
+    "DISH_NAME": "EGG POACHED",
+    "DISH_PRICE_HALF": 9,
+    "DISH_PRICE_FULL": 18,
+    "DISH_TAX": 0,
+    "CAT_CODE": 14
+  },
+  {
+    "DISH_CODE": 459,
+    "DISH_NAME": "EGG SCRAMBLED",
+    "DISH_PRICE_HALF": 9,
+    "DISH_PRICE_FULL": 18,
+    "DISH_TAX": 0,
+    "CAT_CODE": 14
+  },
+  {
+    "DISH_CODE": 460,
+    "DISH_NAME": "OMLATE",
+    "DISH_PRICE_HALF": 9,
+    "DISH_PRICE_FULL": 18,
+    "DISH_TAX": 0,
+    "CAT_CODE": 14
+  },
+  {
+    "DISH_CODE": 461,
+    "DISH_NAME": "MASALA OMLATE",
+    "DISH_PRICE_HALF": 11,
+    "DISH_PRICE_FULL": 22,
+    "DISH_TAX": 0,
+    "CAT_CODE": 14
+  },
+  {
+    "DISH_CODE": 462,
+    "DISH_NAME": "OMLATE CHEESE",
+    "DISH_PRICE_HALF": 11,
+    "DISH_PRICE_FULL": 22,
+    "DISH_TAX": 0,
+    "CAT_CODE": 14
+  },
+  {
+    "DISH_CODE": 463,
+    "DISH_NAME": "OMLATE CKN",
+    "DISH_PRICE_HALF": 11,
+    "DISH_PRICE_FULL": 22,
+    "DISH_TAX": 0,
+    "CAT_CODE": 14
+  },
+  {
+    "DISH_CODE": 471,
+    "DISH_NAME": "VEG SANDWITCH",
+    "DISH_PRICE_HALF": 7.5,
+    "DISH_PRICE_FULL": 15,
+    "DISH_TAX": 0,
+    "CAT_CODE": 14
+  },
+  {
+    "DISH_CODE": 472,
+    "DISH_NAME": "CHEESE SANDWITCH",
+    "DISH_PRICE_HALF": 9,
+    "DISH_PRICE_FULL": 18,
+    "DISH_TAX": 0,
+    "CAT_CODE": 14
+  },
+  {
+    "DISH_CODE": 473,
+    "DISH_NAME": "CKN SANDWITCH",
+    "DISH_PRICE_HALF": 9,
+    "DISH_PRICE_FULL": 18,
+    "DISH_TAX": 0,
+    "CAT_CODE": 14
+  },
+  {
+    "DISH_CODE": 474,
+    "DISH_NAME": "EGG SANDWITCH",
+    "DISH_PRICE_HALF": 9,
+    "DISH_PRICE_FULL": 18,
+    "DISH_TAX": 0,
+    "CAT_CODE": 14
+  },
+  {
+    "DISH_CODE": 475,
+    "DISH_NAME": "NEELADRI SPECIAL",
+    "DISH_PRICE_HALF": 11,
+    "DISH_PRICE_FULL": 22,
+    "DISH_TAX": 0,
+    "CAT_CODE": 14
+  },
+  {
+    "DISH_CODE": 481,
+    "DISH_NAME": "VEG CUTLET",
+    "DISH_PRICE_HALF": 17.5,
+    "DISH_PRICE_FULL": 35,
+    "DISH_TAX": 0,
+    "CAT_CODE": 14
+  },
+  {
+    "DISH_CODE": 482,
+    "DISH_NAME": "PANEER CUTLET",
+    "DISH_PRICE_HALF": 22.5,
+    "DISH_PRICE_FULL": 45,
+    "DISH_TAX": 0,
+    "CAT_CODE": 14
+  },
+  {
+    "DISH_CODE": 483,
+    "DISH_NAME": "MUTTON CUTLET",
+    "DISH_PRICE_HALF": 30,
+    "DISH_PRICE_FULL": 60,
+    "DISH_TAX": 0,
+    "CAT_CODE": 14
+  },
+  {
+    "DISH_CODE": 484,
+    "DISH_NAME": "CKN CUTLET",
+    "DISH_PRICE_HALF": 30,
+    "DISH_PRICE_FULL": 60,
+    "DISH_TAX": 0,
+    "CAT_CODE": 14
+  },
+  {
+    "DISH_CODE": 485,
+    "DISH_NAME": "FISH CUTLET",
+    "DISH_PRICE_HALF": 30,
+    "DISH_PRICE_FULL": 60,
+    "DISH_TAX": 0,
+    "CAT_CODE": 14
+  },
+  {
+    "DISH_CODE": 491,
+    "DISH_NAME": "VEG PAKODA",
+    "DISH_PRICE_HALF": 20,
+    "DISH_PRICE_FULL": 40,
+    "DISH_TAX": 0,
+    "CAT_CODE": 14
+  },
+  {
+    "DISH_CODE": 492,
+    "DISH_NAME": "PANEER PAKODA",
+    "DISH_PRICE_HALF": 25,
+    "DISH_PRICE_FULL": 50,
+    "DISH_TAX": 0,
+    "CAT_CODE": 14
+  },
+  {
+    "DISH_CODE": 493,
+    "DISH_NAME": "EGG PAKODA",
+    "DISH_PRICE_HALF": 20,
+    "DISH_PRICE_FULL": 40,
+    "DISH_TAX": 0,
+    "CAT_CODE": 14
+  },
+  {
+    "DISH_CODE": 494,
+    "DISH_NAME": "CKN PAKODA",
+    "DISH_PRICE_HALF": 30,
+    "DISH_PRICE_FULL": 60,
+    "DISH_TAX": 0,
+    "CAT_CODE": 14
+  },
+  {
+    "DISH_CODE": 495,
+    "DISH_NAME": "PRWAN PAKODA",
+    "DISH_PRICE_HALF": 40,
+    "DISH_PRICE_FULL": 80,
+    "DISH_TAX": 0,
+    "CAT_CODE": 14
+  },
+  {
+    "DISH_CODE": 496,
+    "DISH_NAME": "FINGER CHIPS",
+    "DISH_PRICE_HALF": 10,
+    "DISH_PRICE_FULL": 20,
+    "DISH_TAX": 0,
+    "CAT_CODE": 14
+  },
+  {
+    "DISH_CODE": 497,
+    "DISH_NAME": "FISH FINGER",
+    "DISH_PRICE_HALF": 22.5,
+    "DISH_PRICE_FULL": 45,
+    "DISH_TAX": 0,
+    "CAT_CODE": 14
+  },
+  {
+    "DISH_CODE": 498,
+    "DISH_NAME": "FRIED CASHEWNUTS",
+    "DISH_PRICE_HALF": 30,
+    "DISH_PRICE_FULL": 60,
+    "DISH_TAX": 0,
+    "CAT_CODE": 14
+  },
+  {
+    "DISH_CODE": 499,
+    "DISH_NAME": "PANEER FRY",
+    "DISH_PRICE_HALF": 25,
+    "DISH_PRICE_FULL": 50,
+    "DISH_TAX": 0,
+    "CAT_CODE": 14
+  },
+  {
+    "DISH_CODE": 500,
+    "DISH_NAME": "CKN PAKODA BL",
+    "DISH_PRICE_HALF": 35,
+    "DISH_PRICE_FULL": 70,
+    "DISH_TAX": 0,
+    "CAT_CODE": 14
+  },
+  {
+    "DISH_CODE": 501,
+    "DISH_NAME": "ONION PAKODA",
+    "DISH_PRICE_HALF": 20,
+    "DISH_PRICE_FULL": 40,
+    "DISH_TAX": 0,
+    "CAT_CODE": 14
+  },
+  {
+    "DISH_CODE": 502,
+    "DISH_NAME": "GOVI PAKODA",
+    "DISH_PRICE_HALF": 20,
+    "DISH_PRICE_FULL": 40,
+    "DISH_TAX": 0,
+    "CAT_CODE": 14
+  },
+  {
+    "DISH_CODE": 450,
+    "DISH_NAME": "TOAST",
+    "DISH_PRICE_HALF": 7.5,
+    "DISH_PRICE_FULL": 15,
+    "DISH_TAX": 0,
+    "CAT_CODE": 14
+  },
+  {
+    "DISH_CODE": 464,
+    "DISH_NAME": "BREAD BTR JAM",
+    "DISH_PRICE_HALF": 10,
+    "DISH_PRICE_FULL": 20,
+    "DISH_TAX": 0,
+    "CAT_CODE": 14
+  },
+  {
+    "DISH_CODE": 466,
+    "DISH_NAME": "BATURA",
+    "DISH_PRICE_HALF": 6,
+    "DISH_PRICE_FULL": 12,
+    "DISH_TAX": 0,
+    "CAT_CODE": 14
+  },
+  {
+    "DISH_CODE": 467,
+    "DISH_NAME": "PUREE 1 PIECE",
+    "DISH_PRICE_HALF": 4,
+    "DISH_PRICE_FULL": 8,
+    "DISH_TAX": 0,
+    "CAT_CODE": 14
+  },
+  {
+    "DISH_CODE": 511,
+    "DISH_NAME": "MILK",
+    "DISH_PRICE_HALF": 7.5,
+    "DISH_PRICE_FULL": 15,
+    "DISH_TAX": 0,
+    "CAT_CODE": 15
+  },
+  {
+    "DISH_CODE": 512,
+    "DISH_NAME": "COLD COFEE",
+    "DISH_PRICE_HALF": 10,
+    "DISH_PRICE_FULL": 20,
+    "DISH_TAX": 0,
+    "CAT_CODE": 15
+  },
+  {
+    "DISH_CODE": 513,
+    "DISH_NAME": "BOURNVITA",
+    "DISH_PRICE_HALF": 10,
+    "DISH_PRICE_FULL": 20,
+    "DISH_TAX": 0,
+    "CAT_CODE": 15
+  },
+  {
+    "DISH_CODE": 514,
+    "DISH_NAME": "HOT CHOCOLATE",
+    "DISH_PRICE_HALF": 10,
+    "DISH_PRICE_FULL": 20,
+    "DISH_TAX": 0,
+    "CAT_CODE": 15
+  },
+  {
+    "DISH_CODE": 515,
+    "DISH_NAME": "TEA",
+    "DISH_PRICE_HALF": 4,
+    "DISH_PRICE_FULL": 8,
+    "DISH_TAX": 0,
+    "CAT_CODE": 15
+  },
+  {
+    "DISH_CODE": 516,
+    "DISH_NAME": "COFEE",
+    "DISH_PRICE_HALF": 6,
+    "DISH_PRICE_FULL": 12,
+    "DISH_TAX": 0,
+    "CAT_CODE": 15
+  },
+  {
+    "DISH_CODE": 531,
+    "DISH_NAME": "TEA POT LARGE",
+    "DISH_PRICE_HALF": 11,
+    "DISH_PRICE_FULL": 22,
+    "DISH_TAX": 0,
+    "CAT_CODE": 15
+  },
+  {
+    "DISH_CODE": 532,
+    "DISH_NAME": "TEA POT SMALL",
+    "DISH_PRICE_HALF": 7.5,
+    "DISH_PRICE_FULL": 15,
+    "DISH_TAX": 0,
+    "CAT_CODE": 15
+  },
+  {
+    "DISH_CODE": 533,
+    "DISH_NAME": "COFEE POT LARGE",
+    "DISH_PRICE_HALF": 14,
+    "DISH_PRICE_FULL": 28,
+    "DISH_TAX": 0,
+    "CAT_CODE": 15
+  },
+  {
+    "DISH_CODE": 534,
+    "DISH_NAME": "COFEE POT SMALL",
+    "DISH_PRICE_HALF": 9,
+    "DISH_PRICE_FULL": 18,
+    "DISH_TAX": 0,
+    "CAT_CODE": 15
+  },
+  {
+    "DISH_CODE": 465,
+    "DISH_NAME": "BTR 25 GMS",
+    "DISH_PRICE_HALF": 5,
+    "DISH_PRICE_FULL": 10,
+    "DISH_TAX": 0,
+    "CAT_CODE": 15
+  },
+  {
+    "DISH_CODE": 535,
+    "DISH_NAME": "dfd",
+    "DISH_PRICE_HALF": 60,
+    "DISH_PRICE_FULL": 120,
+    "DISH_TAX": 0,
+    "CAT_CODE": 9
+  },
+  {
+    "DISH_CODE": 536,
+    "DISH_NAME": "frfsf",
+    "DISH_PRICE_HALF": 30,
+    "DISH_PRICE_FULL": 60,
+    "DISH_TAX": 0,
+    "CAT_CODE": 7
+  }
+]

@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router";
 import { useMrData } from "../../context/MrDataContext";
 import { numberToWords } from "../../utils/numberToWords";
+import { useEffect } from "react";
 
 export default function MoneyReceiptPrint({
   viewFor = 'CUSTOMER'
@@ -11,9 +12,11 @@ export default function MoneyReceiptPrint({
   const {mrData :data} = useMrData();
   const navigate = useNavigate();
 
+if(!data) return null;
+
   return (
-    <div className=" inset-0 bg-white flex justify-center items-center z-[99999] print:bg-white print:shadow-none overflow-auto">
-      <div className=" w-[700px] p-8 border  print:w-full print:p-8 print:border-none">
+    <div className=" w-full flex justify-center">
+      <div className=" mr-print w-[700px] p-6 border print:border-black">
         {/* HEADER */}
         <div className="flex justify-between">
           <div>
@@ -106,3 +109,23 @@ export default function MoneyReceiptPrint({
     </div>
   );
 }
+
+<style>
+{`
+  @media print {
+    .mr-print {
+      width: 100%;
+      max-width: 100%;
+      font-size: 12px;
+    }
+
+    .border {
+      border: 1px solid #000 !important;
+    }
+
+    body {
+      margin: 0;
+    }
+  }
+`}
+</style>

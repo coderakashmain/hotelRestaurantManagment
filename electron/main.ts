@@ -10,8 +10,8 @@ import { enableAutoStart } from './start/autoLaunch'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-;(globalThis as any).__filename = __filename
-;(globalThis as any).__dirname = __dirname
+  ; (globalThis as any).__filename = __filename
+  ; (globalThis as any).__dirname = __dirname
 
 process.env.APP_ROOT = path.join(__dirname, '..')
 
@@ -29,7 +29,7 @@ function createWindow() {
   win = new BrowserWindow({
     width: 1200,
     height: 800,
-    frame: false, 
+    frame: false,
     titleBarStyle: 'hidden',
     icon: path.join(process.env.VITE_PUBLIC as string, 'electron-vite.svg'),
     autoHideMenuBar: true,
@@ -70,7 +70,7 @@ app.whenReady().then(async () => {
 
 
 
-const { runDailyBilling } = await import("./cron/runDailyBilling");
+  const { runDailyBilling } = await import("./cron/runDailyBilling");
   const { startDailyBillingCron } = await import("./cron/dailyBillingCron");
 
 

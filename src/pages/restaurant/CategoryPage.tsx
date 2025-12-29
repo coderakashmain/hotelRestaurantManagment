@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { api } from "../../api/api";
 import { useAsync } from "../../hooks/useAsync";
+import { useSnackbar } from "../../context/SnackbarContext";
 
 type Category = {
   id: number;
@@ -22,38 +23,54 @@ const emptyForm = {
 export default function CategoryPage() {
   const [form, setForm] = useState<any>(emptyForm);
   const [editingId, setEditingId] = useState<number | null>(null);
-
+  const {showSnackbar} = useSnackbar();
 
   const {
     data: categories,
     loading,
-    error,
     reload,
   } = useAsync<Category[]>(() => api.category.list(), []);
 
-  
+  /* =========================
+     SUBMIT
+  ========================= */
   const handleSubmit = async () => {
-    if (!form.category_code || !form.description) {
-      alert("Category code and description are required");
+    if (!form.category_code || !form.description){
+      showSnackbar("Fill the box first.",'warning')
       return;
-    }
+    } 
 
-    try {
-      if (editingId) {
+    if (editingId) {
+      try{
         await api.category.update(editingId, form);
-      } else {
-        await api.category.add({
-          ...form,
-          category_code: Number(form.category_code),
-        });
-      }
 
-      setForm(emptyForm);
-      setEditingId(null);
-      reload(); // 🔥 reload via hook
-    } catch (err: any) {
-      alert(err.message || "Operation failed");
+      }catch(err :any){
+        showSnackbar(err.message,'error')
+      }
+    } else {
+      try{
+
+    
+      await api.category.add({
+        ...form,
+        category_code: Number(form.category_code),
+      });
+    }catch(err:any){
+      showSnackbar(err.message,'error')
     }
+    }
+
+    setForm(emptyForm);
+    setEditingId(null);
+    reload();
+  };
+
+  /* =========================
+     CANCEL
+  ========================= */
+  const handleCancel = () => {
+    setEditingId(null);
+    setForm(emptyForm);
   };
 
   /* =========================
@@ -74,149 +91,204 @@ export default function CategoryPage() {
      DELETE
   ========================= */
   const handleDelete = async (id: number) => {
-    if (!confirm("Delete this category?")) return;
-
-    try {
-      await api.category.delete(id);
-      reload();
-    } catch (err: any) {
-      alert(err.message || "Delete failed");
-    }
+    await api.category.delete(id);
+    reload();
   };
 
+  /* =========================
+     KEYBOARD SHORTCUTS
+     ENTER → SAVE
+     ESC → CANCEL
+  ========================= */
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      const tag = target.tagName;
+
+      // ❌ allow multiline textarea normally
+      if (tag === "TEXTAREA" && e.key === "Enter") return;
+
+      if (e.key === "Enter") {
+        e.preventDefault();
+        handleSubmit();
+      }
+
+      if (e.key === "Escape") {
+        e.preventDefault();
+        handleCancel();
+      }
+    };
+
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [form, editingId]);
+
   return (
-    <div className="p-6">
-      <h1 className="text-xl font-semibold mb-4">Category Master</h1>
+    <div className="p-8 w-full space-y-6">
+      {/* ================= HEADER ================= */}
+      <div>
+        <h1 className="text-2xl font-semibold">Category Master</h1>
+        <p className="text-sm text-secondary">
+          Manage billing and system categories
+        </p>
+      </div>
 
-      {/* =========================
-          FORM
-      ========================= */}
-      <div className="bg-white p-4 rounded shadow mb-6 grid grid-cols-5 gap-4">
-        <input
-          type="number"
-          placeholder="Category Code"
-          value={form.category_code}
-          onChange={(e) => setForm({ ...form, category_code: e.target.value })}
-          className="border px-2 py-1 rounded"
-        />
+      {/* ================= FORM ================= */}
+      <div className="card space-y-4">
+        <h2 className="text-lg font-semibold">
+          {editingId ? "Edit Category" : "Add New Category"}
+        </h2>
 
-        <input
-          type="text"
-          placeholder="Description"
-          value={form.description}
-          onChange={(e) => setForm({ ...form, description: e.target.value })}
-          className="border px-2 py-1 rounded col-span-2"
-        />
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+          <div>
+            <label className="block text-xs text-secondary mb-1">
+              Category Code
+            </label>
+            <input
+              type="number"
+              value={form.category_code}
+              onChange={(e) =>
+                setForm({ ...form, category_code: e.target.value })
+              }
+              className="w-full border rounded-sm p-2 text-sm"
+            />
+          </div>
 
-        <input
-          type="text"
-          placeholder="Short Name"
-          value={form.short_name}
-          onChange={(e) => setForm({ ...form, short_name: e.target.value })}
-          className="border px-2 py-1 rounded"
-        />
+          <div className="md:col-span-2">
+            <label className="block text-xs text-secondary mb-1">
+              Description
+            </label>
+            <input
+              value={form.description}
+              onChange={(e) =>
+                setForm({ ...form, description: e.target.value })
+              }
+              className="w-full border rounded-sm p-2 text-sm"
+            />
+          </div>
 
-        <select
-          value={form.is_active}
-          onChange={(e) =>
-            setForm({ ...form, is_active: Number(e.target.value) })
-          }
-          className="border px-2 py-1 rounded"
-        >
-          <option value={1}>Active</option>
-          <option value={0}>Inactive</option>
-        </select>
+          <div>
+            <label className="block text-xs text-secondary mb-1">
+              Short Name
+            </label>
+            <input
+              value={form.short_name}
+              onChange={(e) =>
+                setForm({ ...form, short_name: e.target.value })
+              }
+              className="w-full border rounded-sm p-2 text-sm"
+            />
+          </div>
 
-        <textarea
-          placeholder="Sub Description"
-          value={form.sub_description}
-          onChange={(e) =>
-            setForm({ ...form, sub_description: e.target.value })
-          }
-          className="border px-2 py-1 rounded col-span-5"
-        />
+          <div>
+            <label className="block text-xs text-secondary mb-1">
+              Status
+            </label>
+            <select
+              value={form.is_active}
+              onChange={(e) =>
+                setForm({ ...form, is_active: Number(e.target.value) })
+              }
+              className="w-full border border-gray bg-white rounded-sm p-2 text-sm"
+            >
+              <option value={1}>Active</option>
+              <option value={0}>Inactive</option>
+            </select>
+          </div>
+        </div>
 
-        <div className="col-span-5 flex gap-2">
-          <button
-            onClick={handleSubmit}
-            className="px-4 py-1 bg-blue-600 text-white rounded"
-          >
+        <div>
+          <label className="block text-xs text-secondary mb-1">
+            Sub Description
+          </label>
+          <textarea
+            rows={3}
+            value={form.sub_description}
+            onChange={(e) =>
+              setForm({ ...form, sub_description: e.target.value })
+            }
+            className="w-full border rounded-sm p-2 text-sm"
+          />
+        </div>
+
+        <div className="flex gap-3">
+          <button onClick={handleSubmit} className="btn">
             {editingId ? "Update" : "Add"}
           </button>
 
           {editingId && (
             <button
-              onClick={() => {
-                setEditingId(null);
-                setForm(emptyForm);
-              }}
-              className="px-4 py-1 bg-gray-400 text-white rounded"
+              onClick={handleCancel}
+              className="px-4 py-2 rounded-sm bg-gray text-black"
             >
               Cancel
             </button>
           )}
         </div>
+
+        {/* Shortcut hint */}
+        <p className="text-xs text-secondary">
+          ⏎ Enter = Save &nbsp;&nbsp; • &nbsp;&nbsp; Esc = Cancel
+        </p>
       </div>
 
-      {/* =========================
-          TABLE
-      ========================= */}
-      <div className="bg-white rounded shadow overflow-x-auto">
-        <table className="w-full border-collapse">
-          <thead className="bg-gray-100">
+      {/* ================= TABLE ================= */}
+      <div className="card overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead className="border-b border-gray bg-lightColor">
             <tr>
-              <th className="border p-2">Code</th>
-              <th className="border p-2">Description</th>
-              <th className="border p-2">Short</th>
-              <th className="border p-2">Status</th>
-              <th className="border p-2">Actions</th>
+              <th className="text-left p-3">Code</th>
+              <th className="text-left p-3">Description</th>
+              <th className="text-left p-3">Short</th>
+              <th className="text-left p-3">Status</th>
+              <th className="text-right p-3">Actions</th>
             </tr>
           </thead>
+
           <tbody>
-            {loading ? (
+            {loading && (
               <tr>
-                <td colSpan={5} className="p-4 text-center">
-                  Loading...
+                <td colSpan={5} className="p-6 text-center text-secondary">
+                  Loading…
                 </td>
               </tr>
-            ) : error ? (
-              <tr>
-                <td colSpan={5} className="p-4 text-center text-red-600">
-                  {error.message || "Failed to load"}
-                </td>
-              </tr>
-            ) : categories?.length === 0 ? (
-              <tr>
-                <td colSpan={5} className="p-4 text-center">
-                  No categories found
-                </td>
-              </tr>
-            ) : (
-              categories?.map((row) => (
-                <tr key={row.id}>
-                  <td className="border p-2">{row.category_code}</td>
-                  <td className="border p-2">{row.description}</td>
-                  <td className="border p-2">{row.short_name}</td>
-                  <td className="border p-2">
-                    {row.is_active ? "Active" : "Inactive"}
-                  </td>
-                  <td className="border p-2 flex gap-2">
-                    <button
-                      onClick={() => handleEdit(row)}
-                      className="px-2 py-1 bg-yellow-500 text-white rounded"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(row.id)}
-                      className="px-2 py-1 bg-red-600 text-white rounded"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))
             )}
+
+            {categories?.map((row) => (
+              <tr
+                key={row.id}
+                className="border-b border-gray hover:bg-lightColor transition"
+              >
+                <td className="p-3">{row.category_code}</td>
+                <td className="p-3">{row.description}</td>
+                <td className="p-3">{row.short_name || "-"}</td>
+                <td className="p-3">
+                  <span
+                    className={`px-3 py-1 text-xs rounded-full ${
+                      row.is_active
+                        ? "bg-success text-white"
+                        : "bg-gray text-black"
+                    }`}
+                  >
+                    {row.is_active ? "Active" : "Inactive"}
+                  </span>
+                </td>
+                <td className="p-3 text-right flex justify-end gap-3">
+                  <button
+                    onClick={() => handleEdit(row)}
+                    className="text-primary"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(row.id)}
+                    className="text-error"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>

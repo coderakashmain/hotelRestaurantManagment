@@ -1,11 +1,17 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { api } from "../../api/api";
 import { useNavigate } from "react-router-dom";
 import { useFinancialYear } from "../../context/FinancialYearContext";
+import { useSnackbar } from "../../context/SnackbarContext";
+import { useUsers } from "../../context/UserContext";
+import { useKeyboardShortcuts } from "../../hooks/useKeyboardShortcuts";
 
 export default function UserCreatePage() {
-    const {reloadYears} = useFinancialYear();
   const navigate = useNavigate();
+  const { showSnackbar } = useSnackbar();
+  const { reloadYears } = useFinancialYear();
+  const { refreshUsers } = useUsers();
+
   const [form, setForm] = useState({
     name: "",
     username: "",
@@ -13,51 +19,147 @@ export default function UserCreatePage() {
     email: "",
   });
 
+  /* =========================
+     CREATE USER
+  ========================= */
   const createUser = async () => {
-    if (!form.name || !form.username || !form.password)
-      return alert("All fields except email are required");
+    if (!form.name || !form.username || !form.password) {
+      showSnackbar("Please Enter the required field!", "warning");
+      return;
+    }
 
-    await api.users.create(form);
+    await api.users.create({
+      name: form.name,
+      username: form.username,
+      password: form.password,
+      email: form.email || undefined,
+    });
+    showSnackbar("User created successfully.");
+    refreshUsers();
+    reloadYears();
 
-    alert("User Created Successfully!");
-       reloadYears();
-    navigate("/hotel"); // redirect to login after setup
- 
+    navigate("/hotel/fy");
   };
 
+  /* =========================
+     KEYBOARD SHORTCUTS
+     ENTER → SAVE
+     ESC → BACK
+  ========================= */
+  // useEffect(() => {
+  //   const handler = (e: KeyboardEvent) => {
+  //     const tag = (e.target as HTMLElement)?.tagName;
+
+  //     if (tag === "TEXTAREA") return;
+
+  //     if (e.key === "Enter") {
+  //       e.preventDefault();
+  //       createUser();
+  //     }
+
+  //     if (e.key === "Escape") {
+  //       e.preventDefault();
+  //       navigate(-1);
+  //     }
+  //   };
+
+  //   window.addEventListener("keydown", handler);
+  //   return () => window.removeEventListener("keydown", handler);
+  // }, [form]);
+
+ 
+  useKeyboardShortcuts(
+    {
+      Enter: createUser,
+  
+    },
+    [form]
+  );
+  
+ 
+
   return (
-    <div className="h-screen w-full flex items-center justify-center">
-      <div className="bg-bg-secondary p-6 w-96 rounded shadow-md">
-        <h2 className="text-xl font-bold mb-4">Create Admin User</h2>
+    <section className="min-h-screen w-full flex items-center justify-center bg-bg-secondary px-6">
+      <div className="w-full max-w-md card space-y-5">
+        {/* ================= HEADER ================= */}
+        <div>
+          <h2 className="text-xl font-semibold">Create Admin User</h2>
+          <p className="text-sm text-secondary mt-1">
+            This user will manage hotel operations
+          </p>
+        </div>
 
-        <input className="border p-2 w-full mb-2 rounded"
-          placeholder="Full Name"
+        {/* ================= FORM ================= */}
+        <Field
+          label="Full Name *"
           value={form.name}
-          onChange={(e) => setForm({ ...form, name: e.target.value })}
-        />
-        <input className="border p-2 w-full mb-2 rounded"
-          placeholder="Username"
-          value={form.username}
-          onChange={(e) => setForm({ ...form, username: e.target.value })}
-        />
-        <input type="password" className="border p-2 w-full mb-2 rounded"
-          placeholder="Password"
-          value={form.password}
-          onChange={(e) => setForm({ ...form, password: e.target.value })}
-        />
-        <input className="border p-2 w-full mb-4 rounded"
-          placeholder="Email (optional)"
-          value={form.email}
-          onChange={(e) => setForm({ ...form, email: e.target.value })}
+          onChange={(v) => setForm({ ...form, name: v })}
+          placeholder="Admin Name"
         />
 
-        <button
-          className="bg-sky-600 text-white w-full py-2 rounded"
-          onClick={createUser}
-        >
-          Create User
-        </button>
+        <Field
+          label="Username *"
+          value={form.username}
+          onChange={(v) => setForm({ ...form, username: v })}
+          placeholder="admin"
+        />
+
+        <Field
+          label="Password *"
+          type="password"
+          value={form.password}
+          onChange={(v) => setForm({ ...form, password: v })}
+          placeholder="••••••••"
+        />
+
+        <Field
+          label="Email (optional)"
+          value={form.email}
+          onChange={(v) => setForm({ ...form, email: v })}
+          placeholder="admin@hotel.com"
+        />
+
+        {/* ================= ACTIONS ================= */}
+        <div className="flex justify-between items-center pt-3">
+          <p className="text-xs text-secondary">
+            ⏎ Enter = Create &nbsp; • &nbsp; Esc = Back
+          </p>
+
+          <button onClick={createUser} className="btn hover-glow hover-accent">
+            Create User
+          </button>
+        </div>
       </div>
+    </section>
+  );
+}
+
+/* =========================
+   FIELD COMPONENT
+========================= */
+function Field({
+  label,
+  value,
+  onChange,
+  placeholder,
+  type = "text",
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+  type?: string;
+}) {
+  return (
+    <div>
+      <label className="block text-xs text-secondary mb-1">{label}</label>
+      <input
+        type={type}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="w-full border rounded-sm p-2 text-sm bg-white"
+      />
     </div>
   );
 }

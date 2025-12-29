@@ -41,7 +41,7 @@ export const FinancialYearProvider = ({ children }: { children: any }) => {
     setLoading(false);
 
     if (data.length === 0) {
-      navigate("/hotel/fy-create");
+      navigate("/hotel/fy");
     }
   };
 

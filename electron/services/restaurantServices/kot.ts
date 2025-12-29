@@ -8,13 +8,17 @@ import { KOTItem } from "../../types/restaurantType/KOTItem";
  * Create KOT
  */
 export const createKOT = (data: {
-  kot_no: string;
+  // kot_no: string;
   kot_date: string;
   table_id: number;
   waiter_id: number;
 }): KOT => {
+  const ids = db.prepare(`SELECT id from kot`).all() as any;
+  const  kot_no =`KOT-${ids.length}`
 
-  if (!data.kot_no) {
+
+
+  if (!kot_no) {
     throw new Error("KOT number is required");
   }
 
@@ -44,14 +48,18 @@ export const createKOT = (data: {
 
   if (!waiterExists) {
     throw new Error("Invalid or inactive waiter");
+
+
   }
+
+  
 
   const result = db.prepare(`
     INSERT INTO kot
     (kot_no, kot_date, table_id, waiter_id)
     VALUES (?, ?, ?, ?)
   `).run(
-    data.kot_no,
+    kot_no,
     data.kot_date,
     data.table_id,
     data.waiter_id
@@ -96,7 +104,10 @@ export const addKOTItem = (data: {
   }
 
   const dish = db.prepare(`
-    SELECT id, full_plate_rate FROM dish WHERE id = ? AND is_active = 1
+    SELECT id, full_plate_rate, half_plate_rate
+FROM dish
+WHERE id = ? AND is_active = 1
+
   `).get(data.dish_id) as any;
 
   if (!dish) {
@@ -137,6 +148,30 @@ export const addKOTItem = (data: {
     ? dish.half_plate_rate
     : dish.full_plate_rate;
 
+    const existingItem = db.prepare(`
+      SELECT id, quantity, total
+      FROM kot_item
+      WHERE kot_id = ? AND dish_id = ?
+    `).get(data.kot_id, data.dish_id) as KOTItem | undefined;
+
+    if (existingItem) {
+      db.prepare(`
+        UPDATE kot_item
+        SET
+          quantity = quantity + ?,
+          total = total + ?
+        WHERE id = ?
+      `).run(
+        data.quantity,
+        total,
+        existingItem.id
+      );
+    
+      return db.prepare(`
+        SELECT * FROM kot_item WHERE id = ?
+      `).get(existingItem.id) as KOTItem;
+    }
+    
 
 
 
@@ -153,7 +188,7 @@ export const addKOTItem = (data: {
   );
 
   return db.prepare(`
-    SELECT * FROM kot_item WHERE id = ?
+    SELECT * FROM kot_item WHERE id = ? AND is_deleted = 0
   `).get(result.lastInsertRowid) as KOTItem;
 };
 
@@ -198,6 +233,11 @@ export const closeKOT = (kot_id: number): void => {
     throw new Error("KOT id is required");
   }
 
+  const ids = db.prepare(`SELECT id from kot_item WHERE kot_id = ? `).all(kot_id) as any;
+  if(ids.length === 0){
+    throw new Error("Please enter atleat one dish!");
+  } 
+
   const kot = db.prepare(`
     SELECT status FROM kot WHERE id = ?
   `).get(kot_id) as KOT | undefined;
@@ -223,11 +263,33 @@ export const listClosedKOTs = () => {
       k.kot_no,
       k.table_id,
       rt.table_no,
-      e.name AS waiter_name
+      e.name AS waiter_name,
+      e.emp_code AS waiter_code
     FROM kot k
     JOIN restaurant_table rt ON rt.id = k.table_id
     JOIN employee e ON e.id = k.waiter_id
-    WHERE k.status = 'CLOSED'
+    WHERE k.status = 'CLOSED' AND is_deleted = 0
     ORDER BY k.created_at DESC
   `).all();
+};
+
+
+
+export const deleteKOTs = (data: { kotIds: number[] }) => {
+  if (!data.kotIds || data.kotIds.length === 0) {
+    throw new Error("No KOT selected");
+  }
+
+  const placeholders = data.kotIds.map(() => "?").join(",");
+
+  const result = db.prepare(`
+    UPDATE kot
+    SET is_deleted = 1
+    WHERE id IN (${placeholders})
+  `).run(...data.kotIds);
+
+  return {
+    success: true,
+    deletedCount: result.changes,
+  };
 };

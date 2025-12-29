@@ -41,3 +41,4 @@ export function numberToWords(num: number): string {
 
   return word.trim() + " Only.";
 }
+

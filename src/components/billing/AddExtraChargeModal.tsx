@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAsync } from "../../hooks/useAsync";
 import { api } from "../../api/api";
+import { useSnackbar } from "../../context/SnackbarContext";
 
 export default function AddExtraChargeModal({
   billId,
@@ -10,99 +11,109 @@ export default function AddExtraChargeModal({
   onClose: () => void;
 }) {
   const { data: billTypes } = useAsync(() => api.billType.list(), []);
+  const { showSnackbar } = useSnackbar();
 
   const [billTypeId, setBillTypeId] = useState<number | null>(null);
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState<number>(0);
 
-  const total = amount ;
+  const total = amount;
 
+  /* ================= KEYBOARD ================= */
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+      if (e.key === "Enter") saveCharge();
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  });
 
-
+  /* ================= SAVE ================= */
   const saveCharge = async () => {
-    if (!billTypeId) return alert("Select bill type");
-    if (amount <= 0) return alert("Amount must be > 0");
+    if (!billTypeId) {
+      showSnackbar("Please select charge type", "warning");
+      return;
+    }
+
+    if (amount <= 0) {
+      showSnackbar("Amount must be greater than 0", "warning");
+      return;
+    }
 
     await api.bill.addExtra({
       bill_id: billId,
       bill_type_id: billTypeId,
       description,
-      amount
+      amount,
     });
 
+    showSnackbar("Extra charge added successfully", "success");
     onClose();
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
-      <div className="bg-white w-96 rounded-lg shadow-lg p-6 space-y-4">
-
-        <h2 className="text-xl font-bold">Add Extra Charge</h2>
-
-        {/* Bill Type */}
-        <div>
-          <label className="text-sm">Bill Type</label>
-          <select
-            className="w-full border p-2 rounded mt-1"
-            value={billTypeId ?? ""}
-            onChange={(e) => setBillTypeId(Number(e.target.value))}
-          >
-            <option value="">Select Type</option>
-            {billTypes?.map((t: any) => (
-              <option key={t.id} value={t.id}>
-                {t.name}
-              </option>
-            ))}
-          </select>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+      <div className="bg-bg-secondary w-[420px] rounded-sm shadow-card p-6 animate-dropdown">
+      <div className="mb-4">
+          <h2 className="text-sm font-semibold">Add Extra Charge</h2>
+          <p className="text-xs text-secondary mt-2">
+            Add additional charge to the current bill
+          </p>
         </div>
 
-        {/* Add new Type */}
-     
+        <div className="space-y-4">
+          <div>
+            <label className="text-xs text-secondary">Charge Type</label>
+            <select
+              className="w-full mt-1 px-3 py-2 rounded-sm border border-gray focus:border-primary transition"
+              value={billTypeId ?? ""}
+              onChange={(e) => setBillTypeId(Number(e.target.value))}
+            >
+              <option value="">Select charge</option>
+              {billTypes?.map((t: any) => (
+                <option key={t.id} value={t.id}>
+                  {t.name}
+                </option>
+              ))}
+            </select>
+          </div>
 
-        {/* Description */}
-        <div>
-          <label className="text-sm">Description</label>
-          <textarea
-            className="w-full border p-2 rounded mt-1"
-            rows={2}
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          />
-        </div>
+          <div>
+            <label className="text-xs text-secondary">Description</label>
+            <textarea
+              rows={2}
+              className="w-full mt-1 px-3 py-2 rounded-sm border border-gray focus:border-primary transition"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+          </div>
 
-        {/* Amount */}
-        <div className="flex gap-4">
-          <div className="flex-1">
-            <label className="text-sm">Amount</label>
+          <div>
+            <label className="text-xs text-secondary">Amount</label>
             <input
               type="number"
-              className="w-full border p-2 rounded mt-1"
+              className="w-full mt-1 px-3 py-2 rounded-sm border border-gray focus:border-primary transition"
               value={amount}
               onChange={(e) => setAmount(Number(e.target.value))}
             />
           </div>
 
-      
+          <div className="flex justify-between pt-3 border-t border-gray">
+            <span className="text-xs text-secondary">Total</span>
+            <span className="font-semibold text-primary">₹ {total}</span>
+          </div>
         </div>
 
-        {/* Total */}
-        <div className="text-right font-semibold text-lg">
-          Total: ₹{total}
-        </div>
-
-        <div className="flex justify-between mt-4">
+        <div className="flex justify-end gap-3 mt-6">
           <button
             onClick={onClose}
-            className="px-4 py-2 border rounded"
+            className="px-4 py-2 text-sm rounded-sm border border-gray hover:bg-lightColor transition"
           >
             Cancel
           </button>
-
-          <button
-            onClick={saveCharge}
-            className="px-5 py-2 bg-blue-600 text-white rounded"
-          >
-            Save Charge
+          <button onClick={saveCharge} className="btn text-sm px-5">
+            Save
           </button>
         </div>
       </div>

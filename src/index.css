@@ -1,113 +1,111 @@
 @import "tailwindcss";
 
-
 /* ============================
    Premium Font – Inter
    ============================ */
-   @font-face {
-    font-family: 'Inter';
-    src: url('./assets/fonts/Inter-Regular.ttf') format('truetype');
-    font-weight: 400;
-    font-style: normal;
-    font-display: swap;
-  }
-  
-  @font-face {
-    font-family: 'Inter';
-    src: url('./assets/fonts/Inter-Medium.ttf') format('truetype');
-    font-weight: 500;
-    font-style: normal;
-    font-display: swap;
-  }
-  
-  @font-face {
-    font-family: 'Inter';
-    src: url('./assets/fonts/Inter-SemiBold.ttf') format('truetype');
-    font-weight: 600;
-    font-style: normal;
-    font-display: swap;
-  }
-  
-  @font-face {
-    font-family: 'Inter';
-    src: url('./assets/fonts/Inter-Bold.ttf') format('truetype');
-    font-weight: 700;
-    font-style: normal;
-    font-display: swap;
-  }
-  
+@font-face {
+  font-family: "Inter";
+  src: url("./assets/fonts/Inter-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Inter";
+  src: url("./assets/fonts/Inter-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Inter";
+  src: url("./assets/fonts/Inter-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Inter";
+  src: url("./assets/fonts/Inter-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
 
 /* ======================================================
    BASE LAYER (Tokens, HTML, Body, Inputs)
 ====================================================== */
 @layer base {
   :root {
-    --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont,
-    'Segoe UI', Roboto, sans-serif;
+    --font-sans: "Inter", system-ui, -apple-system, BlinkMacSystemFont,
+      "Segoe UI", Roboto, sans-serif;
 
     /* ===== Premium Light Theme ===== */
     --color-bg-primary: #fbfbfb;
     --color-bg-secondary: #ffffff;
-  
+
     --color-text: #0f172a;
     --color-black: #0f172a;
     --color-white: #ffffff;
-  
+
     --color-gray: #e5e7eb;
     --color-lightColor: #f1f5f9;
-  
+
     /* ===== Brand Colors ===== */
-    --color-primary: #2563eb;     /* Blue – trust */
+    --color-primary: #2563eb; /* Blue – trust */
     --text-primary: #2563eb;
-  
-    --color-accent: #f97316;      /* 🔥 Orange – premium action */
+
+    --color-accent: #f97316; /* 🔥 Orange – premium action */
     --text-accent: #f97316;
-  
+
     --color-secondary: #64748b;
-  
+
     --color-success: #16a34a;
     --color-warning: #f59e0b;
     --color-error: #dc2626;
     --color-info: #0284c7;
-  
+
     /* ===== Shadows ===== */
-    --shadow-soft: 0 1px 2px rgba(0,0,0,0.04);
-    --shadow-card: 0 6px 20px rgba(15,23,42,0.08);
-    --shadow-hover: 0 14px 40px rgba(15,23,42,0.14);
-  
+    --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.04);
+    --shadow-card: 0 6px 20px rgba(15, 23, 42, 0.08);
+    --shadow-hover: 0 14px 40px rgba(15, 23, 42, 0.14);
+
     /* Radius */
     --radius-sm: 6px;
     --radius-md: 10px;
     --radius-lg: 14px;
     --radius-full: 9999px;
   }
-  
+
   /* ===== Dark Theme ===== */
   :root.dark {
     --color-bg-primary: #0b1220;
     --color-bg-secondary: #0f172a;
-  
+
     --color-text: #e5e7eb;
     --color-black: #ffffff;
     --color-white: #020617;
-  
+
     --color-gray: #1e293b;
     --color-lightColor: #020617;
-  
+
     --color-primary: #3b82f6;
     --text-primary: #60a5fa;
-  
-    --color-accent: #fb923c;     /* 🔥 Soft Orange */
+
+    --color-accent: #fb923c; /* 🔥 Soft Orange */
     --text-accent: #fb923c;
-  
+
     --color-secondary: #94a3b8;
-  
+
     --color-success: #22c55e;
     --color-warning: #facc15;
     --color-error: #ef4444;
     --color-info: #38bdf8;
   }
-  
+
   html {
     scroll-behavior: smooth;
     font-family: var(--font-sans);
@@ -185,8 +183,9 @@
   .card {
     padding: 1rem;
     border-radius: var(--radius-md);
-    background-color: var(--color-bg-secondary);
-    box-shadow: var(--shadow-card);
+    background-color: var(--color-bg-primary);
+    /* box-shadow: var(--shadow-card); */
+    border: 1px solid var(--color-gray);
   }
 
   .disabled {
@@ -269,6 +268,9 @@
   /* Text */
   .text-text {
     color: var(--color-text);
+  }
+  .text-gray {
+    color: var(--color-gray);
   }
   .text-primary {
     color: var(--text-primary);
@@ -372,13 +374,101 @@
     box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.15);
   }
 
+  .menu-item {
+    display: block;
+    width: 100%;
+    padding: 0.5rem 1rem;
+    font-size: 13px;
+    text-align: left;
+    color: var(--color-text);
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+
+    /* your rules */
+    border-radius: var(--radius-sm);
+    transition: background-color 0.2s ease-in-out;
+  }
+
+  .menu-item:hover {
+    background-color: var(--color-lightColor);
+  }
+
+  .menu-item:active {
+    opacity: 0.7;
+  }
+
+  .menu-item.text-error {
+    color: var(--color-error);
+  }
+  @keyframes dropdown-in {
+    from {
+      opacity: 0;
+      transform: scale(0.96) translateY(-4px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+
+  @keyframes snackbar-in {
+    from {
+      opacity: 0;
+      transform: translateY(12px) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+  
+  @keyframes snackbar-out {
+    from {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(12px) scale(0.95);
+    }
+  }
+  @keyframes snackbar-slide-in {
+    from {
+      opacity: 0;
+      transform: translateY(16px) scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+  
+  .animate-snackbar {
+    animation: snackbar-slide-in 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  
+  .snackbar-enter {
+    animation: snackbar-in 0.25s ease-out forwards;
+  }
+  
+  .snackbar-exit {
+    animation: snackbar-out 0.2s ease-in forwards;
+  }
+  
+
+  .animate-dropdown {
+    animation: dropdown-in 0.15s ease-out;
+  }
+
   .scrollbar-none {
-    -ms-overflow-style: none;  /* IE & Edge */
-    scrollbar-width: none;     /* Firefox */
+    -ms-overflow-style: none; /* IE & Edge */
+    scrollbar-width: none; /* Firefox */
   }
 
   .scrollbar-none::-webkit-scrollbar {
-    display: none;             /* Chrome, Safari */
+    display: none; /* Chrome, Safari */
   }
 
   .scrollbar-hover::-webkit-scrollbar {
@@ -386,7 +476,7 @@
   }
 
   .scrollbar-hover::-webkit-scrollbar-thumb {
-    background: rgba(0,0,0,0.4);
+    background: rgba(212, 212, 212, 0.4);
     border-radius: 9999px;
   }
 
@@ -400,7 +490,7 @@
     height: 8px;
   }
   ::-webkit-scrollbar-thumb {
-    background: var(--color-text);
+    background: rgba(231, 231, 231, 0.499);
     opacity: 0.3;
     border-radius: var(--radius-full);
   }

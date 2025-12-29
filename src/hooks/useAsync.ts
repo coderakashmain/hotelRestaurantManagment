@@ -1,5 +1,6 @@
 // src/renderer/hooks/useAsync.ts
 import { useState, useEffect, useCallback } from "react";
+import { useSnackbar } from "../context/SnackbarContext";
 
 export function useAsync<T = any>(
   promiseFactory: () => Promise<T>,
@@ -8,6 +9,7 @@ export function useAsync<T = any>(
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<T | null>(null);
   const [error, setError] = useState<any>(null);
+  const {showSnackbar}  = useSnackbar();
 
 const load = useCallback(() => {
   setLoading(true);
@@ -18,8 +20,9 @@ const load = useCallback(() => {
       .then(setData)
       .catch(setError)
       .finally(() => setLoading(false));
-  } catch (err) {
+  } catch (err : any) {
     setError(err);
+    showSnackbar(err ,'error')
     setLoading(false);
     return Promise.reject(err);
   }

@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { api } from "../../api/api";
 import { useAsync } from "../../hooks/useAsync";
 import { PlusIcon } from "@heroicons/react/24/solid";
 import { formatCurrency } from "../../utils/currency";
+import { useSnackbar } from "../../context/SnackbarContext";
 
 type Dish = {
   id: number;
@@ -31,6 +32,9 @@ const emptyForm = {
 export default function DishPage() {
   const [form, setForm] = useState<any>(emptyForm);
   const [editingId, setEditingId] = useState<number | null>(null);
+  const { showSnackbar } = useSnackbar();
+  const [page, setPage] = useState(1);
+  const PAGE_SIZE = 10; // change if needed
 
   /* =========================
      LOAD DATA
@@ -38,7 +42,6 @@ export default function DishPage() {
   const {
     data: dishes,
     loading,
-    error,
     reload,
   } = useAsync<Dish[]>(() => api.dish.list(), []);
 
@@ -47,37 +50,54 @@ export default function DishPage() {
     []
   );
 
+  const totalItems = dishes?.length || 0;
+  const totalPages = Math.ceil(totalItems / PAGE_SIZE);
+
+  const paginatedDishes = dishes?.slice(
+    (page - 1) * PAGE_SIZE,
+    page * PAGE_SIZE
+  );
+  useEffect(() => {
+    setPage(1);
+  }, [dishes]);
+
   /* =========================
      SUBMIT
   ========================= */
   const handleSubmit = async () => {
     if (!form.dish_code || !form.name || !form.category_id) {
-      alert("Dish code, name and category are required");
+      showSnackbar("Please enter the field first!", "warning");
       return;
     }
 
+    const payload = {
+      dish_code: Number(form.dish_code),
+      name: form.name,
+      category_id: Number(form.category_id),
+      full_plate_rate: Number(form.full_plate_rate || 0),
+      half_plate_rate: Number(form.half_plate_rate || 0),
+      is_active: form.is_active,
+    };
     try {
-      const payload = {
-        dish_code: Number(form.dish_code),
-        name: form.name,
-        category_id: Number(form.category_id),
-        full_plate_rate: Number(form.full_plate_rate || 0),
-        half_plate_rate: Number(form.half_plate_rate || 0),
-        is_active: form.is_active,
-      };
-
       if (editingId) {
         await api.dish.update(editingId, payload);
       } else {
         await api.dish.add(payload);
       }
-
       setForm(emptyForm);
       setEditingId(null);
       reload();
     } catch (err: any) {
-      alert(err.message || "Operation failed");
+      showSnackbar(err.message, "error");
     }
+  };
+
+  /* =========================
+     CANCEL
+  ========================= */
+  const handleCancel = () => {
+    setForm(emptyForm);
+    setEditingId(null);
   };
 
   /* =========================
@@ -99,177 +119,269 @@ export default function DishPage() {
      DELETE
   ========================= */
   const handleDelete = async (id: number) => {
-    if (!confirm("Delete this dish?")) return;
-
-    try {
-      await api.dish.delete(id);
-      reload();
-    } catch (err: any) {
-      alert(err.message || "Delete failed");
-    }
+    await api.dish.delete(id);
+    reload();
   };
 
+  /* =========================
+     KEYBOARD SHORTCUTS
+     ENTER → SAVE
+     ESC → CANCEL
+  ========================= */
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      const tag = target.tagName;
+
+      // Allow textarea new line if ever added
+      if (tag === "TEXTAREA" && e.key === "Enter") return;
+
+      if (e.key === "Enter") {
+        e.preventDefault();
+        handleSubmit();
+      }
+
+      if (e.key === "Escape") {
+        e.preventDefault();
+        handleCancel();
+      }
+    };
+
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [form, editingId]);
+
   return (
-    <div className="p-6">
-      <h1 className="text-xl font-semibold mb-4">Dish Master</h1>
+    <div className="p-8 w-full space-y-6">
+      {/* ================= HEADER ================= */}
+      <div>
+        <h1 className="text-2xl font-semibold">Dish Master</h1>
+        <p className="text-sm text-secondary">Manage menu items and pricing</p>
+      </div>
 
-      {/* =========================
-          FORM
-      ========================= */}
-      <div className="bg-white p-4 rounded shadow mb-6 grid grid-cols-9 gap-4">
-        <input
-          type="number"
-          placeholder="Dish Code"
-          value={form.dish_code}
-          onChange={(e) => setForm({ ...form, dish_code: e.target.value })}
-          className="border px-2 py-1 rounded"
-        />
+      {/* ================= FORM ================= */}
+      <div className="card space-y-4">
+        <h2 className="text-lg font-semibold">
+          {editingId ? "Edit Dish" : "Add New Dish"}
+        </h2>
 
-        <input
-          type="text"
-          placeholder="Dish Name"
-          value={form.name}
-          onChange={(e) => setForm({ ...form, name: e.target.value })}
-          className={`border px-2 py-1 rounded col-span-${editingId ? 3 : 2}`}
-        />
+        <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
+          <div>
+            <label className="block text-xs text-secondary mb-1">
+              Dish Code
+            </label>
+            <input
+              type="number"
+              value={form.dish_code}
+              onChange={(e) => setForm({ ...form, dish_code: e.target.value })}
+              className="w-full border rounded-sm p-2 text-sm"
+            />
+          </div>
 
-        <select
-          value={form.category_id}
-          onChange={(e) =>
-            setForm({ ...form, category_id: e.target.value })
-          }
-          className="border px-2 py-1 rounded col-span-2"
-        >
-          <option value="">Select Category</option>
-          {categories?.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.description}
-            </option>
-          ))}
-        </select>
+          <div className="md:col-span-2">
+            <label className="block text-xs text-secondary mb-1">
+              Dish Name
+            </label>
+            <input
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              className="w-full border rounded-sm p-2 text-sm"
+            />
+          </div>
 
-        <input
-          type="number"
-          placeholder="Full Plate Rate"
-          value={form.full_plate_rate}
-          onChange={(e) =>
-            setForm({ ...form, full_plate_rate: e.target.value })
-          }
-          className="border px-2 py-1 rounded col-span-1"
-        />
+          <div className="md:col-span-2">
+            <label className="block text-xs text-secondary mb-1">
+              Category
+            </label>
+            <select
+              value={form.category_id}
+              onChange={(e) =>
+                setForm({ ...form, category_id: e.target.value })
+              }
+              className="w-full border border-gray bg-white rounded-sm p-2 text-sm"
+            >
+              <option value="">Select category</option>
+              {categories?.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.description}
+                </option>
+              ))}
+            </select>
+          </div>
 
-        <input
-          type="number"
-          placeholder="Half Plate Rate"
-          value={form.half_plate_rate}
-          onChange={(e) =>
-            setForm({ ...form, half_plate_rate: e.target.value })
-          }
-          className="border px-2 py-1 rounded "
-        />
+          <div>
+            <label className="block text-xs text-secondary mb-1">Status</label>
+            <select
+              value={form.is_active}
+              onChange={(e) =>
+                setForm({ ...form, is_active: Number(e.target.value) })
+              }
+              className="w-full border border-gray bg-white rounded-sm p-2 text-sm"
+            >
+              <option value={1}>Active</option>
+              <option value={0}>Inactive</option>
+            </select>
+          </div>
 
-        <select
-          value={form.is_active}
-          onChange={(e) =>
-            setForm({ ...form, is_active: Number(e.target.value) })
-          }
-          className="border px-2 py-1 rounded "
-        >
-          <option value={1}>Active</option>
-          <option value={0}>Inactive</option>
-        </select>
+          <div>
+            <label className="block text-xs text-secondary mb-1">
+              Full Plate Rate
+            </label>
+            <input
+              type="number"
+              value={form.full_plate_rate}
+              onChange={(e) =>
+                setForm({ ...form, full_plate_rate: e.target.value })
+              }
+              className="w-full border rounded-sm p-2 text-sm"
+            />
+          </div>
 
-        <div className={`col-span-${editingId ?2 :1} flex gap-2`}>
+          <div>
+            <label className="block text-xs text-secondary mb-1">
+              Half Plate Rate
+            </label>
+            <input
+              type="number"
+              value={form.half_plate_rate}
+              onChange={(e) =>
+                setForm({ ...form, half_plate_rate: e.target.value })
+              }
+              className="w-full border rounded-sm p-2 text-sm"
+            />
+          </div>
+        </div>
+
+        <div className="flex gap-3">
           <button
             onClick={handleSubmit}
-            className={`px-4 py-1 bg-blue-600 text-white rounded ${!editingId && "flex-1"} flex justify-center items-center`}
+            className="btn flex items-center gap-2"
           >
-            {editingId ? "Update" : <PlusIcon className="h-5 w-5 text-white" />
-            }
+            {editingId ? "Update" : <PlusIcon className="h-4 w-4" />}
+            {!editingId && "Add"}
           </button>
 
           {editingId && (
             <button
-              onClick={() => {
-                setEditingId(null);
-                setForm(emptyForm);
-              }}
-              className="px-4 py-1 bg-gray-400 text-white rounded "
+              onClick={handleCancel}
+              className="px-4 py-2 rounded-sm bg-gray text-black"
             >
               Cancel
             </button>
           )}
         </div>
+
+        <p className="text-xs text-secondary">
+          ⏎ Enter = Save &nbsp;&nbsp; • &nbsp;&nbsp; Esc = Cancel
+        </p>
       </div>
 
-      {/* =========================
-          TABLE
-      ========================= */}
-      <div className="bg-white rounded shadow overflow-x-auto">
-        <table className="w-full border-collapse">
-          <thead className="bg-gray-100">
+      {/* ================= TABLE ================= */}
+      <div className="card overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead className="border-b border-gray bg-lightColor">
             <tr>
-              <th className="border p-2">Code</th>
-              <th className="border p-2">Name</th>
-              <th className="border p-2">Category</th>
-              <th className="border p-2">Full</th>
-              <th className="border p-2">Half</th>
-              <th className="border p-2">Status</th>
-              <th className="border p-2">Actions</th>
+              <th className="p-3 text-left">Code</th>
+              <th className="p-3 text-left">Name</th>
+              <th className="p-3 text-left">Category</th>
+              <th className="p-3 text-left">Full</th>
+              <th className="p-3 text-left">Half</th>
+              <th className="p-3 text-left">Status</th>
+              <th className="p-3 text-right">Actions</th>
             </tr>
           </thead>
+
           <tbody>
-            {loading ? (
+            {loading && (
               <tr>
-                <td colSpan={7} className="p-4 text-center">
-                  Loading...
+                <td colSpan={7} className="p-6 text-center text-secondary">
+                  Loading…
                 </td>
               </tr>
-            ) : error ? (
-              <tr>
-                <td colSpan={7} className="p-4 text-center text-red-600">
-                  {error.message || "Failed to load"}
-                </td>
-              </tr>
-            ) : dishes?.length === 0 ? (
-              <tr>
-                <td colSpan={7} className="p-4 text-center">
-                  No dishes found
-                </td>
-              </tr>
-            ) : (
-              dishes?.map((row) => (
-                <tr key={row.id}>
-                  <td className="border p-2">{row.dish_code}</td>
-                  <td className="border p-2">{row.name}</td>
-                  <td className="border p-2">
-                    {categories?.find((c) => c.id === row.category_id)
-                      ?.description || "-"}
-                  </td>
-                  <td className="border p-2">{formatCurrency(row.full_plate_rate)}</td>
-                  <td className="border p-2">{formatCurrency(row.half_plate_rate)}</td>
-                  <td className="border p-2">
-                    {row.is_active ? "Active" : "Inactive"}
-                  </td>
-                  <td className="border p-2 flex gap-2">
-                    <button
-                      onClick={() => handleEdit(row)}
-                      className="px-2 py-1 bg-yellow-500 text-white rounded"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(row.id)}
-                      className="px-2 py-1 bg-red-600 text-white rounded"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))
             )}
+
+            {paginatedDishes?.map((row) => (
+              <tr
+                key={row.id}
+                className="border-b border-gray hover:bg-lightColor transition"
+              >
+                <td className="p-3">{row.dish_code}</td>
+                <td className="p-3">{row.name}</td>
+                <td className="p-3">
+                  {categories?.find((c) => c.id === row.category_id)
+                    ?.description || "-"}
+                </td>
+                <td className="p-3">{formatCurrency(row.full_plate_rate)}</td>
+                <td className="p-3">{formatCurrency(row.half_plate_rate)}</td>
+                <td className="p-3">
+                  <span
+                    className={`px-3 py-1 text-xs rounded-full ${
+                      row.is_active
+                        ? "bg-success text-white"
+                        : "bg-gray text-black"
+                    }`}
+                  >
+                    {row.is_active ? "Active" : "Inactive"}
+                  </span>
+                </td>
+                <td className="p-3 flex justify-end gap-3">
+                  <button
+                    onClick={() => handleEdit(row)}
+                    className="text-primary"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(row.id)}
+                    className="text-error"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
+        {/* ================= PAGINATION ================= */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between mt-4 overflow-x-auto scrollbar-none">
+            <p className="text-xs text-secondary text-nowrap pr-2">
+              Showing {(page - 1) * PAGE_SIZE + 1}–
+              {Math.min(page * PAGE_SIZE, totalItems)} of {totalItems}
+            </p>
+
+            <div className="flex gap-1">
+              <button
+                disabled={page === 1}
+                onClick={() => setPage((p) => p - 1)}
+                className="px-3 py-1 border rounded-sm disabled:opacity-50"
+              >
+                Prev
+              </button>
+              <button
+                disabled={page === totalPages}
+                onClick={() => setPage((p) => p + 1)}
+                className="px-3 py-1 border rounded-sm disabled:opacity-50"
+              >
+                Next
+              </button>
+
+              {Array.from({ length: totalPages }).map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setPage(i + 1)}
+                  className={`px-3 py-1 rounded-sm border border-gray ${
+                    page === i + 1 ? "bg-primary text-white" : "bg-white"
+                  }`}
+                >
+                  {i + 1}
+                </button>
+              ))}
+
+             
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

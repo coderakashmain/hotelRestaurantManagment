@@ -1,22 +1,22 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Cog6ToothIcon,
   PlusIcon,
   TrashIcon,
   PencilSquareIcon,
 } from "@heroicons/react/24/solid";
-
 import { api } from "../api/api";
 import { useAsync } from "../hooks/useAsync";
 import { useRoomTypes } from "../context/RoomTypeContext";
+import { useSnackbar } from "../context/SnackbarContext";
+
 /* ======================================================
    LOAD FLOORS + ROOMS
 ====================================================== */
-
 async function fetchFloorsAndRooms() {
   const floors = await api.floor.list();
   const rooms = await api.room.list();
-  
+
   return floors.map((f: any) => ({
     id: f.id,
     floor_name: f.floor_name,
@@ -30,7 +30,6 @@ export default function RoomSetting() {
   const { loading, data: floors, reload } = useAsync(fetchFloorsAndRooms, []);
 
   const [editingRoom, setEditingRoom] = useState<any>(null);
-
   const [floorModal, setFloorModal] = useState<any>(null);
   const [roomsToAdd, setRoomsToAdd] = useState(0);
 
@@ -42,28 +41,45 @@ export default function RoomSetting() {
   const [renameFloor, setRenameFloor] = useState<any>(null);
   const [newName, setNewName] = useState("");
 
-  if (loading || !floors) {
-    return <div className="p-6">Loading...</div>;
-  }
+  /* ================= Keyboard ================= */
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setEditingRoom(null);
+        setFloorModal(null);
+        setShowNewFloorModal(false);
+        setRenameFloor(null);
+      }
+      if (e.key === "Enter") {
+        if (renameFloor) rename();
+        if (floorModal && roomsToAdd > 0) addRooms();
+        if (showNewFloorModal) addFloor();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  });
 
-  /* ======================================================
-       ADD NEW FLOOR
-  ====================================================== */
-  const addNewFloor = async () => {
-    const result = await api.floor.add({
+  if (loading || !floors) return <div className="p-6">Loading…</div>;
+
+  /* ================= Actions ================= */
+  const {showSnackbar} = useSnackbar();
+  const addFloor = async () => {
+    if(!newFloorName || !newFloorNo){
+      showSnackbar("Please enter Floor no and Floor Name!",'warning')
+      return;
+    }
+    const res = await api.floor.add({
       floor_name: newFloorName || `Floor ${newFloorNo}`,
       floor_number: newFloorNo,
     });
 
-    const floorId = result.lastInsertRowid; // FIXED
+    const floorId = res.lastInsertRowid;
 
-    // Add rooms automatically
     for (let i = 1; i <= newFloorRooms; i++) {
-      const roomNo = newFloorNo * 100 + i;
-
       await api.room.add({
-        room_number: String(roomNo),
-        floor_id: floorId, // VALID NOW
+        room_number: String(newFloorNo * 100 + i),
+        floor_id: floorId,
       });
     }
 
@@ -71,39 +87,35 @@ export default function RoomSetting() {
     reload();
   };
 
-  /* ======================================================
-       ADD ROOMS TO FLOOR
-  ====================================================== */
-  const addRoomsToFloor = async () => {
-    if (!floorModal) return;
-
-    const existing = floorModal.rooms.length;
-
+  const addRooms = async () => {
+    const base = floorModal.rooms.length;
     for (let i = 1; i <= roomsToAdd; i++) {
-      const roomNo = floorModal.floor_number * 100 + (existing + i);
-
       await api.room.add({
-        room_number: String(roomNo),
+        room_number: String(
+          floorModal.floor_number * 100 + (base + i)
+        ),
         floor_id: floorModal.id,
       });
     }
-
-    setRoomsToAdd(0);
     setFloorModal(null);
     reload();
   };
 
-  /* ======================================================
-       DELETE ROOM (Soft delete / block)
-  ====================================================== */
-  const deleteRoom = async (roomId: number) => {
-    await api.room.updateStatus(roomId, "BLOCKED");
+  const rename = async () => {
+    await api.floor.rename(renameFloor.id, newName);
+    setRenameFloor(null);
     reload();
   };
 
-  /* ======================================================
-       EDIT ROOM
-  ====================================================== */
+  const deleteRoom = async (id: number) => {
+    await api.room.updateStatus(id, "BLOCKED");
+    reload();
+  };
+
+  // const updateRoom = async (room: any, typeId: number) => {
+  //   await api.room.update(room.id, { room_type_id: typeId });
+  //   reload();
+  // };
   const updateRoom = async (room: any, value: any) => {
     let data: any = {};
 
@@ -115,29 +127,21 @@ export default function RoomSetting() {
     reload();
   };
 
-  /* ======================================================
-       RENAME FLOOR
-  ====================================================== */
-  const handleFloorRename = async () => {
-    await api.floor.rename(renameFloor.id, newName);
-
-    setRenameFloor(null);
-    reload();
-  };
-
-  /* ======================================================
-       UI SECTION (Only UI — no logic touched)
-  ====================================================== */
-
+  /* ================= UI ================= */
   return (
-    <div className="p-6">
+    <div className="p-6 space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Room & Floor Management</h1>
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-semibold">Room & Floor Management</h1>
+          <p className="text-sm text-secondary">
+            Manage floors, rooms, and room types
+          </p>
+        </div>
 
         <button
           onClick={() => setShowNewFloorModal(true)}
-          className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded btn"
+          className="btn bg-primary text-white flex items-center gap-2 hover-glow"
         >
           <PlusIcon className="w-5 h-5" />
           Add Floor
@@ -146,177 +150,171 @@ export default function RoomSetting() {
 
       {/* Floors */}
       {floors.map((floor: any) => (
-        <div key={floor.id} className="mb-10">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold">{floor.floor_name}</h2>
+        <section key={floor.id} className="space-y-4">
+          <div className="flex justify-between items-center">
+            <h2 className="text-xl font-medium">
+              {floor.floor_name}
+            </h2>
 
-            <div className="flex gap-3 items-center">
+            <div className="flex gap-3 text-secondary">
               <PencilSquareIcon
-                className="w-6 h-6 cursor-pointer"
+                className="w-5 h-5 cursor-pointer hover:text-primary"
                 onClick={() => {
                   setRenameFloor(floor);
                   setNewName(floor.floor_name);
                 }}
               />
-
               <Cog6ToothIcon
-                className="w-6 h-6 cursor-pointer"
+                className="w-5 h-5 cursor-pointer hover:text-primary"
                 onClick={() => setFloorModal(floor)}
               />
             </div>
           </div>
 
-          {/* Rooms Grid */}
-          <div className="grid grid-cols-6 gap-4">
+          {/* Rooms */}
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
             {floor.rooms.map((room: any) => (
               <div
                 key={room.id}
-                className="shadow-lg flex justify-between flex-col bg-white p-4 rounded-lg border border-gray-200 hover:-translate-y-2 hover:shadow-2xl transition min-h-30"
+                className="card hover-lift flex flex-col justify-between"
               >
-                <div className="flex justify-between items-center">
-                  <h3 className="font-bold text-md">
-                    Room No: {room.room_number}
-                  </h3>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="font-semibold">
+                      Room {room.room_number}
+                    </p>
+                    <p className="text-xs text-secondary mt-1">
+                      {room.room_type || "No type"}
+                    </p>
+                  </div>
 
-                  <div className="flex gap-2  items-center">
+                  <div className="flex gap-2">
                     <Cog6ToothIcon
-                      className="w-4 h-4 cursor-pointer hover:text-blue-600 "
+                      className="w-4 h-4 cursor-pointer hover:text-primary"
                       onClick={() => setEditingRoom(room)}
                     />
                     <TrashIcon
-                      className="w-4 h-4 text-red-600 cursor-pointer hover:text-red-700"
+                      className="w-4 h-4 cursor-pointer text-error"
                       onClick={() => deleteRoom(room.id)}
                     />
                   </div>
                 </div>
-
-                <div className="mt-2 text-xs text-gray-600">
-                  <p>Type: {room.room_type}</p>
-                </div>
               </div>
             ))}
           </div>
-        </div>
+        </section>
       ))}
 
-      {/* Rename Floor Modal */}
+      {/* ================= MODALS ================= */}
+
       {renameFloor && (
-        <div className="fixed inset-0 bg-black/40 flex justify-center items-center">
-          <div className="bg-white p-5 rounded w-80">
-            <h3 className="font-bold mb-3">Rename Floor</h3>
-
-            <input
-              type="text"
-              value={newName}
-              className="border w-full p-2 mb-3"
-              onChange={(e) => setNewName(e.target.value)}
-            />
-
-            <button
-              onClick={handleFloorRename}
-              className="bg-blue-600 text-white w-full py-2 rounded btn"
-            >
-              Save
-            </button>
-          </div>
-        </div>
+        <Modal title="Rename Floor" onClose={() => setRenameFloor(null)}>
+          <Label>Floor Name</Label>
+          <input
+            autoFocus
+            className=" w-full rounded-sm p-2"
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+          />
+          <Primary onClick={rename} />
+        </Modal>
       )}
 
-      {/* Add Rooms Modal */}
       {floorModal && (
-        <div className="fixed inset-0 bg-black/40 flex justify-center items-center">
-          <div className="bg-white p-5 rounded w-80">
-            <h3 className="font-bold mb-3">
-              Add Rooms to {floorModal.floor_name}
-            </h3>
-
-            <input
-              type="number"
-              className="border w-full p-2 mb-3"
-              onChange={(e) => setRoomsToAdd(Number(e.target.value))}
-              placeholder="Number of rooms"
-            />
-
-            <button
-              onClick={addRoomsToFloor}
-              className="bg-blue-600 text-white w-full py-2 rounded"
-            >
-              Add Rooms
-            </button>
-          </div>
-        </div>
+        <Modal
+          title={`Add Rooms to ${floorModal.floor_name}`}
+          onClose={() => setFloorModal(null)}
+        >
+          <Label>Number of Rooms</Label>
+          <input
+            type="number"
+            className=" w-full rounded-sm p-2"
+            onChange={(e) => setRoomsToAdd(+e.target.value)}
+          />
+          <Primary onClick={addRooms} />
+        </Modal>
       )}
 
-      {/* Add New Floor Modal */}
       {showNewFloorModal && (
-        <div className="fixed inset-0 bg-black/40 flex justify-center items-center">
-          <div className="bg-white p-5 rounded w-80 space-y-3">
-            <h3 className="font-bold">Add New Floor</h3>
+        <Modal title="Add New Floor" onClose={() => setShowNewFloorModal(false)}>
+          <Label>Floor Number</Label>
+          <input
+            type="number"
+            className=" w-full rounded-sm p-2"
+            onChange={(e) => setNewFloorNo(+e.target.value)}
+          />
 
-            <input
-              type="number"
-              className="border w-full p-2"
-              placeholder="Floor Number"
-              onChange={(e) => setNewFloorNo(Number(e.target.value))}
-            />
+          <Label>Floor Name</Label>
+          <input
+            className=" w-full rounded-sm p-2"
+            onChange={(e) => setNewFloorName(e.target.value)}
+          />
 
-            <input
-              type="text"
-              className="border w-full p-2"
-              placeholder="Floor Name"
-              onChange={(e) => setNewFloorName(e.target.value)}
-            />
+          <Label>Rooms Count</Label>
+          <input
+            type="number"
+            className=" w-full rounded-sm p-2"
+            onChange={(e) => setNewFloorRooms(+e.target.value)}
+          />
 
-            <input
-              type="number"
-              className="border w-full p-2"
-              placeholder="Rooms Count"
-              onChange={(e) => setNewFloorRooms(Number(e.target.value))}
-            />
-
-            <button
-              onClick={addNewFloor}
-              className="bg-green-600 text-white w-full py-2 rounded btn"
-            >
-              Add Floor
-            </button>
-          </div>
-        </div>
+          <Primary onClick={addFloor} />
+        </Modal>
       )}
 
-      {/* Edit Room Modal */}
       {editingRoom && (
-        <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded w-96">
-            <h3 className="font-bold text-lg mb-3">
-              Edit Room {editingRoom.room_number}
-            </h3>
-
-            {/* Room Type */}
-            <label className="block text-sm mb-1">Room Type</label>
-            <select
-              value={editingRoom.room_type_id}
-              className="border w-full p-2 mb-3"
-              onChange={(e) => updateRoom(editingRoom, e.target.value)}
-            >
-              {roomTypes.map((rt: any) => (
+        <Modal
+          title={`Edit Room ${editingRoom.room_number}`}
+          onClose={() => setEditingRoom(null)}
+        >
+          <Label>Room Type</Label>
+          <select
+            className="input w-full border border-gray p-2 rounded"
+            value={editingRoom.room_type_id}
+            onChange={(e) => updateRoom(editingRoom, e.target.value)}
+          >
+            {roomTypes.map((rt: any) => (
                 <option key={rt.id} value={rt.id}>
                   {rt.type_name}
                 </option>
               ))}
-            </select>
+          </select>
 
-            {/* Status */}
-
-            <button
-              className="w-full bg-blue-600 text-white py-2 rounded"
-              onClick={() => setEditingRoom(null)}
-            >
-              Close
-            </button>
-          </div>
-        </div>
+          <button className="block mt-5 bg-primary w-full text-white rounded-sm text-center py-2" onClick={() => setEditingRoom(null)} >Close</button>
+        </Modal>
       )}
+
     </div>
   );
 }
+
+/* ================= Reusable UI ================= */
+
+const Label = ({ children }: any) => (
+  <label className="text-xs text-secondary mb-1 block">
+    {children}
+  </label>
+);
+
+const Primary = ({ onClick, text = "Save" }: any) => (
+  <button
+    onClick={onClick}
+    className="btn bg-primary text-white w-full mt-4 hover-glow"
+  >
+    {text} <span className="text-xs opacity-70">(Enter)</span>
+  </button>
+);
+
+const Modal = ({ title, children, onClose }: any) => (
+  <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+    <div className="bg-bg-secondary w-96 rounded-md shadow-card p-6">
+      <h3 className="text-lg font-semibold mb-4">{title}</h3>
+      {children}
+      <button
+        onClick={onClose}
+        className="mt-3 text-xs w-f text-secondary underline"
+      >
+        ESC to close
+      </button>
+    </div>
+  </div>
+);

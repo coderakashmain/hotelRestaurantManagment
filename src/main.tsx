@@ -5,20 +5,20 @@ import { HashRouter } from "react-router";
 import { FinancialYearProvider } from "./context/FinancialYearContext.tsx";
 import { UserProvider } from "./context/UserContext.tsx";
 import { CompanyProvider } from "./context/CompanyInfoContext.tsx";
-
+import { SnackbarProvider } from "./context/SnackbarContext.tsx";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
-
   <HashRouter>
-    <CompanyProvider>
-    <UserProvider>
-      <FinancialYearProvider>
-        <App />
-      </FinancialYearProvider>
-    </UserProvider>
-    </CompanyProvider>
+    <SnackbarProvider>
+      <CompanyProvider>
+        <UserProvider>
+          <FinancialYearProvider>
+            <App />
+          </FinancialYearProvider>
+        </UserProvider>
+      </CompanyProvider>
+    </SnackbarProvider>
   </HashRouter>
-
 );
 
 if (window.api?.on) {

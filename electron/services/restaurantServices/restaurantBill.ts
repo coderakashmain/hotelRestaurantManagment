@@ -14,7 +14,7 @@ import { RestaurantBill } from "../../types/restaurantType/RestaurantBill";
 export const previewBillFromKOTs = (data: {
   kotIds: number[];
 }) => {
-  console.log(data.kotIds, "tbis is ");
+ 
   if (!data.kotIds || !data.kotIds.length) {
     throw new Error("No KOT selected");
   }
@@ -52,8 +52,9 @@ export const previewBillFromKOTs = (data: {
   // 🔹 GST
   type GSTRow = { gst_percent: number };
   const gst = db.prepare(`
-    SELECT gst_percent FROM gst_management WHERE is_active = 1
+    SELECT gst_percent FROM restaurent_gst_management WHERE is_active = 1
   `).get() as GSTRow | undefined;
+
 
   const gstAmount = gst
     ? (basicAmount * gst.gst_percent) / 100
@@ -133,7 +134,7 @@ export const createRestaurantBill = (data: {
   // 🔹 Get active GST
   const gst = db.prepare(`
     SELECT gst_percent
-    FROM gst_management
+    FROM restaurent_gst_management
     WHERE is_active = 1
     LIMIT 1
   `).get() as any;
@@ -158,7 +159,7 @@ export const createRestaurantBill = (data: {
       net_amount,
       payment_status
     )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'UNPAID')
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'PAID')
   `).run(
     data.bill_no,
     data.bill_date,
@@ -259,62 +260,190 @@ export const checkoutRestaurantBill = (params: {
     `).get(params.bill_id) as RestaurantBill;
   };
   
-  // export const createBillFromKOTs = (data: {
-  //   kotIds: number[];
-  //   discount?: number;
-  // }) => {
-  //   if (!data.kotIds.length) {
-  //     throw new Error("Select at least one KOT");
-  //   }
+  export const createBillFromKOTs = (data: {
+    kotIds: number[];
+    discount?: number;
+    servicetaxStatus?: boolean
+  }) => {
+    if (!data.kotIds || !data.kotIds.length) {
+      throw new Error("Select at least one KOT");
+    }
   
-  //   const items = db.prepare(`
-  //     SELECT 
-  //       ki.dish_id,
-  //       d.name AS dish_name,
-  //       SUM(ki.quantity) AS quantity,
-  //       ki.rate,
-  //       SUM(ki.total) AS total
-  //     FROM kot_item ki
-  //     JOIN dish d ON d.id = ki.dish_id
-  //     WHERE ki.kot_id IN (${data.kotIds.map(() => "?").join(",")})
-  //     GROUP BY ki.dish_id, ki.rate
-  //   `).all(...data.kotIds);
+    // 🔹 Header info from first KOT
+    const header = db.prepare(`
+      SELECT 
+        k.table_id,
+        rt.table_no,
+        k.waiter_id,
+        e.name AS waiter_name
+      FROM kot k
+      JOIN restaurant_table rt ON rt.id = k.table_id
+      JOIN employee e ON e.id = k.waiter_id
+      WHERE k.id = ?
+    `).get(data.kotIds[0]) as any;
   
-  //   const basicAmount  = items.reduce(
-  //     (sum, i : any ) => sum + i.total,
-  //     0
-  //   );
+    if (!header) throw new Error("Invalid KOT");
   
-  //   const discount = data.discount || 0;
-  //   const netAmount = basicAmount - discount;
+    // 🔹 Merge items
+    const items = db.prepare(`
+      SELECT
+        ki.dish_id,
+        SUM(ki.quantity) AS quantity,
+        ki.rate,
+        SUM(ki.total) AS total
+      FROM kot_item ki
+      WHERE ki.kot_id IN (${data.kotIds.map(() => "?").join(",")})
+      GROUP BY ki.dish_id, ki.rate
+    `).all(...data.kotIds) as any;
   
-  //   const result = db.prepare(`
-  //     INSERT INTO restaurant_bill
-  //     (bill_no, bill_date, basic_amount, discount, net_amount)
-  //     VALUES (?, DATE('now'), ?, ?, ?)
-  //   `).run(
-  //     `BILL-${Date.now()}`,
-  //     basicAmount,
-  //     discount,
-  //     netAmount
-  //   );
+    const basicAmount = items.reduce(
+      (sum: number, i: any) => sum + i.total,
+      0
+    );
   
-  //   const billId = result.lastInsertRowid as number;
+    // 🔹 GST
+    const gst = db.prepare(`
+      SELECT gst_percent FROM restaurent_gst_management WHERE is_active = 1
+    `).get() as any;
   
-  //   for (const i of items) {
-  //     db.prepare(`
-  //       INSERT INTO restaurant_bill_item
-  //       (bill_id, dish_id, quantity, rate, total)
-  //       VALUES (?, ?, ?, ?, ?)
-  //     `).run(billId, i.dish_id, i.quantity, i.rate, i.total);
-  //   }
+    const gstAmount = gst ? (basicAmount * gst.gst_percent) / 100 : 0;
   
-  //   // mark KOTs as billed
-  //   db.prepare(`
-  //     UPDATE kot SET status = 'BILLED'
-  //     WHERE id IN (${data.kotIds.map(() => "?").join(",")})
-  //   `).run(...data.kotIds);
+    // 🔹 Service Tax
+    const serviceTax = db.prepare(`
+      SELECT service_tax_percent FROM service_tax_management WHERE is_active = 1
+    `).get() as any;
   
-  //   return { billId, basicAmount, netAmount };
-  // };
+    let serviceTaxAmount = serviceTax
+      ? (basicAmount * serviceTax.service_tax_percent) / 100
+      : 0;
+  
+    const discount = data.discount ?? 0;
+    let netAmount;
+    if(data.servicetaxStatus){
+      netAmount =  basicAmount + gstAmount + serviceTaxAmount - discount;
+    }else{
+      serviceTaxAmount = 0
+      netAmount =  basicAmount + gstAmount  - discount;
+    }
+   
+  const billsids = db.prepare(`SELECT id from restaurant_bill`).all() as any;
+
+  const billid = `BILL-${billsids.length}`
+    // 🔹 Create bill
+    const result = db.prepare(`
+      INSERT INTO restaurant_bill
+      (
+        bill_no,
+        bill_date,
+        table_id,
+        waiter_id,
+        basic_amount,
+        gst_amount,
+        service_tax_amount,
+        discount,
+        net_amount,
+        payment_status
+      )
+      VALUES (?, DATE('now'), ?, ?, ?, ?, ?, ?, ?, 'UNPAID')
+    `).run(
+      billid,
+      header.table_id,
+      header.waiter_id,
+      basicAmount,
+      gstAmount,
+      serviceTaxAmount,
+      discount,
+      netAmount
+    );
+  
+    const billId = result.lastInsertRowid as number;
+  
+    // 🔹 Insert bill items
+    for (const i of items) {
+      db.prepare(`
+        INSERT INTO restaurant_bill_item
+        (bill_id, dish_id, quantity, rate, total)
+        VALUES (?, ?, ?, ?, ?)
+      `).run(billId, i.dish_id, i.quantity, i.rate, i.total);
+    }
+  
+    // 🔹 Mark KOTs as BILLED
+    db.prepare(`
+      UPDATE kot
+      SET status = 'BILLED'
+      WHERE id IN (${data.kotIds.map(() => "?").join(",")})
+    `).run(...data.kotIds);
+  
+    return db.prepare(`
+      SELECT * FROM restaurant_bill WHERE id = ?
+    `).get(billId);
+  };
+  
+
+  export const listRestaurantBills = () => {
+    return db.prepare(`
+      SELECT
+        rb.id,
+        rb.bill_no,
+        rb.bill_date,
+        rb.net_amount,
+        rb.payment_status,
+        rt.table_no,
+        e.name AS waiter_name
+      FROM restaurant_bill rb
+      JOIN restaurant_table rt ON rt.id = rb.table_id
+      LEFT JOIN employee e ON e.id = rb.waiter_id
+      ORDER BY rb.id DESC
+    `).all();
+  };
+
+  
+  export const kotbillGet = (billId: number) => {
+    if (!billId) {
+      throw new Error("Bill id is required");
+    }
+  
+    /* =========================
+       BILL HEADER
+    ========================= */
+    const bill = db.prepare(`
+      SELECT 
+        rb.*,
+        rt.table_no,
+        e.name AS waiter_name
+      FROM restaurant_bill rb
+      JOIN restaurant_table rt ON rt.id = rb.table_id
+      LEFT JOIN employee e ON e.id = rb.waiter_id
+      WHERE rb.id = ?
+    `).get(billId) as RestaurantBill & {
+      table_no: string;
+      waiter_name: string;
+    };
+  
+    if (!bill) {
+      throw new Error("Bill not found");
+    }
+  
+    /* =========================
+       BILL ITEMS
+    ========================= */
+    const items = db.prepare(`
+      SELECT
+        rbi.id,
+        d.dish_code,
+        d.name AS dish_name,
+        rbi.quantity,
+        rbi.rate,
+        rbi.total
+      FROM restaurant_bill_item rbi
+      JOIN dish d ON d.id = rbi.dish_id
+      WHERE rbi.bill_id = ?
+      ORDER BY rbi.id
+    `).all(billId);
+  
+    return {
+      bill,
+      items,
+    };
+  };
   

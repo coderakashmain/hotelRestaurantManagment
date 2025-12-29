@@ -4,170 +4,240 @@ import { useCompany } from "../../context/CompanyInfoContext";
 import { useEffect, useState } from "react";
 import { useInvoiceData } from "../../context/InvoiceDataContext";
 import { useNavigate } from "react-router";
+import { useSnackbar } from "../../context/SnackbarContext";
 
+import {
+  ReceiptPercentIcon,
+  UserIcon,
+  PhoneIcon,
+  HomeIcon,
+  ClockIcon,
+  BanknotesIcon,
+  TagIcon,
+  PrinterIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
 
 export default function ShowBillModal({ billId, onClose }: any) {
   const [discountValue, setDiscountValue] = useState(0);
-  const [discountType, setDiscountType] = useState<"FLAT" | "PERCENT">("FLAT");
-  const {setInvoiceData,setCompanyData} = useInvoiceData();
-  const navigate = useNavigate();
+  const [discountType, setDiscountType] =
+    useState<"FLAT" | "PERCENT">("FLAT");
 
+  const { setInvoiceData, setCompanyData } = useInvoiceData();
+  const { showSnackbar } = useSnackbar();
+  const navigate = useNavigate();
   const { company } = useCompany();
-  // const [print, setPrint] = useState(false);
+
   const {
     loading,
     data: bill,
     reload,
   } = useAsync(() => api.bill.get(billId), [billId]);
 
-  useEffect(()=>{
-    if(bill){
-      setInvoiceData(bill);
-    }
-    if(company && company.length>0){
+  useEffect(() => {
+    if (bill) setInvoiceData(bill);
+    if (company && company.length > 0) {
       setCompanyData(company[0]);
     }
+  }, [bill, company]);
 
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, []);
 
-  },[bill]);
-
-  if (!bill || loading) return <div>Loading...</div>;
+  if (loading || !bill) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
+        <div className="bg-bg-secondary rounded-sm p-6 text-sm shadow-card">
+          Loading bill…
+        </div>
+      </div>
+    );
+  }
 
   const applyDiscount = async () => {
-     await api.bill.updateDiscount({
+    if (discountValue <= 0) {
+      showSnackbar("Enter valid discount value", "warning");
+      return;
+    }
+
+    await api.bill.updateDiscount({
       bill_id: billId,
       value: discountValue,
       type: discountType,
     });
 
-    alert("Discount applied successfully!");
+    showSnackbar("Discount applied successfully", "success");
     reload();
   };
 
-
   return (
     <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
-      <div className="bg-white w-[500px] p-6 rounded shadow-xl">
-        <h2 className="text-xl font-bold mb-4">Bill Details</h2>
+      <div className="bg-bg-secondary w-[540px] p-6 rounded-sm shadow-card animate-dropdown">
 
-        <div className="space-y-2 text-sm">
-          <p>
-            <b>Guest Name:</b> {bill.guest?.name}
-          </p>
-          <p>
-            <b>Phone:</b> {bill.guest?.phone}
-          </p>
-          <p>
-            <b>Address:</b> {bill.guest?.address}
-          </p>
+        {/* ================= HEADER ================= */}
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <ReceiptPercentIcon className="w-5 h-5 text-primary" />
+            <div>
+              <h2 className="text-sm font-semibold">Bill Details</h2>
+              <p className="text-xs text-secondary">
+                Review charges, discount & payments
+              </p>
+            </div>
+          </div>
 
-          <p>
-            <b>Room:</b> {bill.room?.number}
-          </p>
-          <p>
-            <b>Check-In:</b> {new Date(bill.stay?.check_in).toLocaleString()}
-          </p>
-          <p>
-            <b> Check-Out:</b>{" "}
-            {bill.stay?.check_out
-              ? new Date(bill.stay.check_out).toLocaleString()
-              : "---"}
-          </p>
-          <p>
-            <b>Expected Check-Out:</b>{" "}
-            {bill.bill?.expected_check_out_time
-              ? new Date(bill.bill.expected_check_out_time).toLocaleString()
-              : "---"}
-          </p>
+          <button
+            onClick={onClose}
+            className="p-1 rounded-sm hover:bg-lightColor transition"
+          >
+            <XMarkIcon className="w-4 h-4 text-secondary" />
+          </button>
+        </div>
 
-          <hr />
+        {/* ================= GUEST INFO ================= */}
+        <div className="text-sm space-y-1 mb-4">
+          <div className="flex items-center gap-2">
+            <UserIcon className="w-4 h-4 text-secondary" />
+            <span><b>Guest:</b> {bill.guest?.name}</span>
+          </div>
 
-          {/* Summary vertical */}
-          <div className="border p-3 rounded bg-gray-50 space-y-1">
-            <div className="flex justify-between">
-              <span>Room Fee</span>
-              <span>₹ {bill.bill.room_charge_total}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Extra Charge</span>
-              <span>₹ {bill.bill.extra_charge_total}</span>
-            </div>
-             <div className="flex justify-between">
-              <span>Discount</span>
-              <span>₹ {bill.bill.discount}</span>
-            </div>
+          <div className="flex items-center gap-2">
+            <PhoneIcon className="w-4 h-4 text-secondary" />
+            <span><b>Phone:</b> {bill.guest?.phone}</span>
+          </div>
 
-            <div className="flex justify-between font-semibold border-t pt-2">
-              <span>Sub Total</span>
-              <span>₹ {bill.bill.room_charge_total + bill.bill.extra_charge_total}</span>
-            </div>
+          <div className="flex items-center gap-2">
+            <HomeIcon className="w-4 h-4 text-secondary" />
+            <span><b>Address:</b> {bill.guest?.address}</span>
+          </div>
 
-            <div className="flex justify-between">
-              <span>GST</span>
-              <span>₹ {bill.bill.tax_total}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Advance</span>
-              <span>₹ {bill.bill.total_advance}</span>
-            </div>
-           
-            <div className="flex justify-between">
-              <span>Final Amount</span>
-              <span>₹ {bill.bill.balance_amount}</span>
-            </div>
+          <div className="flex items-center gap-2">
+            <HomeIcon className="w-4 h-4 text-secondary" />
+            <span><b>Room:</b> {bill.room?.number}</span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <ClockIcon className="w-4 h-4 text-secondary" />
+            <span>
+              <b>Check-In:</b>{" "}
+              {new Date(bill.stay?.check_in).toLocaleString()}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <ClockIcon className="w-4 h-4 text-secondary" />
+            <span>
+              <b>Check-Out:</b>{" "}
+              {bill.stay?.check_out
+                ? new Date(bill.stay.check_out).toLocaleString()
+                : "---"}
+            </span>
           </div>
         </div>
 
-        <hr className="my-3" />
+        {/* ================= SUMMARY ================= */}
+        <div className=" border p-3 rounded bg-gray-50 space-y-1 text-sm ">
+          <div className="flex justify-between">
+            <span>Room Charges</span>
+            <span>₹ {bill.bill.room_charge_total}</span>
+          </div>
 
-        <h3 className="font-semibold">Discount</h3>
+          <div className="flex justify-between">
+            <span>Extra Charges</span>
+            <span>₹ {bill.bill.extra_charge_total}</span>
+          </div>
 
-        <div className="flex gap-2 items-center">
-          <input
-            type="number"
-            className="border p-1 w-24 rounded"
-            value={discountValue}
-            onChange={(e) => setDiscountValue(Number(e.target.value))}
-          />
+          <div className="flex justify-between">
+            <span>Discount</span>
+            <span>₹ {bill.bill.discount}</span>
+          </div>
 
-          <select
-            className="border p-1 rounded"
-            value={discountType}
-            onChange={(e) => setDiscountType(e.target.value as any)}
-          >
-            <option value="FLAT">₹ Flat</option>
-            <option value="PERCENT">% Percent</option>
-          </select>
+          <div className="flex justify-between font-medium border-t pt-2">
+            <span>Sub Total</span>
+            <span>
+              ₹{" "}
+              {bill.bill.room_charge_total +
+                bill.bill.extra_charge_total}
+            </span>
+          </div>
 
-          <button
-            className="px-3 py-1 bg-blue-600 text-white rounded cursor-pointer text-sm"
-            onClick={applyDiscount}
-          >
-            Apply
-          </button>
+          <div className="flex justify-between">
+            <span>GST</span>
+            <span>₹ {bill.bill.tax_total}</span>
+          </div>
+
+          <div className="flex justify-between">
+            <span>Advance</span>
+            <span>₹ {bill.bill.total_advance}</span>
+          </div>
+
+          <div className="flex justify-between font-semibold text-primary">
+            <span className="flex items-center gap-1">
+              <BanknotesIcon className="w-4 h-4" />
+              Balance Payable
+            </span>
+            <span>₹ {bill.bill.balance_amount}</span>
+          </div>
         </div>
 
-        <div className="mt-6 text-right gap-10">
-          <button  className="px-4 py-2 border rounded mr-2 cursor-pointer" onClick={onClose}>
+        {/* ================= DISCOUNT ================= */}
+        <div className="mt-4">
+          <h3 className="text-sm font-semibold mb-2 flex items-center gap-1">
+            <TagIcon className="w-4 h-4 text-secondary" />
+            Apply Discount
+          </h3>
+
+          <div className="flex gap-2 items-center">
+            <input
+              type="number"
+              className="border border-gray rounded-sm px-2 py-1 text-sm w-24"
+              value={discountValue}
+              onChange={(e) =>
+                setDiscountValue(Number(e.target.value))
+              }
+            />
+
+            <select
+              className="border border-gray rounded-sm px-2 py-1 text-sm"
+              value={discountType}
+              onChange={(e) =>
+                setDiscountType(e.target.value as any)
+              }
+            >
+              <option value="FLAT">₹ Flat</option>
+              <option value="PERCENT">% Percent</option>
+            </select>
+
+            <button
+              onClick={applyDiscount}
+              className="btn text-sm px-4"
+            >
+              Apply
+            </button>
+          </div>
+        </div>
+
+        {/* ================= FOOTER ================= */}
+        <div className="flex justify-end gap-3 mt-6">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 text-sm rounded-sm border border-gray hover:bg-lightColor transition"
+          >
             Close
           </button>
+
           <button
-            // onClick={() => setPrint(true)}
-            onClick={() => {  
-              navigate("/hotel/print/invoice")}}
-           
-            className="px-6 py-2 bg-green-600 text-white rounded cursor-pointer"
+            onClick={() => navigate("/hotel/print/invoice")}
+            className="px-5 py-2 text-sm rounded-sm bg-success text-white hover:opacity-90 transition flex items-center gap-2"
           >
+            <PrinterIcon className="w-4 h-4" />
             Print Bill
           </button>
-
-          {/* {print && (
-            <InvoicePrint
-              data={bill}
-              company={company}
-              onClose={() => setPrint(false)}
-            />
-          )} */}
         </div>
       </div>
     </div>

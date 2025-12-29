@@ -7,6 +7,7 @@ import {
   UsersIcon,
   ReceiptPercentIcon,
   ClipboardIcon,
+  DocumentTextIcon
 } from "@heroicons/react/24/outline";
 
 export default function RestaurantSidebar() {
@@ -92,8 +93,15 @@ export default function RestaurantSidebar() {
             to="/restaurant/employee-master"
             className={itemClass("/restaurant/employee-master")}
           >
-            <UsersIcon className="w-4 h-4" />
+              <DocumentTextIcon className="w-4 h-4" />
             <span className={label}>Staff</span>
+          </Link>
+          <Link
+            to="/restaurant/gst-master-restaurent"
+            className={itemClass("/restaurant/gst-master-restaurent")}
+          >
+            <UsersIcon className="w-4 h-4" />
+            <span className={label}>GST</span>
           </Link>
         </div>
       )}

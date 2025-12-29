@@ -140,33 +140,15 @@ export default function Sidebar() {
           </Link>
 
           {/* FINANCIAL YEAR */}
-          <button
-            onClick={() => setFyOpen(!fyOpen)}
-            className={parentButton(isFYChildActive)}
-          >
-            <CalendarDaysIcon className="w-4 h-4" />
-            <span className={label}>
-              FY {fyOpen ? "▾" : "▸"}
-            </span>
-          </button>
 
-          {fyOpen && (
-            <div
-              className={`w-full  flex flex-col gap-1 pl-1
-                ${isFYChildActive ? "border-l-2 border-primary" : ""}
-              `}
-            >
+
+         
               <Link to="/hotel/fy" className={itemClass("/hotel/fy")}>
                 <CalendarDaysIcon className="w-4 h-4" />
                 <span className={label}>Years</span>
               </Link>
 
-              <Link to="/hotel/fy-create" className={itemClass("/hotel/fy-create")}>
-                <CalendarDaysIcon className="w-4 h-4" />
-                <span className={label}>Create</span>
-              </Link>
-            </div>
-          )}
+          
         </div>
       )}
 

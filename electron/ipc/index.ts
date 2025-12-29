@@ -12,6 +12,8 @@ import {
   DailyCollectionService 
 } from "../services";
 import './window'
+import fs from "fs";
+
 import * as Category from "../services/restaurantServices/category";
 import * as Dish from "../services/restaurantServices/dish";
 import * as Table from "../services/restaurantServices/restaurantTable";
@@ -19,11 +21,12 @@ import * as Employee from "../services/restaurantServices/employee";
 import * as KOT from "../services/restaurantServices/kot";
 import * as Bill  from "../services/restaurantServices/restaurantBill";
 import * as ServiceTax   from "../services/restaurantServices/serviceTax";
-import * as GST   from "../services/restaurantServices/gst";
+import {GST} from '../services/restaurantServices/gst'
 import { GSTService } from "../services/GSTService";
 import * as FY from "../services/finalcialYear";
 import * as BillTypeService from "../services/billType";
 import { handleIPC } from "./handleIPC";
+import { BrowserWindow, dialog } from "electron";
 
 /* ================================
    COMPANY
@@ -144,27 +147,49 @@ handleIPC("gst:setActive", GSTService.setActive);
 /* ================================
    POLICE REPORT
 ================================ */
-handleIPC("police-report:create", PoliceReportService.createPoliceReport);
-handleIPC("police-report:getByCheckIn", PoliceReportService.getByCheckIn);
-handleIPC("police-report:markSubmitted", PoliceReportService.markSubmitted);
+handleIPC(
+   "police-report:create",
+   PoliceReportService.createPoliceReport
+ );
+ 
+ handleIPC(
+   "police-report:getById",
+   PoliceReportService.getPoliceReportById
+ );
+ 
+ handleIPC(
+   "police-report:getByCheckIn",
+   PoliceReportService.getPoliceReportByCheckIn
+ );
+ 
+ handleIPC(
+   "police-report:list",
+   PoliceReportService.listPoliceReports
+ );
+ 
+ handleIPC(
+   "police-report:markSubmitted",
+   PoliceReportService.markPoliceReportSubmitted
+ );
+ 
+ handleIPC(
+   "police-report:delete",
+   PoliceReportService.deletePoliceReport
+ );
+ 
 
 
 
 //daily reports 
-handleIPC(
-  "dcr:add",
-  DailyCollectionService.addDailyEntry
-);
+// Daily Collection Register
+handleIPC("dcr:add", DailyCollectionService.addDailyEntry);
+handleIPC("dcr:list", DailyCollectionService.getDailyRegister);
+handleIPC("dcr:reverse", DailyCollectionService.reverseDailyEntry);
 
-handleIPC(
-  "dcr:list",
-  DailyCollectionService.getDailyRegister
-);
+// (optional but pro)
+// handleIPC("dcr:close-day", DailyCollectionService.closeDay);
+// handleIPC("dcr:status", DailyCollectionService.getDayStatus);
 
-handleIPC(
-  "dcr:delete",
-  DailyCollectionService.deleteDailyEntry
-);
 
 
 //restaurant ipc
@@ -212,14 +237,17 @@ handleIPC("kot:add-item", KOT.addKOTItem);
 handleIPC("kot:get", KOT.getKOTDetails);
 handleIPC("kot:close", KOT.closeKOT);
 handleIPC("kot:list-closed", KOT.listClosedKOTs);
+handleIPC("kot:delete", KOT.deleteKOTs);
 
 
 
 
 
-handleIPC("bill:create", Bill.createRestaurantBill);
+handleIPC("bill:create", Bill.createBillFromKOTs);
 handleIPC("bill:add-items", Bill.addBillItemsFromKOT);
 handleIPC("restaurant-bill:checkout", Bill.checkoutRestaurantBill);
+handleIPC("restaurant_bill:list", Bill.listRestaurantBills);
+handleIPC("bill-kot:get", Bill.kotbillGet);
 
 handleIPC("bill:preview", Bill.previewBillFromKOTs);
 
@@ -232,7 +260,40 @@ handleIPC("service-tax:update", ServiceTax.updateServiceTax);
 
 
 
-handleIPC("gst:add", GST.addGST);
-handleIPC("gst:list", GST.getAllGST);
-handleIPC("gst:get-active", GST.getActiveGST);
-handleIPC("gst:update", GST.updateGST);
+handleIPC("gst-res:add", GST.create);
+handleIPC("gst-res:list", GST.list);
+handleIPC("gst:setActive", GST.setActive);
+handleIPC("gst-res:update", GST.update);
+handleIPC("gst-res:delete", GSTService.delete);
+
+handleIPC("gst:list", GSTService.list);
+handleIPC("gst:create", GSTService.create);
+handleIPC("gst:update", GSTService.update);
+handleIPC("gst:delete", GSTService.delete);
+handleIPC("gst:setActive", GSTService.setActive);
+
+//pdf file
+
+handleIPC("pdf:export", async (_e, { html, fileName }) => {
+   const win = new BrowserWindow({ show: false });
+   await win.loadURL(
+     "data:text/html;charset=utf-8," + encodeURIComponent(html)
+   );
+ 
+   const { filePath } = await dialog.showSaveDialog({
+     defaultPath: fileName,
+     filters: [{ name: "PDF", extensions: ["pdf"] }],
+   });
+ 
+   if (filePath) {
+     await win.webContents.printToPDF({
+       pageSize: "A4",
+       printBackground: true,
+     }).then(data => {
+       fs.writeFileSync(filePath, data);
+     });
+   }
+ 
+   win.close();
+ });
+ 

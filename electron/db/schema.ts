@@ -191,7 +191,7 @@ CREATE TABLE IF NOT EXISTS check_in (
 
   guest_id INTEGER NOT NULL,
   room_id INTEGER NOT NULL,
-
+  police_reported INTEGER DEFAULT 0,
   check_in_time DATETIME NOT NULL,
   expected_check_out_time DATETIME,
   check_out_time DATETIME,
@@ -361,10 +361,8 @@ CREATE TABLE IF NOT EXISTS audit_log (
 CREATE TABLE IF NOT EXISTS police_report (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
 
-  check_in_id INTEGER NOT NULL,
-  guest_id INTEGER NOT NULL,
+  report_no TEXT UNIQUE NOT NULL,
 
-  report_no TEXT UNIQUE,
   station_name TEXT NOT NULL,
   station_address TEXT,
   officer_name TEXT,
@@ -376,11 +374,28 @@ CREATE TABLE IF NOT EXISTS police_report (
   submitted_at DATETIME,
 
   created_at DATETIME DEFAULT (datetime('now')),
-  updated_at DATETIME DEFAULT (datetime('now')),
-
-  FOREIGN KEY (check_in_id) REFERENCES check_in(id) ON DELETE CASCADE,
-  FOREIGN KEY (guest_id) REFERENCES guest(id) ON DELETE CASCADE
+  updated_at DATETIME DEFAULT (datetime('now'))
 );
+
+CREATE TABLE IF NOT EXISTS police_report_checkin (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+  police_report_id INTEGER NOT NULL,
+  check_in_id INTEGER NOT NULL,
+
+  created_at DATETIME DEFAULT (datetime('now')),
+
+  FOREIGN KEY (police_report_id)
+    REFERENCES police_report(id)
+    ON DELETE CASCADE,
+
+  FOREIGN KEY (check_in_id)
+    REFERENCES check_in(id)
+    ON DELETE CASCADE,
+
+  UNIQUE (police_report_id, check_in_id)
+);
+
 
 CREATE TABLE IF NOT EXISTS daily_collection_register (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -394,6 +409,12 @@ CREATE TABLE IF NOT EXISTS daily_collection_register (
   -- MR No / Bill No / Manual text
 
   room_id INTEGER,
+  direction TEXT DEFAULT 'CR',
+  source_type TEXT,
+  source_id INTEGER,
+  COLUMN source_id INTEGER,
+  tax_amount NUMERIC DEFAULT 0.00,
+   is_locked INTEGER DEFAULT 0,
 
   base_amount NUMERIC DEFAULT 0.00,
 
@@ -413,6 +434,17 @@ CREATE TABLE IF NOT EXISTS daily_collection_register (
 CREATE INDEX IF NOT EXISTS idx_dcr_date
 ON daily_collection_register(report_date);
 
+
+CREATE TABLE IF NOT EXISTS daily_report (
+  report_date DATE PRIMARY KEY,
+  total_cash NUMERIC,
+  total_upi NUMERIC,
+  total_card NUMERIC,
+  closing_cash NUMERIC,
+  status TEXT DEFAULT 'OPEN',
+  closed_by INTEGER,
+  closed_at DATETIME
+);
 
 
 -- OPTIONAL: booking table (reservations)

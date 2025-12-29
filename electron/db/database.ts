@@ -4,7 +4,7 @@ import fs from "fs";
 import Database from "better-sqlite3";
 import { schema } from "./schema";
 import {restaurant_schema} from './restaurantSchema'
-
+import { seedDishes } from "../../seed/seedDishes";
 let db: Database.Database;
 
 export function initDatabase() {
@@ -21,6 +21,7 @@ export function initDatabase() {
   db.exec(`PRAGMA foreign_keys = ON;`);
   db.exec(schema);
   db.exec(restaurant_schema);
+  seedDishes(db);
 console.log("This is tha path : ",DB_PATH)
 
   return db;
