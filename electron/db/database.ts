@@ -22,7 +22,7 @@ export function initDatabase() {
   db.exec(schema);
   db.exec(restaurant_schema);
   seedDishes(db);
-console.log("This is tha path : ",DB_PATH)
+// console.log("This is tha path : ",DB_PATH)
 
   return db;
 }

@@ -11,7 +11,7 @@ export function seedDishes(db: Database.Database) {
       value TEXT
     )
   `);
-  console.log('sdfksldkfklsdfllsdflskfsldfkr..........................')
+  
 
   // 2️⃣ Check seed flag
   const seeded = db
@@ -19,7 +19,7 @@ export function seedDishes(db: Database.Database) {
     .get() as any;
 
   if (seeded?.value === "1") {
-    console.log("ℹ️ Dishes already seeded");
+  
     return;
   }
 
@@ -73,5 +73,5 @@ export function seedDishes(db: Database.Database) {
     VALUES ('dish_seeded', '1')
   `).run();
 
-  console.log("✅ Dish seeded & app_meta updated");
+ 
 }
