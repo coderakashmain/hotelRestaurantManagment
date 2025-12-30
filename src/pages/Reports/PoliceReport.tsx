@@ -50,10 +50,10 @@ const [reportView,setreportView] = useState(false);
 
   /* ================= CREATE ================= */
   const handleCreate = async () => {
-    if ( !form.station_name) {
-      showSnackbar("Enter Station_name",'warning');
-      return;
-    }
+    // if ( !form.station_name) {
+    //   showSnackbar("Enter Station_name",'warning');
+    //   return;
+    // }
 
     try{
 

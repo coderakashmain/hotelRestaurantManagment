@@ -4,8 +4,7 @@ import { useFinancialYear } from "../context/FinancialYearContext";
 import { useSnackbar } from "../context/SnackbarContext";
 import {
   PencilSquareIcon,
-  CheckIcon,
-  XMarkIcon,
+  CheckIcon
 } from "@heroicons/react/24/solid";
 import { useKeyboardShortcuts } from "../hooks/useKeyboardShortcuts";
 

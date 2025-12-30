@@ -59,7 +59,7 @@ const Topbar = () => {
 
         {/* App Title */}
         <span className="text-xs font-semibold tracking-wide text-text">
-          RatraX
+          RestroX
         </span>
 
         {/* Divider */}

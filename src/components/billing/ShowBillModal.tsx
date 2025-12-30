@@ -179,7 +179,7 @@ export default function ShowBillModal({ billId, onClose }: any) {
           <div className="flex justify-between font-semibold text-primary">
             <span className="flex items-center gap-1">
               <BanknotesIcon className="w-4 h-4" />
-              Balance Payable
+              Net Payable
             </span>
             <span>₹ {bill.bill.balance_amount}</span>
           </div>

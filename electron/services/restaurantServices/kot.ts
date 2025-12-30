@@ -188,7 +188,7 @@ WHERE id = ? AND is_active = 1
   );
 
   return db.prepare(`
-    SELECT * FROM kot_item WHERE id = ? AND is_deleted = 0
+    SELECT * FROM kot_item WHERE id = ? 
   `).get(result.lastInsertRowid) as KOTItem;
 };
 

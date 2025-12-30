@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router";
 import { useMrData } from "../../context/MrDataContext";
 import { numberToWords } from "../../utils/numberToWords";
-import { useEffect } from "react";
+
 
 export default function MoneyReceiptPrint({
   viewFor = 'CUSTOMER'

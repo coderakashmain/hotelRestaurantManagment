@@ -1,7 +1,6 @@
 import { useRef } from "react";
 import { formatDateTime } from "../../utils/date";
 import { useCompany } from "../../context/CompanyInfoContext";
-import { api } from "../../api/api";
 
 export default function PoliceReportPrint({
   report,

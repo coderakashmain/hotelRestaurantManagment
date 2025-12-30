@@ -8,11 +8,7 @@ import { useCheckOutRule } from "../context/CheckOutRuleContext";
 import { useSnackbar } from "../context/SnackbarContext";
 import { useKeyboardShortcuts } from "../hooks/useKeyboardShortcuts";
 
-type GuestType = {
-  id: number;
-  full_name: string;
-  phone?: string;
-};
+
 
 type RoomType = {
   id: number;
@@ -144,12 +140,21 @@ export default function CheckinPage() {
       showSnackbar("Guest name required",'warning')
       return;
     }
+    if(!guestForm.phone.trim()){
+      showSnackbar("Please enter phone number.",'warning');
+      return;
+    }
+    
     if (
       guestForm.phone.trim().length > 0 &&
       guestForm.phone.trim().length < 10
     ) {
       
       showSnackbar("Enter 10 digit phone number!",'warning')
+      return;
+    }
+    if(!guestForm.id_proof_type || !guestForm.id_proof_number){
+      showSnackbar("Please enter ID Proof.",'warning');
       return;
     }
     if (guestForm?.phone === guestDetails?.phone && autoFilled) {
@@ -295,14 +300,14 @@ export default function CheckinPage() {
 
 
     showSnackbar("Checked in successfully.",'success'); 
+    navigate("/hotel/rooms-chart")
      setSelectedGuestId(null);
      setSelectedGuest(null);
      setSelectedRoomId(null)
     reloadRooms();
     reloadGuests();
 
-    // optional: navigate back to room chart or reset form
-    // window.location.href = "/"; // uncomment if you want to redirect
+   
   };
 
   // Helpers for rendered lists
@@ -334,33 +339,70 @@ export default function CheckinPage() {
   };
 
 
-  useKeyboardShortcuts(
-    {
-      Enter: doCheckin,
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      const tag = target?.tagName;
   
-      Escape: ({ inInput, target }) => {
-        // 1️⃣ If inside input → clear THAT FIELD via STATE
-        if (inInput && target instanceof HTMLInputElement && target.name) {
-          setGuestForm((prev) => ({
-            ...prev,
-            [target.name]: "",
-          }));
+      const inInput =
+        tag === "INPUT" ||
+        tag === "TEXTAREA" ||
+        tag === "SELECT" ||
+        target?.isContentEditable;
+  
+      /* ================= ENTER ================= */
+      if (e.key === "Enter") {
+        e.preventDefault();
+        e.stopPropagation();
+  
+        // Guest modal → create / select guest
+        if (showGuestModal) {
+          createGuest();
           return;
         }
   
-        // 2️⃣ If popup open → close it
+        // Main page → check-in
+        if (!inInput) {
+          doCheckin();
+        }
+        return;
+      }
+  
+      /* ================= ESCAPE ================= */
+      if (e.key === "Escape") {
+        e.preventDefault();
+        e.stopPropagation();
+  
+        // 1️⃣ If input focused → just blur
+        if (inInput && target) {
+          target.blur();
+          return;
+        }
+  
+        // 2️⃣ If guest modal open → close it
         if (showGuestModal) {
           setShowGuestModal(false);
           return;
         }
   
-        // 3️⃣ Else → navigate back / fallback
+        // 3️⃣ Else → navigate back
         navigate(-1);
-      },
+      }
+    };
   
-    },
-    [guestForm, showGuestModal]
-  );
+    // Capture phase → Electron-safe
+    window.addEventListener("keydown", handler, true);
+    return () => window.removeEventListener("keydown", handler, true);
+  }, [
+    showGuestModal,
+    guestForm,
+    selectedGuestId,
+    selectedRoomId,
+    customRate,
+  ]);
+  
+  
+  
   
 
   return (

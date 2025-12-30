@@ -11,7 +11,7 @@ const IndexRouter = () => {
       </aside>
 
       
-      <main className="overflow-auto p-4 bg-bg-secondary  ">
+      <main className="overflow-auto p-4 bg-bg-secondary pb-15">
         <Outlet />
       </main>
     </section>

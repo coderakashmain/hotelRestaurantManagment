@@ -35,7 +35,7 @@ import {
         {/* CENTER — App Info */}
         <div className="flex items-center gap-3">
           <span className="flex items-center gap-1">
-            <span className="font-medium text-gray-600">RatraX</span>
+            <span className="font-medium text-gray-600">RestroX</span>
             <span>v1.0.0</span>
           </span>
   

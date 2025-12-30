@@ -5,8 +5,6 @@ import { formatCurrency } from "../../utils/currency";
 import { useUsers } from "../../context/UserContext";
 import {
   ArrowPathIcon,
-  ArrowLeftIcon,
-  ArrowRightIcon,
   TrashIcon,
   CalendarDaysIcon,
   BanknotesIcon,

@@ -6,6 +6,7 @@ import { ClosedKOT } from "./restaurantType";
 import { useSnackbar } from "../../context/SnackbarContext";
 import KOTReceiptPrint from "./KOTReceiptPrint";
 import { useNavigate } from "react-router";
+import { TrashIcon } from "@heroicons/react/24/solid";
 
 /* ================= TYPES ================= */
 type Table = { id: number; table_no: string };
@@ -33,7 +34,12 @@ export default function KOTPage() {
   const dishCodeRef = useRef<HTMLInputElement>(null);
   const [printKOTId, setPrintKOTId] = useState<number | null>(null);
   const navigate = useNavigate();
-
+  const dishNameRef = useRef<HTMLInputElement>(null);
+  const qtyRef = useRef<HTMLInputElement>(null);
+  const [isWaiterCodeFocused, setIsWaiterCodeFocused] = useState(false);
+  const [isWaiterNameFocused, setIsWaiterNameFocused] = useState(false);
+  const [isDishCodeFocused, setIsDishCodeFocused] = useState(false);
+  const [isDishNameFocused, setIsDishNameFocused] = useState(false);
   const [waiterCode, setWaiterCode] = useState("");
   const [waiterName, setWaiterName] = useState("");
   const [waiterId, setWaiterId] = useState<number | null>(null);
@@ -66,14 +72,24 @@ export default function KOTPage() {
   const onTableChange = (value: string) => {
     setTableNo(value);
     const t = tables?.find((t) => t.table_no === value);
-    if (t) setTableId(t.id);
-
+    if (t) {
+      setTableId(t.id);
+    } else {
+      setTableId(null);
+    }
+    setKotId(null);
     setWaiterCode("");
     setWaiterName("");
     setWaiterId(null);
   };
 
   const onWaiterCodeChange = async (code: string) => {
+    const t = tables?.find((t) => t.id === tableId);
+    if (!t) {
+      showSnackbar("Table not found.", "warning");
+      return;
+    }
+
     setWaiterCode(code);
 
     const w = employees?.find(
@@ -82,6 +98,7 @@ export default function KOTPage() {
 
     if (!w) {
       setWaiterName("");
+      setKotId(null);
       setWaiterId(null);
       return;
     }
@@ -134,7 +151,10 @@ export default function KOTPage() {
     }
 
     const dish = dishes?.find((d) => String(d.dish_code) === dishCode);
-    if (!dish) return;
+    if (!dish) {
+      showSnackbar("Dish Not found.", "error");
+      return;
+    }
 
     await api.kot.addItem({
       kot_id: kotId,
@@ -142,10 +162,11 @@ export default function KOTPage() {
       quantity: qty,
     });
 
+    reloadKOT();
     setDishCode("");
     setDishName("");
     setQty(1);
-    reloadKOT();
+    dishCodeRef.current?.focus();
   };
 
   const closeKOT = async () => {
@@ -171,7 +192,6 @@ export default function KOTPage() {
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
-  
       /* ================= MODAL PRIORITY ================= */
       if (printKOTId) {
         if (e.key === "Escape") {
@@ -181,70 +201,113 @@ export default function KOTPage() {
         }
         return; // 🚫 block everything else
       }
-  
+
       /* ================= SHORTCUTS ================= */
-  
+
+      if(e.key === 'Tab' &&
+        document.activeElement === dishCodeRef.current && dishName.trim() !== ''
+
+      ){
+        e.preventDefault();
+        qtyRef.current?.focus();
+        return;
+      }
+      if(e.key === 'Tab' &&
+        document.activeElement === waiterRef.current && waiterName.trim() !== ''
+
+      ){
+        e.preventDefault();
+        dishCodeRef.current?.focus();
+        return;
+      }
+
       // Alt + T → Table
       if (e.altKey && e.key.toLowerCase() === "t") {
         e.preventDefault();
         tableRef.current?.focus();
         return;
       }
-  
+
       // Alt + W → Waiter
       if (e.altKey && e.key.toLowerCase() === "w") {
         e.preventDefault();
         waiterRef.current?.focus();
         return;
       }
-  
+
       // Alt + D → Dish Code
       if (e.altKey && e.key.toLowerCase() === "d") {
         e.preventDefault();
         dishCodeRef.current?.focus();
         return;
       }
-  
+
       // Enter → Add dish OR Save KOT
       if (e.key === "Enter" && kotId) {
         e.preventDefault();
         e.stopPropagation();
-  
-        const hasDishInput =
-          dishCode.trim() !== "" ||
-          dishName.trim() !== "" ||
-          qty !== 1;
-  
-        if (hasDishInput) {
+
+        const active = document.activeElement;
+        const isDishFocused =
+          active === dishCodeRef.current ||
+          active === dishNameRef.current ||
+          active === qtyRef.current;
+
+        if (isDishFocused) {
           addDish();
         } else {
           closeKOT();
         }
         return;
       }
-  
+
+   
       // Esc → Reset current KOT
       if (e.key === "Escape") {
         e.preventDefault();
         e.stopPropagation();
+
+        const inputactive = document.activeElement as HTMLElement | null;
+
+        const isInputFocused =
+        inputactive &&
+        (inputactive.tagName === "INPUT" ||
+          inputactive.tagName === "TEXTAREA" ||
+          inputactive.tagName === "SELECT" ||
+          inputactive.isContentEditable);
   
+          if (isInputFocused) {
+            e.preventDefault();
+            e.stopPropagation();
+            inputactive.blur(); 
+            return;
+          }
+
         setKotId(null);
-        setDishCode("");
-        setDishName("");
-        setQty(1);
+        setTableNo("");
+        setTableId(null);
+        setWaiterCode("");
+        setWaiterName("");
+        setWaiterId(null);
       }
     };
-  
-    window.addEventListener("keydown", onKeyDown, true); // 🔥 CAPTURE MODE
+
+    window.addEventListener("keydown", onKeyDown, true); //  CAPTURE MODE
     return () => window.removeEventListener("keydown", onKeyDown, true);
-  }, [
-    kotId,
-    dishCode,
-    dishName,
-    qty,
-    printKOTId
-  ]);
-  
+  }, [kotId, dishCode, dishName, qty, printKOTId]);
+
+  const getOpenKotCount = (tableId: number) =>
+    closedKOTs?.filter((k) => k.table_id === tableId).length || 0;
+
+  const deleteSelectedKOTs = async (kotId: number) => {
+    if (!kotId) {
+      showSnackbar("KOT id not selected", "warning");
+      return;
+    }
+    await api.kot.delete({ kotIds: [kotId] });
+    showSnackbar("Deleted successfully", "success");
+    reloadKOTs();
+  };
 
   /* ================= UI ================= */
   return (
@@ -254,110 +317,171 @@ export default function KOTPage() {
         <h3 className="text-sm mb-2 text-gray-400">Tables</h3>
 
         <div className="grid grid-cols-3 gap-2 mb-4">
-          {tables?.map((t) => (
-            <button
-              key={t.id}
-              onClick={() => {
-                setTableNo(t.table_no);
-                setTableId(t.id);
-              }}
-              className={`border p-2 rounded bg-bg-primary border-gray text-sm transition
-                ${
-                  tableId === t.id
-                    ? "bg-primary text-white"
-                    : "hover:bg-gray-100"
-                }`}
-            >
-              {t.table_no}
-            </button>
-          ))}
+          {tables?.map((t) => {
+            const kotCount = getOpenKotCount(t.id);
+            const isSelected = tableId === t.id;
+
+            return (
+              <button
+                key={t.id}
+                onClick={() => {
+                  setTableNo(t.table_no);
+                  setTableId(t.id);
+                  setKotId(null);
+                  setWaiterCode("");
+                  setWaiterName("");
+                  setWaiterId(null);
+                }}
+                className={`
+          relative
+          border
+          p-2
+          rounded-sm
+          text-sm
+          transition
+          ${
+            isSelected
+              ? "bg-blue-600 text-white border-blue-600"
+              : kotCount > 0
+              ? "bg-amber-50 border-amber-400 hover:bg-amber-100"
+              : "bg-gray-50 border-gray-200 hover:bg-gray-100"
+          }
+        `}
+              >
+                {/* TABLE NUMBER */}
+                <div className="font-semibold">{t.table_no}</div>
+
+                {/* OPEN KOT COUNT */}
+                <div
+                  className={`
+            absolute -top-2 -right-2
+            min-w-[20px] h-[20px]
+            flex items-center justify-center
+            text-[10px] font-bold
+            rounded-full
+            ${
+              kotCount > 0
+                ? "bg-amber-500 text-white"
+                : "bg-gray-300 text-gray-700"
+            }
+          `}
+                >
+                  {kotCount}
+                </div>
+              </button>
+            );
+          })}
         </div>
 
         {/* WAITERS / DISHES TABLE */}
         {/* SECTION TITLE */}
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="text-xs font-medium text-gray-500 tracking-wide uppercase">
-            {!waiterId ? "Waiters List" : "Dishes List"}
-          </h3>
+        {tableNo &&
+          (isWaiterCodeFocused ||
+            isWaiterNameFocused ||
+            isDishCodeFocused ||
+            isDishNameFocused) && (
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-xs font-medium text-gray-500 tracking-wide uppercase">
+                {tableNo &&
+                  (isWaiterCodeFocused || isWaiterNameFocused) &&
+                  "Waiters List"}
 
-          <span className="text-[10px] text-gray-400">Click to select</span>
-        </div>
+                {tableNo &&
+                  (isDishCodeFocused || isDishNameFocused) &&
+                  "Dishes List"}
+              </h3>
 
-        {/* TABLE WRAPPER */}
-        <div className="border border-gray-200 rounded-sm overflow-hidden bg-white max-h-60 overflow-y-auto shadow-sm">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50 sticky top-0 z-10 shadow-[0_1px_0_0_rgba(0,0,0,0.05)]">
-              <tr>
-                <th className="px-3 py-2 text-left text-xs font-semibold text-gray-600 w-24">
-                  Code
-                </th>
-                <th className="px-3 py-2 text-left text-xs font-semibold text-gray-600">
-                  Name
-                </th>
-              </tr>
-            </thead>
-
-            <tbody className="divide-y divide-gray-100">
-              {!waiterId
-                ? employees
-                    ?.filter((e) => e.designation === "Waiter")
-                    .map((e) => (
-                      <tr
-                        key={e.id}
-                        onClick={() => onWaiterCodeChange(String(e.emp_code))}
-                        className="
-                  cursor-pointer
-                  transition-colors
-                  hover:bg-blue-50
-                  active:bg-blue-100
-                "
-                      >
-                        <td className="px-3 py-2 font-mono text-gray-700">
-                          {e.emp_code}
-                        </td>
-                        <td className="px-3 py-2 text-gray-800">{e.name}</td>
-                      </tr>
-                    ))
-                : dishes?.map((d) => (
-                    <tr
-                      key={d.id}
-                      onClick={() => onDishCodeChange(String(d.dish_code))}
-                      className="
-                cursor-pointer
-                transition-colors
-                hover:bg-green-50
-                active:bg-green-100
-              "
-                    >
-                      <td className="px-3 py-2 font-mono text-gray-700">
-                        {d.dish_code}
-                      </td>
-                      <td className="px-3 py-2 text-gray-800">{d.name}</td>
-                    </tr>
-                  ))}
-            </tbody>
-          </table>
-
-          {/* EMPTY STATE */}
-          {((!waiterId &&
-            employees?.filter((e) => e.designation === "Waiter").length ===
-              0) ||
-            (waiterId && dishes?.length === 0)) && (
-            <div className="p-4 text-center text-xs text-gray-400">
-              No records available
+              <span className="text-[10px] text-gray-400">Click to select</span>
             </div>
           )}
-        </div>
+
+        {/* TABLE WRAPPER */}
+        {tableNo &&
+          (isWaiterCodeFocused ||
+            isWaiterNameFocused ||
+            isDishCodeFocused ||
+            isDishNameFocused) && (
+            <div className="border border-gray-200 rounded-sm overflow-hidden bg-white max-h-60 overflow-y-auto shadow-sm">
+              <table className="w-full text-sm">
+                <thead className="bg-gray-50 sticky top-0 z-10 shadow-[0_1px_0_0_rgba(0,0,0,0.05)]">
+                  <tr>
+                    <th className="px-3 py-2 text-left text-xs font-semibold text-gray-600 w-24">
+                      Code
+                    </th>
+                    <th className="px-3 py-2 text-left text-xs font-semibold text-gray-600">
+                      Name
+                    </th>
+                  </tr>
+                </thead>
+
+                <tbody className="divide-y divide-gray-100">
+                  {tableNo &&
+                    (isWaiterCodeFocused || isWaiterNameFocused) &&
+                    employees
+                      ?.filter((e) => e.designation === "Waiter")
+                      .map((e) => (
+                        <tr
+                          key={e.id}
+                          onClick={() => onWaiterCodeChange(String(e.emp_code))}
+                          className="
+              cursor-pointer
+              transition-colors
+              hover:bg-blue-50
+              active:bg-blue-100
+            "
+                        >
+                          <td className="px-3 py-2 font-mono text-gray-700">
+                            {e.emp_code}
+                          </td>
+                          <td className="px-3 py-2 text-gray-800">{e.name}</td>
+                        </tr>
+                      ))}
+
+                  {tableNo &&
+                    (isDishCodeFocused || isDishNameFocused) &&
+                    dishes?.map((d) => (
+                      <tr
+                        key={d.id}
+                        onClick={() => onDishCodeChange(String(d.dish_code))}
+                        className="
+              cursor-pointer
+              transition-colors
+              hover:bg-green-50
+              active:bg-green-100
+            "
+                      >
+                        <td className="px-3 py-2 font-mono text-gray-700">
+                          {d.dish_code}
+                        </td>
+                        <td className="px-3 py-2 text-gray-800">{d.name}</td>
+                      </tr>
+                    ))}
+
+                  
+                </tbody>
+              </table>
+
+              {/* EMPTY STATE */}
+              {((!waiterId &&
+                employees?.filter((e) => e.designation === "Waiter").length ===
+                  0) ||
+                (waiterId && dishes?.length === 0)) && (
+                <div className="p-4 text-center text-xs text-gray-400">
+                  No records available
+                </div>
+              )}
+            </div>
+          )}
 
         {/* CLOSED KOTS */}
         {/* SECTION HEADER */}
         <div className="flex items-center justify-between mt-5 mb-2">
           <h3 className="text-xs font-medium text-gray-500 tracking-wide uppercase">
-            Closed KOTs
+            KOTs
           </h3>
 
           <span className="text-[10px] text-gray-400">
-            Click bill icon to proceed
+            Click table no to proceed bill
           </span>
         </div>
 
@@ -379,7 +503,7 @@ export default function KOTPage() {
                   Waiter
                 </th>
                 <th className="px-3 py-2 text-center text-xs font-semibold text-gray-600 w-16">
-                  Bill
+                  Delete
                 </th>
               </tr>
             </thead>
@@ -399,30 +523,14 @@ export default function KOTPage() {
               {closedKOTs?.map((k) => (
                 <tr key={k.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-3 py-2 font-medium text-gray-700">
-                    {k.table_no}
-                  </td>
-
-                  <td className="px-3 py-2 text-gray-700">{k.kot_no}</td>
-                  <td onClick={()=>   setPrintKOTId(k.id)} className="px-3 py-2 text-center "> <button    className="
-                inline-flex items-center justify-center
-                w-8 h-8 rounded-sm
-                border border-gray-200
-                text-blue-600
-                hover:bg-blue-50 hover:border-blue-300
-                transition
-              ">🧾</button></td>
-
-                  <td className="px-3 py-2 text-gray-700">{k.waiter_name}</td>
-
-                  {/* ACTION */}
-                  <td className="px-3 py-2 text-center">
                     <button
                       title="Create / Preview Bill"
                       onClick={() => {
                         // 🔥 use this KOT id for billing navigation
                         // example:
-                        navigate(`/restaurant/kot-billing`,{ state: { kotId: k.id }})
-                       
+                        navigate(`/restaurant/kot-billing`, {
+                          state: { tableId: k.table_id },
+                        });
                       }}
                       className="
                 inline-flex items-center justify-center
@@ -433,7 +541,47 @@ export default function KOTPage() {
                 transition
               "
                     >
-                      -
+                      {k.table_no}
+                    </button>
+                  </td>
+
+                  <td className="px-3 py-2 text-gray-700">{k.kot_no}</td>
+                  <td
+                    onClick={() => setPrintKOTId(k.id)}
+                    className="px-3 py-2 text-center "
+                  >
+                    {" "}
+                    <button
+                      className="
+                inline-flex items-center justify-center
+                w-8 h-8 rounded-sm
+                border border-gray-200
+                text-blue-600
+                hover:bg-blue-50 hover:border-blue-300
+                transition
+              "
+                    >
+                      🧾
+                    </button>
+                  </td>
+
+                  <td className="px-3 py-2 text-gray-700">{k.waiter_name}</td>
+
+                  {/* ACTION */}
+                  <td className="px-3 py-2 text-center">
+                    <button
+                      title="Create / Preview Bill"
+                      onClick={() => deleteSelectedKOTs(k.id)}
+                      className="
+                inline-flex items-center justify-center
+                w-8 h-8 rounded-sm
+                border border-red-200
+                text-red-600
+                hover:bg-red-50 hover:border-red-300
+                transition
+              "
+                    >
+                      <TrashIcon className="h-3" />
                     </button>
                   </td>
                 </tr>
@@ -463,6 +611,8 @@ export default function KOTPage() {
             <input
               ref={waiterRef}
               value={waiterCode}
+              onFocus={() => setIsWaiterCodeFocused(true)}
+              onBlur={() => setIsWaiterCodeFocused(false)}
               onChange={(e) => onWaiterCodeChange(e.target.value)}
               className="border px-2 py-1 w-full rounded focus:ring"
             />
@@ -472,6 +622,8 @@ export default function KOTPage() {
             <label className="text-xs text-gray-500">Waiter Name</label>
             <input
               value={waiterName}
+              onFocus={() => setIsWaiterNameFocused(true)}
+              onBlur={() => setIsWaiterNameFocused(false)}
               onChange={(e) => onWaiterNameChange(e.target.value)}
               className="border px-2 py-1 w-full rounded"
             />
@@ -489,6 +641,8 @@ export default function KOTPage() {
                 </label>
                 <input
                   ref={dishCodeRef}
+                  onFocus={() => setIsDishCodeFocused(true)}
+                  onBlur={() => setIsDishCodeFocused(false)}
                   value={dishCode}
                   onChange={(e) => onDishCodeChange(e.target.value)}
                   className="
@@ -506,6 +660,9 @@ export default function KOTPage() {
                   Dish Name
                 </label>
                 <input
+                  ref={dishNameRef}
+                  onFocus={() => setIsDishNameFocused(true)}
+                  onBlur={() => setIsDishNameFocused(false)}
                   value={dishName}
                   onChange={(e) => onDishNameChange(e.target.value)}
                   className="
@@ -523,6 +680,7 @@ export default function KOTPage() {
                   Quantity
                 </label>
                 <input
+                  ref={qtyRef}
                   type="number"
                   value={qty}
                   onChange={(e) => setQty(Number(e.target.value))}

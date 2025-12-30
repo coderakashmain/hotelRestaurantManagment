@@ -75,6 +75,8 @@ export const previewBillFromKOTs = (data: {
     waiter_name: header?.waiter_name,
     items,
     basicAmount,
+    gst_percentage : gst?.gst_percent,
+    serviceTax_percent : serviceTax?.service_tax_percent,
     gstAmount,
     serviceTaxAmount,
   };
@@ -305,8 +307,11 @@ export const checkoutRestaurantBill = (params: {
     const gst = db.prepare(`
       SELECT gst_percent FROM restaurent_gst_management WHERE is_active = 1
     `).get() as any;
+    const percentagediscount = data.discount ?? 0;
+    const discount = basicAmount * (percentagediscount/100);
+    const finalamount = basicAmount-discount;
   
-    const gstAmount = gst ? (basicAmount * gst.gst_percent) / 100 : 0;
+    const gstAmount = gst ? (finalamount * gst.gst_percent) / 100 : 0;
   
     // 🔹 Service Tax
     const serviceTax = db.prepare(`
@@ -314,10 +319,9 @@ export const checkoutRestaurantBill = (params: {
     `).get() as any;
   
     let serviceTaxAmount = serviceTax
-      ? (basicAmount * serviceTax.service_tax_percent) / 100
+      ? (finalamount * serviceTax.service_tax_percent) / 100
       : 0;
   
-    const discount = data.discount ?? 0;
     let netAmount;
     if(data.servicetaxStatus){
       netAmount =  basicAmount + gstAmount + serviceTaxAmount - discount;
@@ -376,7 +380,9 @@ export const checkoutRestaurantBill = (params: {
   
     return db.prepare(`
       SELECT * FROM restaurant_bill WHERE id = ?
-    `).get(billId);
+    `).get(billId) ;
+
+   
   };
   
 

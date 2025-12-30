@@ -17,7 +17,6 @@ export default function Sidebar() {
   const { pathname } = useLocation();
 
   const [profileOpen, setProfileOpen] = useState(false);
-  const [fyOpen, setFyOpen] = useState(false);
   const [reportsOpen, setReportsOpen] = useState(false);
 
   /* ---------- ACTIVE GROUP DETECTION ---------- */
@@ -31,8 +30,8 @@ export default function Sidebar() {
     pathname.startsWith("/hotel/users-list") ||
     pathname.startsWith("/hotel/fy");
 
-  const isFYChildActive =
-    pathname.startsWith("/hotel/fy");
+  // const isFYChildActive =
+  //   pathname.startsWith("/hotel/fy");
 
   const isReportsChildActive =
     pathname.startsWith("/hotel/daily-reports") ||
@@ -41,7 +40,6 @@ export default function Sidebar() {
   /* ---------- AUTO OPEN WHEN CHILD ACTIVE ---------- */
   useEffect(() => {
     if (isSettingsChildActive) setProfileOpen(true);
-    if (isFYChildActive) setFyOpen(true);
     if (isReportsChildActive) setReportsOpen(true);
   }, [pathname]);
 

@@ -27,6 +27,8 @@ type BillPreview = {
     rate: number;
     total: number;
   }[];
+  gst_percentage : number;
+  serviceTax_percent : number;
   basicAmount: number;
   gstAmount: number;
   serviceTaxAmount: number;
@@ -52,7 +54,7 @@ export default function BillingPage() {
   const [servicetaxStatus, setServicetaxStatus] = useState(false);
   const [lastBillId, setLastBillId] = useState<number | null>(null);
   const location = useLocation();
-  const stateKotId = location.state?.kotId;
+  const stateTableId = location.state?.tableId;
   const tableRef = useRef<HTMLInputElement>(null);
 const waiterCodeRef = useRef<HTMLInputElement>(null);
 const waiterNameRef = useRef<HTMLInputElement>(null);
@@ -67,10 +69,10 @@ const waiterNameRef = useRef<HTMLInputElement>(null);
     () => api.kot.listClosed(),
     []
   );
-  const { data: bills, reload: billlistReload } = useAsync<Bill[]>(
-    () => api.restaurant_bill.list(),
-    []
-  );
+  // const { data: bills, reload: billlistReload } = useAsync<Bill[]>(
+  //   () => api.restaurant_bill.list(),
+  //   []
+  // );
 
   /* =========================
      BILL PREVIEW
@@ -132,18 +134,14 @@ const waiterNameRef = useRef<HTMLInputElement>(null);
     }
 
     setSelectedKOTs(filtered.map((k) => k.id));
-  }, [filterTable, filterWaiterCode, filterWaiterName, closedKOTs]);
+  }, [filterTable, filterWaiterCode, filterWaiterName, closedKOTs,stateTableId]);
   useEffect(() => {
-    if (!stateKotId || !closedKOTs) return;
+    if (!stateTableId || !closedKOTs) return;
   
-    const found = closedKOTs.find(
-      (k) => k.id === stateKotId
-    );
   
-    if (found) {
-      setSelectedKOTs([found.id]); 
-    }
-  }, [stateKotId, closedKOTs]);
+    setFilterTable(String(stateTableId));
+  
+  }, [stateTableId, closedKOTs]);
   
 
   useEffect(() => {
@@ -185,7 +183,7 @@ const waiterNameRef = useRef<HTMLInputElement>(null);
 
     setLastBillId(res.id); // backend must return bill id
     setShowBillPopup(true);
-    billlistReload();
+    // billlistReload();
     setSelectedKOTs([]);
     setDiscount(0);
     reloadKOTs();
@@ -194,25 +192,26 @@ const waiterNameRef = useRef<HTMLInputElement>(null);
   /* =========================
      TOTALS
   ========================= */
+  const [finalDiscount,setFinalDiscount] = useState<number>(0);
+  const [finalGstAmount,setFinalGstAmount] = useState<number>(0);
   const basicAmount = preview?.basicAmount || 0;
   const gstAmount = preview?.gstAmount || 0;
   const serviceTax = preview?.serviceTaxAmount || 0;
+const gst_percent = preview?.gst_percentage || 0;
+  useEffect(()=>{
+    setFinalDiscount(basicAmount * (discount/100))
+
+  },[discount]);
+  useEffect(()=>{
+    const finalAmount = basicAmount - finalDiscount;
+    setFinalGstAmount(finalAmount * (gst_percent/100))
+
+  },[gstAmount,finalDiscount])
+
 
   // const netPayable = basicAmount - discount + gstAmount + serviceTax;
 
-  const deleteSelectedKOTs = async () => {
-    if (!selectedKOTs.length) {
-      showSnackbar("Select at least one KOT", "warning");
-      return;
-    }
-
-    if (!confirm("Are you sure you want to delete selected KOTs?")) return;
-
-    await api.kot.delete({ kotIds: selectedKOTs });
-
-    setSelectedKOTs([]);
-    reloadKOTs();
-  };
+ 
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -251,10 +250,7 @@ const waiterNameRef = useRef<HTMLInputElement>(null);
       }
   
       // 🔹 CTRL + D → Delete selected KOTs
-      if (e.ctrlKey && e.key.toLowerCase() === "d") {
-        e.preventDefault();
-        deleteSelectedKOTs();
-      }
+      
   
       // 🔹 CTRL + P → Print last bill
       if (e.ctrlKey && e.key.toLowerCase() === "p") {
@@ -295,7 +291,7 @@ const waiterNameRef = useRef<HTMLInputElement>(null);
           Closed KOTs
         </h3>
 
-        <div className="bg-white rounded-sm   overflow-y-auto max-h-100">
+        <div className="bg-white rounded-sm   overflow-y-auto max-h-300">
           <div className="border border-gray-200 rounded-sm overflow-hidden relative">
             <table className="w-full text-sm border-collapse">
               <thead className="bg-gray-50 sticky top-0 z-10 shadow-[0_1px_0_0_rgba(0,0,0,0.05)] text-center">
@@ -363,7 +359,7 @@ const waiterNameRef = useRef<HTMLInputElement>(null);
         <p className="mt-2 text-[11px] text-gray-500">
           ✔ Select KOTs to merge / generate bill
         </p>
-        <div className=" mt-4 bg-white rounded-sm ">
+        {/* <div className=" mt-4 bg-white rounded-sm ">
           <h2 className="text-xs font-medium text-gray-500 tracking-wide uppercase mb-2">Bill List</h2>
 
           <div className="border border-gray-200 rounded-sm overflow-y-auto max-h-60 relative">
@@ -375,7 +371,6 @@ const waiterNameRef = useRef<HTMLInputElement>(null);
                   <th className="px-2 py-2 text-gray-600 text-xs text-left">Table</th>
                   <th className="px-2 py-2 text-gray-600 text-xs text-left">Waiter</th>
                   <th className="px-2 py-2 text-gray-600 text-xs text-right">Amount</th>
-                  {/* <th className="px-2 py-2 text-center">Status</th> */}
                   <th className="px-2 py-2 text-gray-600 text-xs text-center">Print</th>
                 </tr>
               </thead>
@@ -392,18 +387,7 @@ const waiterNameRef = useRef<HTMLInputElement>(null);
                     <td className="px-2 py-2 text-right">
                       {formatCurrency(b.net_amount)}
                     </td>
-                    {/* <td className="px-2 py-2 text-center">
-                      <span
-                        className={`px-2 py-1 rounded-sm text-xs font-medium
-                      ${
-                        b.payment_status === "PAID"
-                          ? "bg-green-100 text-green-700"
-                          : "bg-yellow-100 text-yellow-700"
-                      }`}
-                      >
-                        {b.payment_status}
-                      </span>
-                    </td> */}
+                    
                     <td className="px-2 py-2 text-center">
                       <button
                         onClick={
@@ -431,7 +415,7 @@ const waiterNameRef = useRef<HTMLInputElement>(null);
               </tbody>
             </table>
           </div>
-        </div>
+        </div> */}
       </div>
 
       {/* =========================
@@ -440,7 +424,7 @@ const waiterNameRef = useRef<HTMLInputElement>(null);
       <div className="col-span-2 bg-white rounded shadow p-4">
         <div className="flex justify-between items-center">
           <h2 className="text-xl font-semibold mb-4">KOT Billing</h2>
-          <span className="text-xs text-gray-400">⌨ Enter = Save | Esc = Close | Ctrl+D = Delete | Ctrl+P = Print
+          <span className="text-xs text-gray-400">⌨ Enter = Save | Esc = Close 
           </span>
         </div>
         <div className="grid grid-cols-4 gap-2 mb-3 text-sm bg-gray-50 border border-gray-200 rounded-sm p-3 ">
@@ -473,7 +457,7 @@ const waiterNameRef = useRef<HTMLInputElement>(null);
               value={filterTable}
               onChange={(e) => setFilterTable(e.target.value)}
               className="border px-2 py-1 w-full rounded "
-              placeholder="2"
+            
             />
           </div>
 
@@ -485,7 +469,7 @@ const waiterNameRef = useRef<HTMLInputElement>(null);
               value={filterWaiterCode}
               onChange={(e) => setFilterWaiterCode(e.target.value)}
               className="border px-2 py-1 w-full rounded "
-              placeholder="1"
+          
             />
           </div>
 
@@ -573,18 +557,23 @@ const waiterNameRef = useRef<HTMLInputElement>(null);
         <span className="text-right font-medium">
           {formatCurrency(basicAmount)}
         </span>
+          <div className="flex gap-2 items-center">
 
         <span className="text-gray-600">Discount</span>
         <input
           type="number"
           value={discount}
+
           onChange={(e) => setDiscount(Number(e.target.value))}
-          className="border px-2 py-1 rounded-sm text-right"
-        />
+          className="border px-2 py-1 rounded-sm text-right w-20"
+          />
+          %
+          </div>
+          <span className="text-right">{formatCurrency(finalDiscount)}</span>
 
         <span className="text-gray-600">GST</span>
         <span className="text-right">
-          {formatCurrency(gstAmount)}
+          {formatCurrency(finalGstAmount)}
         </span>
 
         <div className="flex items-center gap-2">
@@ -596,7 +585,7 @@ const waiterNameRef = useRef<HTMLInputElement>(null);
             }
             className="cursor-pointer"
           />
-          <span className="text-gray-600">Service Tax</span>
+          <span className="text-gray-600">Service Tax <span>({preview?.serviceTax_percent}%)</span></span>
         </div>
 
         <span className="text-right">
@@ -608,9 +597,9 @@ const waiterNameRef = useRef<HTMLInputElement>(null);
           <span>
             {servicetaxStatus
               ? formatCurrency(
-                  basicAmount - discount + gstAmount + serviceTax
+                  basicAmount - finalDiscount + finalGstAmount + serviceTax
                 )
-              : formatCurrency(basicAmount - discount + gstAmount)}
+              : formatCurrency(basicAmount - finalDiscount + finalGstAmount)}
           </span>
         </div>
       </div>
@@ -625,12 +614,7 @@ const waiterNameRef = useRef<HTMLInputElement>(null);
         Save Bill
       </button>
 
-      <button
-        onClick={deleteSelectedKOTs}
-        className="px-5 py-2 bg-gray-500 text-white rounded-sm hover:bg-gray-600 transition"
-      >
-        Delete KOTs
-      </button>
+   
 
       <button
         onClick={() => setSelectedKOTs([])}
