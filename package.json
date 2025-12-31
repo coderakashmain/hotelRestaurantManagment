@@ -61,7 +61,7 @@
       "target": [
         "nsis"
       ],
-      "icon": "public/icon.ico",
+      "icon": "assets/icon.ico",
       "signAndEditExecutable": false
     },
     "nsis": {

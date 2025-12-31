@@ -32,7 +32,8 @@
         ]
       }
     ],
-    "artifactName": "${productName}-Windows-${version}-Setup.${ext}"
+    "artifactName": "${productName}-Windows-${version}-Setup.${ext}",
+     icon: assets/icon.ico
   },
   "nsis": {
     "oneClick": false,
