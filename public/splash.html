@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <style>
+    /* Full window */
+    body {
+      margin: 0;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: transparent; /* important for rounded look */
+      font-family: system-ui;
+    }
+
+    /* Splash card */
+    .box-splash {
+      width: 360px;
+      height: 220px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: white;
+      border-radius: 5px;          /*  rounded corners */
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    }
+
+    /* Logo */
+    img {
+      width: 180px;                 /* ✅ bigger logo */
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="box-splash">
+    <img src="./RestroX.png" alt="Restrox Logo" />
+  </div>
+</body>
+</html>

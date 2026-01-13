@@ -138,11 +138,7 @@ handleIPC("checkout:setDefault", CheckOutService.setDefaultCheckOut);
 /* ================================
    GST
 ================================ */
-handleIPC("gst:list", GSTService.list);
-handleIPC("gst:create", GSTService.create);
-handleIPC("gst:update", GSTService.update);
-handleIPC("gst:delete", GSTService.delete);
-handleIPC("gst:setActive", GSTService.setActive);
+
 
 /* ================================
    POLICE REPORT
@@ -262,7 +258,7 @@ handleIPC("service-tax:update", ServiceTax.updateServiceTax);
 
 handleIPC("gst-res:add", GST.create);
 handleIPC("gst-res:list", GST.list);
-handleIPC("gst:setActive", GST.setActive);
+handleIPC("gst-res:setActive", GST.setActive);
 handleIPC("gst-res:update", GST.update);
 handleIPC("gst-res:delete", GSTService.delete);
 

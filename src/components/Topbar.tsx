@@ -54,13 +54,14 @@ const Topbar = () => {
       {/* LEFT – Drag Area + Navigation */}
       <div className="flex items-center gap-2 px-3 flex-1 drag">
 
-        {/* App Icon */}
-        <div className="w-4 h-4 rounded-sm bg-primary shadow-soft transition-all duration-200" />
+     
+        {/* <div className="w-4 h-4 rounded-sm bg-primary shadow-soft transition-all duration-200" />
 
-        {/* App Title */}
+        
         <span className="text-xs font-semibold tracking-wide text-text">
           RestroX
-        </span>
+        </span> */}
+         <img src="./RestroX.png" alt="Restrox Logo" className="w-17.5" />
 
         {/* Divider */}
         <div className="w-px h-4 bg-gray mx-2" />
@@ -91,13 +92,13 @@ const Topbar = () => {
       {users[0]?.is_active && (
         <div className="flex items-center gap-2">
 
-          <div className="flex items-center bg-gray rounded-sm p-[2px] no-drag">
+          <div className="flex items-center bg-accent rounded-sm p-[2px] no-drag">
             <button
               onClick={() => navigate("/hotel")}
               className={`px-4 h-7 text-xs rounded-sm transition-all
                 ${isHotel
                   ? "bg-bg-secondary text-black shadow-soft"
-                  : "text-text hover:bg-lightColor"}`}
+                  : "text-text  text-white hover:bg-lightColor"}`}
             >
               Hotel
             </button>
@@ -107,7 +108,7 @@ const Topbar = () => {
               className={`px-4 h-7 text-xs rounded-sm transition-all
                 ${isRestaurant
                   ? "bg-bg-secondary text-black shadow-soft"
-                  : "text-text hover:bg-lightColor"}`}
+                  : "text-text text-white hover:bg-lightColor"}`}
             >
               Restaurant
             </button>

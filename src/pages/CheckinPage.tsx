@@ -6,9 +6,6 @@ import { useFinancialYear } from "../context/FinancialYearContext";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useCheckOutRule } from "../context/CheckOutRuleContext";
 import { useSnackbar } from "../context/SnackbarContext";
-import { useKeyboardShortcuts } from "../hooks/useKeyboardShortcuts";
-
-
 
 type RoomType = {
   id: number;
@@ -26,9 +23,9 @@ export default function CheckinPage() {
   const { checkOutType, allowChange } = useCheckOutRule();
   const [guestDetails, setGuestDetails] = useState<any | null>(null);
   const [selectedGuest, setSelectedGuest] = useState<any | null>(null);
-  const [extraTime, setExtraTime] = useState<number>(0);
-  const {showSnackbar} = useSnackbar();
-  const navigate= useNavigate();
+  const [extraTime, setExtraTime] = useState<number | "">("");
+  const { showSnackbar } = useSnackbar();
+  const navigate = useNavigate();
   // load guests & rooms
   const {
     loading: loadingGuests,
@@ -69,7 +66,7 @@ export default function CheckinPage() {
   const [noOfGuests, setNoOfGuests] = useState<number>(1);
 
   const [expectedCheckout, setExpectedCheckout] = useState<string | null>(null);
-  const [advance, setAdvance] = useState<number>(0);
+  const [advance, setAdvance] = useState<number | ''>('');
   const [advanceMethod, setAdvanceMethod] = useState<string>("CASH");
   const [notes, setNotes] = useState<string>("");
 
@@ -109,7 +106,6 @@ export default function CheckinPage() {
       return;
     }
 
-  
     const now = new Date();
     let suggestedRate: number | null = null;
     let expected: Date = new Date(now);
@@ -136,25 +132,23 @@ export default function CheckinPage() {
   // create guest quick
   const createGuest = async () => {
     if (!guestForm.full_name.trim()) {
-      
-      showSnackbar("Guest name required",'warning')
+      showSnackbar("Guest name required", "warning");
       return;
     }
-    if(!guestForm.phone.trim()){
-      showSnackbar("Please enter phone number.",'warning');
+    if (!guestForm.phone.trim()) {
+      showSnackbar("Please enter phone number.", "warning");
       return;
     }
-    
+
     if (
       guestForm.phone.trim().length > 0 &&
       guestForm.phone.trim().length < 10
     ) {
-      
-      showSnackbar("Enter 10 digit phone number!",'warning')
+      showSnackbar("Enter 10 digit phone number!", "warning");
       return;
     }
-    if(!guestForm.id_proof_type || !guestForm.id_proof_number){
-      showSnackbar("Please enter ID Proof.",'warning');
+    if (!guestForm.id_proof_type || !guestForm.id_proof_number) {
+      showSnackbar("Please enter ID Proof.", "warning");
       return;
     }
     if (guestForm?.phone === guestDetails?.phone && autoFilled) {
@@ -177,7 +171,7 @@ export default function CheckinPage() {
       setSelectedGuestId(newId);
       setSelectedGuest(guestForm);
     }
-   
+
     setGuestForm({
       id: null,
       full_name: "",
@@ -191,17 +185,16 @@ export default function CheckinPage() {
     reloadGuests();
   };
 
-  
-
   // main submit - create checkin, create bill (if backend does it), add advance payment if provided
   const doCheckin = async () => {
-    if (!selectedGuestId) return     showSnackbar("Select a guest or create new.",'warning');
-    if (!selectedRoomId) return  showSnackbar("Select a room.",'warning'); 
+    if (!selectedGuestId)
+      return showSnackbar("Select a guest or create new.", "warning");
+    if (!selectedRoomId) return showSnackbar("Select a room.", "warning");
 
     const activeYear = years.find((y) => y.is_active === 1);
 
     if (!activeYear) {
-      showSnackbar("First select a Financial Year!",'warning'); 
+      showSnackbar("First select a Financial Year!", "warning");
       return;
     }
 
@@ -210,7 +203,10 @@ export default function CheckinPage() {
     const end = new Date(activeYear.end_date);
 
     if (today < start || today > end) {
-      return showSnackbar("Today is outside the Financial Year range!",'warning'); 
+      return showSnackbar(
+        "Today is outside the Financial Year range!",
+        "warning"
+      );
     }
 
     // ensure we have a rate number
@@ -224,10 +220,10 @@ export default function CheckinPage() {
       expected_check_out_time: expectedCheckout,
       stay_type: stayType.id,
       rate_applied: rateToUse,
-      hour_count : hourCount,
+      hour_count: hourCount,
       no_of_guests: noOfGuests,
       notes: notes || null,
-      extra_time : extraTime
+      extra_time: extraTime,
     };
 
     // create checkin (backend should set room occupied and create a bill if implemented)
@@ -268,7 +264,7 @@ export default function CheckinPage() {
           bill_id: billId,
           guest_id: selectedGuestId,
           payment_type: "ADVANCE",
-          amount: Number(advance),
+          amount: advance,
           method: advanceMethod,
           note: "Advance collected at check-in",
         });
@@ -285,8 +281,11 @@ export default function CheckinPage() {
           });
         } else {
           // fallback: warn user that advance couldn't be attached to bill
-          
-          showSnackbar("Advance collected but could not attach to bill automatically. You can add it manually later.",'warning'); 
+
+          showSnackbar(
+            "Advance collected but could not attach to bill automatically. You can add it manually later.",
+            "warning"
+          );
         }
       }
     }
@@ -298,16 +297,13 @@ export default function CheckinPage() {
       await api.room.update(selectedRoomId, { status: "OCCUPIED" });
     }
 
-
-    showSnackbar("Checked in successfully.",'success'); 
-    navigate("/hotel/rooms-chart")
-     setSelectedGuestId(null);
-     setSelectedGuest(null);
-     setSelectedRoomId(null)
+    showSnackbar("Checked in successfully.", "success");
+    navigate("/hotel/rooms-chart");
+    setSelectedGuestId(null);
+    setSelectedGuest(null);
+    setSelectedRoomId(null);
     reloadRooms();
     reloadGuests();
-
-   
   };
 
   // Helpers for rendered lists
@@ -338,72 +334,61 @@ export default function CheckinPage() {
     }
   };
 
-
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null;
       const tag = target?.tagName;
-  
+
       const inInput =
         tag === "INPUT" ||
         tag === "TEXTAREA" ||
         tag === "SELECT" ||
         target?.isContentEditable;
-  
+
       /* ================= ENTER ================= */
       if (e.key === "Enter") {
         e.preventDefault();
         e.stopPropagation();
-  
+
         // Guest modal → create / select guest
         if (showGuestModal) {
           createGuest();
           return;
         }
-  
+
         // Main page → check-in
         if (!inInput) {
           doCheckin();
         }
         return;
       }
-  
+
       /* ================= ESCAPE ================= */
       if (e.key === "Escape") {
         e.preventDefault();
         e.stopPropagation();
-  
+
         // 1️⃣ If input focused → just blur
         if (inInput && target) {
           target.blur();
           return;
         }
-  
+
         // 2️⃣ If guest modal open → close it
         if (showGuestModal) {
           setShowGuestModal(false);
           return;
         }
-  
+
         // 3️⃣ Else → navigate back
         navigate(-1);
       }
     };
-  
+
     // Capture phase → Electron-safe
     window.addEventListener("keydown", handler, true);
     return () => window.removeEventListener("keydown", handler, true);
-  }, [
-    showGuestModal,
-    guestForm,
-    selectedGuestId,
-    selectedRoomId,
-    customRate,
-  ]);
-  
-  
-  
-  
+  }, [showGuestModal, guestForm, selectedGuestId, selectedRoomId, customRate]);
 
   return (
     <div className="p-6">
@@ -458,7 +443,7 @@ export default function CheckinPage() {
                     ? selectedRoom?.room_hourly_rate ?? 0
                     : selectedRoom?.room_full_rate ?? 0)}{" "}
                 <br />
-              {/* {stayType?.hours === 1 && (
+                {/* {stayType?.hours === 1 && (
                 <span>Final Price : ₹{customRate}</span>
               )} <br /> */}
               </p>
@@ -492,7 +477,7 @@ export default function CheckinPage() {
             Selected rate and defaults are auto-filled but editable below.
           </div>
 
-               <label className="block text-sm mt-5 mb-1">No. of Guests</label>
+          <label className="block text-sm mt-5 mb-1">No. of Guests</label>
           <input
             type="number"
             min={1}
@@ -545,16 +530,17 @@ export default function CheckinPage() {
                 className="w-full border border-gray p-2 rounded mb-2"
                 placeholder="Hours"
               />
-
             </>
           )}
 
-     
           <label className="block text-sm mb-1">Extra Time (Minutes)</label>
           <input
             type="number"
             value={extraTime}
-            onChange={(e) => setExtraTime(Number(e.target.value))}
+            onChange={(e) => {
+              const value = e.target.value;
+              setExtraTime(value === "" ? "" : Number(value));
+            }}
             className="w-full border  p-2 rounded mb-2"
           />
 
@@ -575,7 +561,10 @@ export default function CheckinPage() {
           <input
             type="number"
             value={advance}
-            onChange={(e) => setAdvance(Number(e.target.value))}
+            onChange={(e) => {
+              const value = e.target.value;
+              setAdvance(value === "" ? "" : Number(value));
+            }}
             className="w-full border p-2 rounded"
             placeholder="0"
           />
@@ -606,8 +595,8 @@ export default function CheckinPage() {
           />
         </div>
         <p className="text-xs text-secondary">
-            ⏎ Enter = Create &nbsp; • &nbsp; Esc = Back
-          </p>
+          ⏎ Enter = Create &nbsp; • &nbsp; Esc = Back
+        </p>
       </div>
 
       <div className="mt-4 flex justify-end gap-3">
@@ -635,162 +624,165 @@ export default function CheckinPage() {
 
       {/* Add Guest Modal */}
       {showGuestModal && (
-  <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-    <div className="bg-white w-[420px] rounded-md shadow-card p-6">
-      
-      {/* Header */}
-      <div className="mb-4">
-        <h3 className="text-lg font-semibold">Add Guest</h3>
-        <p className="text-sm text-secondary">
-          Enter guest details to continue check-in
-        </p>
-      </div>
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white w-[420px] rounded-md shadow-card p-6">
+            {/* Header */}
+            <div className="mb-4">
+              <h3 className="text-lg font-semibold">Add Guest</h3>
+              <p className="text-sm text-secondary">
+                Enter guest details to continue check-in
+              </p>
+            </div>
 
-      {/* Phone */}
-      <div className="mb-3">
-        <label className="block text-xs text-secondary font-medium mb-1">
-          Phone Number <span className="text-error">*</span>
-        </label>
-        <input
-          type="number"
-          value={guestForm.phone}
-          className="w-full border rounded-sm p-2"
-          placeholder="10 digit mobile number"
-          onChange={(e) => {
-            const value = e.target.value;
-            setGuestForm({ ...guestForm, phone: value });
+            {/* Phone */}
+            <div className="mb-3">
+              <label className="block text-xs text-secondary font-medium mb-1">
+                Phone Number <span className="text-error">*</span>
+              </label>
+              <input
+                type="number"
+                value={guestForm.phone}
+                className="w-full border rounded-sm p-2"
+                placeholder="10 digit mobile number"
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setGuestForm({ ...guestForm, phone: value });
 
-            // When full number entered → fetch attempt
-            if (value.length === 10) {
-              guestByPhone(value);
-              return;
-            }
+                  // When full number entered → fetch attempt
+                  if (value.length === 10) {
+                    guestByPhone(value);
+                    return;
+                  }
 
-            // Clear auto-filled data if phone reduced
-            if (autoFilled && value.length < 10) {
-              setAutoFilled(false);
-              setGuestDetails(null);
-              setGuestForm({
-                ...guestForm,
-                id: null,
-                full_name: "",
-                email: "",
-                id_proof_type: "",
-                id_proof_number: "",
-                address: "",
-              });
-            }
-          }}
-        />
-      </div>
+                  // Clear auto-filled data if phone reduced
+                  if (autoFilled && value.length < 10) {
+                    setAutoFilled(false);
+                    setGuestDetails(null);
+                    setGuestForm({
+                      ...guestForm,
+                      id: null,
+                      full_name: "",
+                      email: "",
+                      id_proof_type: "",
+                      id_proof_number: "",
+                      address: "",
+                    });
+                  }
+                }}
+              />
+            </div>
 
-      {/* Name */}
-      <div className="mb-3">
-        <label className="block  text-xs text-secondary font-medium mb-1">
-          Full Name <span className="text-error">*</span>
-        </label>
-        <input
-        name="full_name"
-          value={guestForm.full_name}
-          onChange={(e) =>
-            setGuestForm({ ...guestForm, full_name: e.target.value })
-          }
-          className="w-full border rounded-sm p-2"
-          placeholder="Guest full name"
-        />
-      </div>
+            {/* Name */}
+            <div className="mb-3">
+              <label className="block  text-xs text-secondary font-medium mb-1">
+                Full Name <span className="text-error">*</span>
+              </label>
+              <input
+                name="full_name"
+                value={guestForm.full_name}
+                onChange={(e) =>
+                  setGuestForm({ ...guestForm, full_name: e.target.value })
+                }
+                className="w-full border rounded-sm p-2"
+                placeholder="Guest full name"
+              />
+            </div>
 
-      {/* Email */}
-      <div className="mb-3">
-        <label className="block text-xs text-secondary font-medium mb-1">
-          Email (optional)
-        </label>
-        <input
-          value={guestForm.email}
-          onChange={(e) =>
-            setGuestForm({ ...guestForm, email: e.target.value })
-          }
-          className="w-full border rounded-sm p-2"
-          placeholder="guest@email.com"
-        />
-      </div>
+            {/* Email */}
+            <div className="mb-3">
+              <label className="block text-xs text-secondary font-medium mb-1">
+                Email (optional)
+              </label>
+              <input
+                value={guestForm.email}
+                onChange={(e) =>
+                  setGuestForm({ ...guestForm, email: e.target.value })
+                }
+                className="w-full border rounded-sm p-2"
+                placeholder="guest@email.com"
+              />
+            </div>
 
-      {/* ID Proof */}
-      <div className="grid grid-cols-2 gap-3 mb-3">
-  {/* ID Proof Type */}
-  <div>
-    <label className="block text-xs text-secondary mb-1">
-      ID Proof Type
-    </label>
-    <select
-      value={guestForm.id_proof_type}
-      onChange={(e) =>
-        setGuestForm({ ...guestForm, id_proof_type: e.target.value })
-      }
-      className="w-full border border-gray rounded-sm p-2 text-sm"
-    >
-      <option value="">Select ID Proof</option>
-      <option value="AADHAAR">Aadhaar</option>
-      <option value="PAN">PAN Card</option>
-      <option value="PASSPORT">Passport</option>
-      <option value="DRIVING_LICENSE">Driving License</option>
-      <option value="VOTER_ID">Voter ID</option>
-    </select>
-  </div>
+            {/* ID Proof */}
+            <div className="grid grid-cols-2 gap-3 mb-3">
+              {/* ID Proof Type */}
+              <div>
+                <label className="block text-xs text-secondary mb-1">
+                  ID Proof Type
+                </label>
+                <select
+                  value={guestForm.id_proof_type}
+                  onChange={(e) =>
+                    setGuestForm({
+                      ...guestForm,
+                      id_proof_type: e.target.value,
+                    })
+                  }
+                  className="w-full border border-gray rounded-sm p-2 text-sm"
+                >
+                  <option value="">Select ID Proof</option>
+                  <option value="AADHAAR">Aadhaar</option>
+                  <option value="PAN">PAN Card</option>
+                  <option value="PASSPORT">Passport</option>
+                  <option value="DRIVING_LICENSE">Driving License</option>
+                  <option value="VOTER_ID">Voter ID</option>
+                </select>
+              </div>
 
-  {/* ID Proof Number */}
-  <div>
-    <label className="block text-xs text-secondary mb-1">
-      ID Proof Number
-    </label>
-    <input
-      value={guestForm.id_proof_number}
-      onChange={(e) =>
-        setGuestForm({ ...guestForm, id_proof_number: e.target.value })
-      }
-      className="w-full border rounded-sm p-2 text-sm"
-      placeholder="Enter ID number"
-    />
-  </div>
-</div>
+              {/* ID Proof Number */}
+              <div>
+                <label className="block text-xs text-secondary mb-1">
+                  ID Proof Number
+                </label>
+                <input
+                  value={guestForm.id_proof_number}
+                  onChange={(e) =>
+                    setGuestForm({
+                      ...guestForm,
+                      id_proof_number: e.target.value,
+                    })
+                  }
+                  className="w-full border rounded-sm p-2 text-sm"
+                  placeholder="Enter ID number"
+                />
+              </div>
+            </div>
 
+            {/* Address */}
+            <div className="mb-4">
+              <label className="block text-xs text-secondary font-medium mb-1">
+                Address
+              </label>
+              <textarea
+                value={guestForm.address}
+                onChange={(e) =>
+                  setGuestForm({ ...guestForm, address: e.target.value })
+                }
+                className="w-full border border-gray rounded-sm p-2"
+                rows={3}
+                placeholder="Guest address"
+              />
+            </div>
 
-      {/* Address */}
-      <div className="mb-4">
-        <label className="block text-xs text-secondary font-medium mb-1">
-          Address
-        </label>
-        <textarea
-          value={guestForm.address}
-          onChange={(e) =>
-            setGuestForm({ ...guestForm, address: e.target.value })
-          }
-          className="w-full border border-gray rounded-sm p-2"
-          rows={3}
-          placeholder="Guest address"
-        />
-      </div>
+            {/* Actions */}
+            <div className="flex justify-end gap-3 pt-3  border-t border-gray">
+              <button
+                className="px-4 py-2 border border-gray rounded-sm"
+                onClick={() => setShowGuestModal(false)}
+              >
+                Cancel
+              </button>
 
-      {/* Actions */}
-      <div className="flex justify-end gap-3 pt-3  border-t border-gray">
-        <button
-          className="px-4 py-2 border border-gray rounded-sm"
-          onClick={() => setShowGuestModal(false)}
-        >
-          Cancel
-        </button>
-
-        <button
-          className="px-5 py-2 bg-primary text-white rounded-sm"
-          onClick={createGuest}
-        >
-          Select Guest
-        </button>
-      </div>
-    </div>
-  </div>
-)}
-
+              <button
+                className="px-5 py-2 bg-primary text-white rounded-sm"
+                onClick={createGuest}
+              >
+                Select Guest
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

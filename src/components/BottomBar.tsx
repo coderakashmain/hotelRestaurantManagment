@@ -9,7 +9,7 @@ import {
     return (
       <div
         className="
-          fixed bottom-0 left-0 right-0
+         
           h-8
           bg-bg-primary
           border-t border-gray-200

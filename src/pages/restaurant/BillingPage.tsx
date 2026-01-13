@@ -533,7 +533,7 @@ const gst_percent = preview?.gst_percentage || 0;
 
         <tbody className="divide-y">
           {preview.items.map((i, idx) => (
-            <tr key={idx} className="hover:bg-gray-50">
+            <tr key={idx} className="hover:bg-gray-50 border border-gray">
               <td className="px-2 py-2">{idx + 1}</td>
               <td className="px-2 py-2">{i.dish_name}</td>
               <td className="px-2 py-2 text-right">{i.quantity}</td>

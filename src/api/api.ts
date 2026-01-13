@@ -324,7 +324,7 @@ delete: (data : {kotIds: number[]}) =>
       safeInvoke("gst-res:list"),
 
     setActive: (id: number) =>
-      safeInvoke("gst:setActive", id),
+      safeInvoke("gst-res:setActive", id),
 
     update: (data  : any) =>
       safeInvoke("gst-res:update", data),

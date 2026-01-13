@@ -19,29 +19,34 @@ const RoomTypePage = () => {
   const [editRow, setEditRow] = useState<RoomType | null>(null);
   const [pendingDelete, setPendingDelete] = useState<number | null>(null);
 
-  const [newType, setNewType] = useState({
-    type_name: "",
-    full_rate: 0,
-    hourly_rate: 0,
-  });
+ const [newType, setNewType] = useState<{
+  type_name: string;
+  full_rate: number | "";
+  hourly_rate: number | "";
+}>({
+  type_name: "",
+  full_rate: "",
+  hourly_rate: "",
+});
+
 
   /* ================= KEYBOARD SHORTCUTS ================= */
-  useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        setEditRow(null);
-        setPendingDelete(null);
-      }
+  // useEffect(() => {
+  //   const handleKey = (e: KeyboardEvent) => {
+  //     if (e.key === "Escape") {
+  //       setEditRow(null);
+  //       setPendingDelete(null);
+  //     }
 
-      if (e.key === "Enter") {
-        if (editRow) update();
-        if (pendingDelete) confirmDelete();
-      }
-    };
+  //     if (e.key === "Enter") {
+  //       if (editRow) update();
+  //       if (pendingDelete) confirmDelete();
+  //     }
+  //   };
 
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
-  }, [editRow, pendingDelete]);
+  //   window.addEventListener("keydown", handleKey);
+  //   return () => window.removeEventListener("keydown", handleKey);
+  // }, [editRow, pendingDelete]);
 
   /* ================= ACTIONS ================= */
 
@@ -52,7 +57,7 @@ const RoomTypePage = () => {
     }
 
     await api.roomType.create(newType);
-    setNewType({ type_name: "", full_rate: 0, hourly_rate: 0 });
+    setNewType({ type_name: "", full_rate: "", hourly_rate: "" });
     refreshRoomTypes();
     showSnackbar("Room type created", "success");
   };
@@ -67,10 +72,10 @@ const RoomTypePage = () => {
 
   const askDelete = (id: number) => {
     setPendingDelete(id);
-    showSnackbar("Press ENTER to delete, ESC to cancel", "warning");
+    confirmDelete(id);
   };
 
-  const confirmDelete = async () => {
+  const confirmDelete = async (pendingDelete:number) => {
     if (!pendingDelete) return;
     await api.roomType.delete(pendingDelete);
     setPendingDelete(null);
@@ -87,9 +92,6 @@ const RoomTypePage = () => {
     );
   };
 
-  if (loading) {
-    return <div className="p-6 text-sm text-secondary">Loading room types…</div>;
-  }
 
   /* ================= UI ================= */
 
@@ -97,6 +99,11 @@ const RoomTypePage = () => {
       Enter :create,
       
     },[newType]);
+
+    if (loading) {
+      return <div className="p-6 text-sm text-secondary">Loading room types…</div>;
+    }
+  
   return (
     <div className="p-8 space-y-6">
 

@@ -34,13 +34,13 @@ export default function RestaurantSidebar() {
      ${
        pathname === path
          ? "bg-primary text-white"
-         : "text-secondary hover:bg-lightColor"
+         : "text-secondary hover-bg-lightColor"
      }`;
 
   const parentButton = (active: boolean) =>
     `w-full flex flex-col items-center gap-1 px-2 py-3 rounded-sm
      transition-all duration-200
-     text-secondary hover:bg-lightColor
+     text-secondary hover-bg-lightColor
      ${active ? "border-l-2 border-primary bg-lightColor" : ""}`;
 
   const label = "text-[10px] font-medium tracking-wide whitespace-nowrap";

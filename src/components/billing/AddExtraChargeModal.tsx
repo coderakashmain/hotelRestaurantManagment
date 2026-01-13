@@ -15,7 +15,7 @@ export default function AddExtraChargeModal({
 
   const [billTypeId, setBillTypeId] = useState<number | null>(null);
   const [description, setDescription] = useState("");
-  const [amount, setAmount] = useState<number>(0);
+  const [amount, setAmount] = useState<number | ''>('');
 
   const total = amount;
 
@@ -36,7 +36,7 @@ export default function AddExtraChargeModal({
       return;
     }
 
-    if (amount <= 0) {
+    if (amount === "" || Number(amount) <= 0) {
       showSnackbar("Amount must be greater than 0", "warning");
       return;
     }
@@ -68,7 +68,10 @@ export default function AddExtraChargeModal({
             <select
               className="w-full mt-1 px-3 py-2 rounded-sm border border-gray focus:border-primary transition"
               value={billTypeId ?? ""}
-              onChange={(e) => setBillTypeId(Number(e.target.value))}
+              onChange={(e) => {
+                const value = e.target.value;
+                setBillTypeId(value === "" ? null : Number(e.target.value));
+              }}
             >
               <option value="">Select charge</option>
               {billTypes?.map((t: any) => (

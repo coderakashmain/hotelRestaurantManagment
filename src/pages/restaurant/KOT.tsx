@@ -311,7 +311,7 @@ export default function KOTPage() {
 
   /* ================= UI ================= */
   return (
-    <div className="grid grid-cols-3 gap-4 p-4 h-full">
+    <div className="grid grid-cols-3 gap-4 p-4 pb-0  h-full">
       {/* ================= LEFT PANEL ================= */}
       <div className="bg-white rounded shadow p-3 overflow-y-auto scrollbar-none">
         <h3 className="text-sm mb-2 text-gray-400">Tables</h3>
@@ -486,7 +486,7 @@ export default function KOTPage() {
         </div>
 
         {/* TABLE WRAPPER */}
-        <div className="border border-gray-200 rounded-sm overflow-hidden bg-white max-h-50 overflow-y-auto shadow-sm">
+        <div className="border border-gray-200 rounded-sm overflow-hidden bg-white max-h-70 overflow-y-auto shadow-sm">
           <table className="w-full text-sm">
             <thead className="bg-gray-50 sticky top-0 z-10 shadow-[0_1px_0_0_rgba(0,0,0,0.05)]">
               <tr>

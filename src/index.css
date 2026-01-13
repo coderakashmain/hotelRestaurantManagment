@@ -5,7 +5,7 @@
    ============================ */
 @font-face {
   font-family: "Inter";
-  src: url("../public/assets/fonts/Inter-Regular.ttf") format("truetype");
+  src: url("/assets/fonts/Inter-Regular.ttf") format("truetype");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -13,7 +13,7 @@
 
 @font-face {
   font-family: "Inter";
-  src: url("../public/assets/fonts/Inter-Medium.ttf") format("truetype");
+  src: url("/assets/fonts/Inter-Medium.ttf") format("truetype");
   font-weight: 500;
   font-style: normal;
   font-display: swap;
@@ -21,7 +21,7 @@
 
 @font-face {
   font-family: "Inter";
-  src: url("../public/assets/fonts/Inter-SemiBold.ttf") format("truetype");
+  src: url("/assets/fonts/Inter-SemiBold.ttf") format("truetype");
   font-weight: 600;
   font-style: normal;
   font-display: swap;
@@ -29,7 +29,7 @@
 
 @font-face {
   font-family: "Inter";
-  src: url("../public/assets/fonts/Inter-Bold.ttf") format("truetype");
+  src: url("/assets/fonts/Inter-Bold.ttf") format("truetype");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
@@ -245,6 +245,9 @@
   }
   .bg-success {
     background-color: var(--color-success);
+  }
+  .bg-accent {
+    background-color: var( --color-accent);
   }
   .bg-warning {
     background-color: var(--color-warning);
@@ -482,6 +485,43 @@
 
   .scrollbar-hover {
     scrollbar-width: thin;
+  }
+
+  @keyframes skeleton-shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+
+  .skeleton {
+    position: relative;
+    overflow: hidden;
+    background-color: var(--color-lightColor);
+  }
+
+  .skeleton::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.6),
+      transparent
+    );
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.4s ease-in-out infinite;
+  }
+
+  .skeleton-rounded {
+    border-radius: var(--radius-md);
+  }
+
+  .skeleton-circle {
+    border-radius: 9999px;
   }
 
   /* Scrollbar */

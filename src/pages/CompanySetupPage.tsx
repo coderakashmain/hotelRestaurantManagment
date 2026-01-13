@@ -146,7 +146,7 @@ export default function CompanySetupPage() {
             label="Bank Account Name"
             value={form.bankName}
             onChange={(v) => setForm({ ...form, bankName: v })}
-            placeholder="Hotel XYZ Pvt Ltd"
+            placeholder="Canara Bank"
           />
 
           <Field

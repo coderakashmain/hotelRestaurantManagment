@@ -1,7 +1,7 @@
 import ReactDOM from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
-import { HashRouter } from "react-router";
+import { HashRouter } from "react-router-dom";
 import { FinancialYearProvider } from "./context/FinancialYearContext.tsx";
 import { UserProvider } from "./context/UserContext.tsx";
 import { CompanyProvider } from "./context/CompanyInfoContext.tsx";

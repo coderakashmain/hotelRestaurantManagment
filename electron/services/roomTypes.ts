@@ -9,13 +9,24 @@ export const getRoomTypes = (_payload?: any): RoomType[] => {
 
 export const createRoomType = (data: {
   type_name: string;
-  full_rate: number;
-  hourly_rate?: number;
+  full_rate: number | "";
+  hourly_rate?: number | "";
 }) => {
+const full_rate =
+  data.full_rate === "" || data.full_rate == null
+    ? 0
+    : Number(data.full_rate);
+
+const hourly_rate =
+  data.hourly_rate === "" || data.hourly_rate == null
+    ? 0
+    : Number(data.hourly_rate);
+
+ 
   return db.prepare(`
     INSERT INTO room_type (type_name, full_rate, hourly_rate)
     VALUES (?, ?, ?)
-  `).run(data.type_name, data.full_rate, data.hourly_rate ?? 0);
+  `).run(data.type_name, full_rate, hourly_rate);
 };
 
 /* ============================

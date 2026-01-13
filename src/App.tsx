@@ -24,8 +24,10 @@ const RestaurantTablePage = lazy(
 );
 const EmployeePage = lazy(() => import("./pages/restaurant/EmployeePage"));
 const BillingPage = lazy(() => import("./pages/restaurant/BillingPage"));
-const GstPageRestaurant = lazy(() => import("./pages/restaurant/GstPageRestaurant"));
 
+const GstPageRestaurant = lazy(
+  () => import("./pages/restaurant/GstPageRestaurant")
+);
 
 import IndexRouter from "./Router/IndexRouter";
 import OuterRouter from "./Router/OuterRouter";
@@ -39,11 +41,13 @@ import PoliceReport from "./pages/Reports/PoliceReport";
 import DailyCollection from "./pages/Reports/DailyCollection";
 import SwitchRouter from "./Router/SwitchRouter";
 import RestaurantIndexRouter from "./Router/RestaurantIndexRouter";
+import DashboardSkeleton from "./components/Skeleton/Skeleton";
 
 function App() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<DashboardSkeleton/>}>
       <Routes>
+        
         <Route path="/" element={<SwitchRouter />}>
           <Route index element={<Navigate to="hotel" replace />} />
           <Route path="hotel" element={<OuterRouter />}>
@@ -89,14 +93,16 @@ function App() {
             <Route path="dish-master" element={<DishPage />} />
             <Route path="table-master" element={<RestaurantTablePage />} />
             <Route path="employee-master" element={<EmployeePage />} />
-            <Route path="gst-master-restaurent" element={<GstPageRestaurant />} />
+            <Route
+              path="gst-master-restaurent"
+              element={<GstPageRestaurant />}
+            />
             <Route path="kot" element={<KOT />} />
             <Route path="kot-billing" element={<BillingPage />} />
           </Route>
           <Route path="setup/user-create" element={<UserCreatePage />} />
-        <Route path="company-setup" element={<CompanySetupPage />} />
+          <Route path="company-setup" element={<CompanySetupPage />} />
         </Route>
-        
       </Routes>
     </Suspense>
   );

@@ -245,12 +245,13 @@ export const getBillById = (payload: number | { id: number }): BillDetails | und
 
 export const updateDiscount = (data: {
   bill_id: number;
-  value: number;
+  value: number | '';
   type: "FLAT" | "PERCENT";
 }) => {
 
   const { bill_id, value, type } = data;
 
+  const finalvalue = value === "" || value === null ? 0 : Number(value);
   const bill = db.prepare(`
     SELECT room_charge_total, extra_charge_total, final_amount
     FROM bill WHERE id = ?
@@ -266,11 +267,11 @@ export const updateDiscount = (data: {
   let discountAmount = 0;
 
   if (type === "PERCENT") {
-    discountAmount = (total_amount * value) / 100;
+    discountAmount = (total_amount * finalvalue) / 100;
   }
 
   if (type === "FLAT") {
-    discountAmount = value;
+    discountAmount = finalvalue;
   }
 
   db.prepare(`
@@ -313,7 +314,7 @@ export const addExtraCharge = async (data: {
   bill_id: number;
   bill_type_id: number;
   description: string;
-  amount: number;
+  amount: number | '';
   quantity?: number;
   added_by?: number;
 }): Promise<Bill> => {
@@ -327,6 +328,8 @@ export const addExtraCharge = async (data: {
     added_by
   } = data;
 
+  const finalAmount = amount === "" || amount === null ? 0 : Number(amount);
+
   const trx = db.transaction(() => {
     db.prepare(`
       INSERT INTO extra_bill
@@ -336,9 +339,9 @@ export const addExtraCharge = async (data: {
       bill_id,
       bill_type_id,
       description || null,
-      amount,
+      finalAmount,
       quantity,
-      amount * quantity,
+      finalAmount * quantity,
       added_by ?? null
     );
 
@@ -356,7 +359,7 @@ export const addExtraCharge = async (data: {
     `).run(
       bill_id,
       today,
-      amount * quantity,
+      finalAmount * quantity,
       checkIn.rate_applied
     );
 
@@ -428,7 +431,7 @@ export const addPayment = async (data: {
   bill_id: number;
   guest_id: number;
   payment_type: "ADVANCE" | "FINAL" | "REFUND";
-  amount: number;
+  amount: number | '';
   method?: string;
   reference_no?: string;
   note?: string;
@@ -443,12 +446,10 @@ export const addPayment = async (data: {
     reference_no,
     note
   } = data;
+const finalAmount = amount === "" ? 0 : Number(amount);
 
 
-
-  if (amount <= 0) throw new Error("Amount must be > 0");
-
-
+  if (finalAmount <= 0) throw new Error("Amount must be > 0");
   const trx = db.transaction(() => {
     
   const users = db.prepare(`SELECT id from user_account WHERE  is_active = 1`).all() as  any;
@@ -475,7 +476,7 @@ export const addPayment = async (data: {
       bill_id,
       guest_id,
       payment_type,
-      amount,
+      finalAmount,
       method,
       reference_no ?? null,
       note ?? null
@@ -489,7 +490,7 @@ export const addPayment = async (data: {
       bill_id,
       checkIn.checkin_id,
       guest_id,
-      amount,
+      finalAmount,
       method,
       reference_no ?? null,
       payment_type
@@ -509,9 +510,9 @@ export const addPayment = async (data: {
       source_id: mrId,
       reference_no: mr.mr_no,
       room_id: checkIn.room_id,
-      base_amount: payment_type === "ADVANCE" ? amount : 0,
+      base_amount: payment_type === "ADVANCE" ? finalAmount : 0,
       tax_amount: 0,
-      payment_amount: amount,
+      payment_amount: finalAmount,
       direction: payment_type === "REFUND" ? "DR" : "CR",
       payment_mode: normalizePaymentMode(method),
       particulars: note || `Payment ${payment_type}`,
@@ -525,7 +526,7 @@ export const addPayment = async (data: {
     `).run(
       bill_id,
       today,
-      amount,
+      finalAmount,
       checkIn.rate_applied
     );
 
@@ -581,7 +582,7 @@ export const calculateStayCharge = async (checkIn: any, room: any, stayRule: any
     const totalCharge = bundles * appliedRate;
 
 
-    await updateSummaryTable(checkIn.id, totalCharge)
+    await updateSummaryTable(checkIn.id, totalCharge,appliedRate)
 
     return totalCharge;
   }
@@ -599,7 +600,7 @@ export const calculateStayCharge = async (checkIn: any, room: any, stayRule: any
 
 
     if (stayMinutes <= 0) {
-      await updateSummaryTable(checkIn.id, rate)
+      await updateSummaryTable(checkIn.id, rate,appliedRate)
       return baseRate;
     }
 
@@ -611,35 +612,31 @@ export const calculateStayCharge = async (checkIn: any, room: any, stayRule: any
     if (stayMinutes <= firstBlockLimit) {
 
       if (isSameDay) {
-        await updateSummaryTable(checkIn.id, appliedRate);
+        await updateSummaryTable(checkIn.id, appliedRate,appliedRate);
+       
       } else {
-        await updateSummaryTable(checkIn.id, 0);
+        await updateSummaryTable(checkIn.id, 0,appliedRate);
       }
       return baseRate;
     }
-    const blocksPassed = Math.floor(stayMinutes / baseBlockMinutes);
-
-    const todayBlockStart = new Date(checkInTime);
-    todayBlockStart.setMinutes(
-      todayBlockStart.getMinutes() + blocksPassed * baseBlockMinutes
-    );
-
-    const todayBlockEnd = new Date(todayBlockStart);
-    todayBlockEnd.setMinutes(
-      todayBlockEnd.getMinutes() + baseBlockMinutes + extraMinutes
-    );
-    const chargeStartTime = new Date(todayBlockStart);
-    chargeStartTime.setMinutes(
-      chargeStartTime.getMinutes() + extraMinutes
-    );
-
-    if (actualOut < chargeStartTime) {
-      // before block start + grace
-      await updateSummaryTable(checkIn.id, 0);
+    const summaryDay = new Date(actualOut);
+    summaryDay.setHours(0, 0, 0, 0);
+    
+    // cutoff time = 12 PM
+    const cutoffTime = new Date(summaryDay);
+    cutoffTime.setHours(12, 0, 0, 0);
+    
+    if (actualOut.getTime() >= cutoffTime.getTime()) {
+      // crossed 12 PM of today → CHARGE today
+      await updateSummaryTable(checkIn.id, appliedRate, appliedRate);
     } else {
-      // crossed today's block
-      await updateSummaryTable(checkIn.id, appliedRate);
+      // before cutoff → no charge
+      await updateSummaryTable(checkIn.id, 0, appliedRate);
     }
+
+  
+
+
 
     // 4️ Beyond first block: only pure baseBlockMinutes are charged
     const remainingMinutes = stayMinutes - firstBlockLimit;
@@ -649,6 +646,7 @@ export const calculateStayCharge = async (checkIn: any, room: any, stayRule: any
     return totalBlocks * baseRate;
   }
 
+  
 
   if (!hours && fixedTime) {
 
@@ -667,13 +665,13 @@ export const calculateStayCharge = async (checkIn: any, room: any, stayRule: any
     // 1️ Left before or on time
     if (stayMinutes <= 0) {
 
-      updateSummaryTable(checkIn.id, appliedRate);
+      updateSummaryTable(checkIn.id, appliedRate,appliedRate);
       return appliedRate;
     }
 
     // 2️ Grace period
     if (stayMinutes <= allowedExtraMinutes) {
-      updateSummaryTable(checkIn.id, 0);
+      updateSummaryTable(checkIn.id, 0,appliedRate);
       return appliedRate;
     }
 
@@ -681,7 +679,7 @@ export const calculateStayCharge = async (checkIn: any, room: any, stayRule: any
     const extraDays =
       Math.ceil((stayMinutes - allowedExtraMinutes) / (24 * 60));
 
-    updateSummaryTable(checkIn.id, appliedRate);
+    updateSummaryTable(checkIn.id, appliedRate,appliedRate);
 
 
     const finalrate = appliedRate * (1 + extraDays);
@@ -690,19 +688,103 @@ export const calculateStayCharge = async (checkIn: any, room: any, stayRule: any
     return finalrate;
   }
 
-  await updateSummaryTable(checkIn.id, appliedRate);
+  await updateSummaryTable(checkIn.id, appliedRate,appliedRate);
   return appliedRate;
 }
 
 
-export const updateSummaryTable = async (checkin_id: number, appliedRate: number) => {
+// export const updateSummaryTable = async (checkin_id: number, appliedRate: number,baseRate : number) => {
 
 
 
-  const bill = db.prepare("SELECT id FROM bill WHERE check_in_id = ?").get(checkin_id) as { id: number };
-  // const todayData = new Date().toISOString().slice(0, 10);
+//   const bill = db.prepare("SELECT id FROM bill WHERE check_in_id = ?").get(checkin_id) as { id: number };
+//   // const todayData = new Date().toISOString().slice(0, 10);
+//   const date = new Date().toLocaleDateString("en-CA");
+
+
+//   const summary_data = db.prepare(`select id from daily_summary where bill_id = ? and summary_date = ?`).get(bill.id, date) as any;
+
+//   if (!summary_data) {
+//     db.prepare(`
+//       INSERT INTO daily_summary (bill_id, summary_date, room_charge)
+//       VALUES (?, ?, ?)
+//     `).run(bill.id, date, appliedRate);
+//   } else {
+
+//     db.prepare(`
+//       UPDATE daily_summary set room_charge = ? WHERE id = ?;
+//       `).run(appliedRate, summary_data.id)
+//   }
+
+// }
+
+export const updateSummaryTable = async (
+  checkin_id: number,
+  appliedRate: number,
+  baseRate: number
+) => {
+
+  const bill = db
+    .prepare("SELECT id FROM bill WHERE check_in_id = ?")
+    .get(checkin_id) as { id: number };
+
+  if (!bill) return;
+
+  const today = new Date().toLocaleDateString("en-CA");
+
+  // 1️Get latest summary date for this bill
+  const lastEntry = db.prepare(`
+    SELECT summary_date
+    FROM daily_summary
+    WHERE bill_id = ?
+    ORDER BY summary_date DESC
+    LIMIT 1
+  `).get(bill.id) as any;
+
+  // 2️ If no previous data → first entry
+  if (!lastEntry) {
+    db.prepare(`
+      INSERT INTO daily_summary (bill_id, summary_date, room_charge)
+      VALUES (?, ?, ?)
+    `).run(bill.id, today, appliedRate) as any;
+
+    return;
+  }
+
+  // 3️ Generate missing dates
+  const datesToInsert: { date: string; rate: number }[] = [];
+
+  let current = new Date(lastEntry.summary_date);
+  current.setDate(current.getDate() + 1);
+
+  const end = new Date(today);
+
+  while (current <= end) {
+    const dateStr = current.toLocaleDateString("en-CA");
+
+    datesToInsert.push({
+      date: dateStr,
+      rate: dateStr === today ? appliedRate : baseRate,
+    });
+
+    current.setDate(current.getDate() + 1);
+  }
+
+  // 4️ Insert missing rows safely (transaction)
+  const insert = db.prepare(`
+    INSERT INTO daily_summary (bill_id, summary_date, room_charge)
+    VALUES (?, ?, ?)
+  `);
+
+  const tx = db.transaction(() => {
+    for (const d of datesToInsert) {
+      insert.run(bill.id, d.date, d.rate);
+    }
+  });
+
+  tx();
+
   const date = new Date().toLocaleDateString("en-CA");
-
 
   const summary_data = db.prepare(`select id from daily_summary where bill_id = ? and summary_date = ?`).get(bill.id, date) as any;
 
@@ -712,13 +794,13 @@ export const updateSummaryTable = async (checkin_id: number, appliedRate: number
       VALUES (?, ?, ?)
     `).run(bill.id, date, appliedRate);
   } else {
-
+   
     db.prepare(`
       UPDATE daily_summary set room_charge = ? WHERE id = ?;
       `).run(appliedRate, summary_data.id)
   }
+};
 
-}
 
 
 export const recalcBillTotals = async (billId: number): Promise<Bill> => {

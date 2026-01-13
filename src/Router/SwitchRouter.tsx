@@ -4,9 +4,12 @@ import BottomBar from "../components/BottomBar";
 
 const SwitchRouter = () => {
   return (
-    <section className="h-screen overflow-hidden">
+    <section className="h-screen flex flex-col overflow-hidden">
       <Topbar />
-      <Outlet />
+      <section className="h-full overflow-auto flex-1">
+
+      <Outlet /> 
+      </section>
       <BottomBar/>
     </section>
   );

@@ -19,7 +19,7 @@ import {
 } from "@heroicons/react/24/outline";
 
 export default function ShowBillModal({ billId, onClose }: any) {
-  const [discountValue, setDiscountValue] = useState(0);
+  const [discountValue, setDiscountValue] = useState<number | ''>('');
   const [discountType, setDiscountType] =
     useState<"FLAT" | "PERCENT">("FLAT");
 
@@ -28,11 +28,14 @@ export default function ShowBillModal({ billId, onClose }: any) {
   const navigate = useNavigate();
   const { company } = useCompany();
 
+
   const {
     loading,
     data: bill,
     reload,
   } = useAsync(() => api.bill.get(billId), [billId]);
+
+
 
   useEffect(() => {
     if (bill) setInvoiceData(bill);
@@ -60,7 +63,7 @@ export default function ShowBillModal({ billId, onClose }: any) {
   }
 
   const applyDiscount = async () => {
-    if (discountValue <= 0) {
+    if (Number(discountValue) <= 0 || discountValue === '') {
       showSnackbar("Enter valid discount value", "warning");
       return;
     }
@@ -198,7 +201,7 @@ export default function ShowBillModal({ billId, onClose }: any) {
               className="border border-gray rounded-sm px-2 py-1 text-sm w-24"
               value={discountValue}
               onChange={(e) =>
-                setDiscountValue(Number(e.target.value))
+                setDiscountValue(e.target.value === "" ? "" : Number(e.target.value))
               }
             />
 

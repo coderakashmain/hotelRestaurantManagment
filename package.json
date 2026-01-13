@@ -1,5 +1,6 @@
 {
-  "name": "hotelrestaurants",
+  "name": "restrox",
+  "productName": "Restrox",
   "private": true,
   "version": "1.0.0",
   "type": "module",
@@ -11,22 +12,27 @@
     "dist": "electron-builder",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "rebuild": "electron-rebuild -f -w better-sqlite3"
+    "rebuild": "electron-rebuild -f -w better-sqlite3",
+    "postinstall": "electron-builder install-app-deps"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
     "@tailwindcss/vite": "^4.1.17",
     "auto-launch": "^5.0.6",
+    "axios": "^1.13.2",
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.3",
     "better-sqlite3": "^12.5.0",
+    "dotenv": "^17.2.3",
     "electron-log": "^5.4.3",
     "lucide-react": "^0.554.0",
     "node-cron": "^4.2.1",
+    "node-machine-id": "^1.1.12",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router": "^7.9.6",
     "react-router-dom": "^7.9.6",
+    "recharts": "^3.6.0",
     "tailwindcss": "^4.1.17"
   },
   "devDependencies": {
@@ -50,23 +56,41 @@
   "build": {
     "appId": "com.hotel.restaurant",
     "productName": "Restrox",
+    "asar": true,
     "directories": {
       "output": "release"
     },
     "files": [
       "dist/**/*",
-      "dist-electron/**/*"
+      "dist-electron/**/*",
+      "assets/**/*"
+    ],
+    "extraResources": [
+       {
+    "from": "public/assets/public.pem",
+    "to": "public.pem"
+  },
+      {
+        "from": "public/assets/icon.ico",
+        "to": "icon.ico"
+      },
+      {
+        "from": "public/dish_seed.json",
+        "to": "dish_seed.json"
+      }
     ],
     "win": {
-      "target": [
-        "nsis"
-      ],
-      "icon": "assets/icon.ico",
-      "signAndEditExecutable": false
+      "target": "nsis",
+      "publisherName": "Sobeit Private Limited",
+      "icon": "public/assets/icon.ico",
+      "signAndEditExecutable": false,
+      "forceCodeSigning": false
     },
     "nsis": {
       "oneClick": false,
-      "allowToChangeInstallationDirectory": true
+      "allowToChangeInstallationDirectory": true,
+      "deleteAppDataOnUninstall": true,
+      "include": "installer.nsh"
     }
   }
 }

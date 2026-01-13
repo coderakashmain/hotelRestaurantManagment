@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Activate Restrox</title>
+    <style>
+      body {
+        margin: 0;
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: transparent;
+        font-family: system-ui, -apple-system;
+      }
+
+      .box-splash {
+        width: 380px;
+        padding: 24px 26px 22px;
+        background: #fbfbfb;
+        border-radius: 6px;
+        border: 1px solid #e5e7eb;
+        text-align: center;
+      }
+
+      .title {
+        font-size: 20px;
+        font-weight: 600;
+        margin-bottom: 6px;
+      }
+
+      .subtitle {
+        font-size: 13px;
+        color: #666;
+        margin-bottom: 18px;
+      }
+
+      input {
+        min-width: 354px;
+        padding: 11px 12px;
+        font-size: 14px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        outline: none;
+        margin-bottom: 14px;
+      }
+
+      input:focus {
+        border-color: #2563eb;
+      }
+
+      .btn-primary {
+        width: 100%;
+        padding: 11px;
+        background: #2563eb;
+        color: #fff;
+        font-size: 14px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 500;
+      }
+
+      .btn-primary:hover {
+        background: #1e4ed8;
+      }
+
+      .btn-buy {
+        width: 100%;
+        padding: 11px;
+        background: #16a34a; /* green */
+        color: #fff;
+        font-size: 14px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 500;
+        margin-top: 10px;
+      }
+
+      .btn-buy:hover {
+        background: #15803d;
+      }
+
+      .btn-secondary {
+        width: 100%;
+        padding: 10px;
+        background: transparent;
+        color: #555;
+        font-size: 13px;
+        border: none;
+        cursor: pointer;
+        margin-top: 8px;
+      }
+
+      .error {
+        font-size: 12px;
+        color: #dc2626;
+        margin-top: 4px;
+        margin-bottom: 4px;
+        display: none;
+      }
+
+      .footer {
+        margin-top: 14px;
+        font-size: 12px;
+        color: #888;
+      }
+      .verifying {
+        opacity: 0.5;
+        pointer-events: none;
+        transition: opacity 0.2s ease;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="box-splash" id="container">
+      <div class="title">Activate Restrox</div>
+      <div class="subtitle">Enter your activation code or buy a license</div>
+
+      <div id="error" class="error"></div>
+      <input
+        type="text"
+        id="activationCode"
+        placeholder="XXXX-XXXX-XXXX"
+        autocomplete="off"
+      />
+
+      <!-- Activate existing license -->
+      <button class="btn-primary" id="activateBtn" onclick="activate()">
+        Activate License
+      </button>
+
+      <!-- Buy new license -->
+      <button class="btn-buy" onclick="buyLicense()">Buy License</button>
+
+      <button class="btn-secondary" onclick="window.api.close()">
+        Exit Application
+      </button>
+
+
+      <div class="footer">Secure payment • Instant activation</div>
+    </div>
+
+    <script>
+      function activate() {
+        const code = document.getElementById("activationCode").value.trim();
+        if (!code) {
+          showError("Please enter activation code");
+          return;
+        }
+         showError("");
+
+        const container = document.getElementById("container");
+        const btn = document.getElementById("activateBtn");
+
+        // UI → verifying state
+        container.classList.add("verifying");
+        btn.innerText = "Verifying license...";
+        btn.disabled = true;
+
+        window.api
+          .activateLicense(code)
+          .then((result) => {
+            if (result.success) {
+              window.api.activationSuccess();
+            } else {
+              restoreUI();
+              showError(result.message);
+            }
+          })
+          .catch(() => {
+            restoreUI();
+            showError("Activation failed");
+          });
+      }
+
+      function restoreUI() {
+        const container = document.getElementById("container");
+        const btn = document.getElementById("activateBtn");
+
+        container.classList.remove("verifying");
+        btn.innerText = "Activate License";
+        btn.disabled = false;
+      }
+
+      function buyLicense() {
+        // Open payment page / Razorpay / Stripe / website
+        window.api.buyLicense();
+      }
+
+      function exitApp() {
+        window.api.close();
+      }
+
+      function showError(msg) {
+        const el = document.getElementById("error");
+        el.innerText = msg;
+        el.style.display = "block";
+      }
+    </script>
+  </body>
+</html>

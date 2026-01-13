@@ -236,7 +236,7 @@ SELECT gst_percent, cgst_percent, sgst_percent, is_active FROM (
 )
 WHERE NOT EXISTS (SELECT 1 FROM restaurent_gst_management);
 
-CREATE TRIGGER IF NOT EXISTS trg_gst_unique_active
+CREATE TRIGGER IF NOT EXISTS trg_res_gst_unique_active
 BEFORE UPDATE ON restaurent_gst_management
 WHEN NEW.is_active = 1
 BEGIN

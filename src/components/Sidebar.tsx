@@ -164,7 +164,7 @@ export default function Sidebar() {
 
       {reportsOpen && (
         <div
-          className={`w-full flex flex-col gap-1 pl-1 pb-10
+          className={`w-full flex flex-col gap-1 pl-1
             ${isReportsChildActive ? "border-l-2 border-primary" : ""}
           `}
         >

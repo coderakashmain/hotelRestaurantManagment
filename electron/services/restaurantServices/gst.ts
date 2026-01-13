@@ -49,6 +49,7 @@ export const GST = {
   },
 
   setActive(payload: number | { id: number }) {
+    console.log("running")
     const id = typeof payload === "number" ? payload : payload.id;
     return db.prepare(`
       UPDATE restaurent_gst_management SET is_active = 1 WHERE id = ?

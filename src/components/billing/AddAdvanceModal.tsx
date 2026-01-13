@@ -13,7 +13,7 @@ export default function AddAdvanceModal({
   guestId: number;
   onClose: () => void;
 }) {
-  const [amount, setAmount] = useState(0);
+  const [amount, setAmount] = useState<number | ''>('');
   const [method, setMethod] = useState("CASH");
   const [reference, setReference] = useState("");
 
@@ -33,7 +33,7 @@ export default function AddAdvanceModal({
 
   /* ================= SAVE ================= */
   const save = async () => {
-    if (amount <= 0) {
+    if (Number(amount) <= 0 || amount === "") {
       showSnackbar("Amount must be greater than 0", "warning");
       return;
     }
@@ -79,7 +79,7 @@ export default function AddAdvanceModal({
               className="w-full mt-1 px-3 py-2 rounded-sm border border-gray
                          focus:outline-none focus:border-primary transition"
               value={amount}
-              onChange={(e) => setAmount(Number(e.target.value))}
+              onChange={(e) => setAmount(e.target.value === "" ? "" : Number(e.target.value))}
               min={0}
             />
           </div>
